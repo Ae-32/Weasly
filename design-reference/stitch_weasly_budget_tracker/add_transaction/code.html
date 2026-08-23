@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Weasly - Add Transaction</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#317054",
+                    "on-surface-variant": "#534438",
+                    "surface-tint": "#8e4e00",
+                    "on-secondary-fixed-variant": "#0b5137",
+                    "inverse-on-surface": "#fceee7",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#6c3a00",
+                    "primary-fixed": "#ffdcc1",
+                    "surface": "#fff8f5",
+                    "on-tertiary-container": "#453000",
+                    "borderDefault": "#E8E1D8",
+                    "outline": "#867466",
+                    "bgSurface": "#FFFFFF",
+                    "tertiary-container": "#c5942c",
+                    "primary-container": "#d98a3d",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#94d4b2",
+                    "surface-container-high": "#f3e5df",
+                    "surface-dim": "#e5d7d1",
+                    "inverse-primary": "#ffb778",
+                    "secondary-fixed": "#aff1cd",
+                    "inverse-surface": "#362f2b",
+                    "textMuted": "#8A7F73",
+                    "on-primary": "#ffffff",
+                    "on-background": "#211a16",
+                    "tertiary": "#7b5800",
+                    "on-error-container": "#93000a",
+                    "secondary": "#2b694e",
+                    "surface-container-low": "#fff1ea",
+                    "surface-variant": "#ede0d9",
+                    "on-primary-fixed": "#2e1500",
+                    "bgBase": "#FAF7F2",
+                    "tertiary-fixed": "#ffdea6",
+                    "on-primary-container": "#512a00",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#5d4200",
+                    "primary-fixed-dim": "#ffb778",
+                    "secondary-container": "#aff1cd",
+                    "background": "#fff8f5",
+                    "tertiary-fixed-dim": "#f4be53",
+                    "surface-bright": "#fff8f5",
+                    "on-secondary-fixed": "#002113",
+                    "on-tertiary-fixed": "#271900",
+                    "on-secondary": "#ffffff",
+                    "stateError": "#D64545",
+                    "primary": "#8e4e00",
+                    "on-surface": "#211a16",
+                    "outline-variant": "#d8c2b3",
+                    "surface-container": "#f9ebe5",
+                    "surface-container-highest": "#ede0d9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "margin-tablet": "32px",
+                    "gutter": "16px",
+                    "margin-mobile": "20px",
+                    "stack-lg": "24px",
+                    "base-unit": "4px",
+                    "stack-sm": "8px"
+            },
+            "fontFamily": {
+                    "body-lg": [
+                            "Quicksand"
+                    ],
+                    "body-md": [
+                            "Quicksand"
+                    ],
+                    "numeric-body": [
+                            "Quicksand"
+                    ],
+                    "label-md": [
+                            "Quicksand"
+                    ],
+                    "headline-sm": [
+                            "Quicksand"
+                    ],
+                    "headline-lg": [
+                            "Quicksand"
+                    ],
+                    "body-sm": [
+                            "Quicksand"
+                    ],
+                    "headline-md": [
+                            "Quicksand"
+                    ],
+                    "numeric-display": [
+                            "Quicksand"
+                    ]
+            },
+            "fontSize": {
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "26px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "numeric-body": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-md": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "numeric-display": [
+                            "28px",
+                            {
+                                    "lineHeight": "34px",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #FAF7F2; /* Base Level 0 */
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .bottom-sheet {
+            box-shadow: 0 -8px 24px rgba(43, 36, 32, 0.08); /* Level 2 elevation for floating modal */
+            transform: translateY(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Custom input overrides to match brand */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            box-shadow: none;
+            border-color: #8e4e00 !important;
+        }
+        
+        .type-toggle input:checked + div {
+            background-color: #8e4e00;
+            color: #ffffff;
+        }
+        
+        /* Ambient mascot shadow layer */
+        .ambient-mascot {
+            position: fixed;
+            bottom: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(217, 138, 61, 0.1) 0%, rgba(255, 248, 245, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface min-h-screen flex flex-col justify-end overflow-hidden relative">
+<!-- Ambient background element for storybook warmth -->
+<div class="ambient-mascot"></div>
+<!-- Background overlay for modal effect -->
+<div class="fixed inset-0 bg-on-background/20 backdrop-blur-[2px] z-10 transition-opacity duration-300"></div>
+<!-- Bottom Sheet Modal -->
+<main class="bottom-sheet bg-bgSurface w-full max-w-[600px] mx-auto z-20 rounded-t-[24px] flex flex-col h-[90vh] max-h-[800px] shadow-[0_-8px_20px_rgba(43,36,32,0.08)]">
+<!-- Drag Handle -->
+<div class="w-full flex justify-center pt-4 pb-2">
+<div class="w-12 h-1.5 bg-borderDefault rounded-full"></div>
+</div>
+<!-- Header -->
+<header class="flex justify-between items-center px-margin-mobile py-2 mb-stack-sm">
+<h1 class="font-headline-sm text-headline-sm text-on-surface">Add Transaction</h1>
+<button class="text-textMuted hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">close</span>
+</button>
+</header>
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto px-margin-mobile pb-[100px] hide-scrollbar">
+<!-- Type Toggle -->
+<div class="flex bg-surface-variant p-1 rounded-[16px] mb-stack-lg mt-stack-sm">
+<label class="type-toggle flex-1 cursor-pointer">
+<input checked="" class="hidden" name="tx-type" type="radio" value="expense"/>
+<div class="text-center py-2 rounded-[12px] font-label-md text-label-md text-on-surface transition-colors duration-200">
+                        Expense
+                    </div>
+</label>
+<label class="type-toggle flex-1 cursor-pointer">
+<input class="hidden" name="tx-type" type="radio" value="income"/>
+<div class="text-center py-2 rounded-[12px] font-label-md text-label-md text-on-surface transition-colors duration-200">
+                        Income
+                    </div>
+</label>
+<label class="type-toggle flex-1 cursor-pointer">
+<input class="hidden" name="tx-type" type="radio" value="transfer"/>
+<div class="text-center py-2 rounded-[12px] font-label-md text-label-md text-on-surface transition-colors duration-200">
+                        Transfer
+                    </div>
+</label>
+</div>
+<!-- Amount Input (Large) -->
+<div class="flex flex-col items-center justify-center mb-stack-lg py-stack-md">
+<span class="font-label-md text-label-md text-textMuted mb-2 uppercase tracking-wider">Amount</span>
+<div class="flex items-center">
+<span class="font-numeric-display text-numeric-display text-textMuted mr-1">$</span>
+<input class="font-numeric-display text-numeric-display text-on-surface bg-transparent border-none text-center w-48 p-0 focus:ring-0" placeholder="0.00" step="0.01" type="number" value="42.50"/>
+</div>
+</div>
+<!-- Form Grid -->
+<div class="grid grid-cols-1 gap-stack-md">
+<!-- Category Picker -->
+<div class="flex flex-col">
+<label class="font-label-md text-label-md text-textMuted mb-1 ml-1">Category</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">restaurant</span>
+</div>
+</div>
+<select class="w-full h-[56px] pl-[52px] pr-10 bg-bgSurface border border-borderDefault rounded-[16px] font-body-md text-body-md text-on-surface appearance-none">
+<option selected="" value="food">Food &amp; Dining</option>
+<option value="transport">Transport</option>
+<option value="shopping">Shopping</option>
+<option value="bills">Bills &amp; Utilities</option>
+</select>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-textMuted">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Account & Date Row -->
+<div class="grid grid-cols-2 gap-stack-md">
+<!-- Account Picker -->
+<div class="flex flex-col">
+<label class="font-label-md text-label-md text-textMuted mb-1 ml-1">Account</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-textMuted text-[20px]">account_balance_wallet</span>
+</div>
+<select class="w-full h-[56px] pl-10 pr-8 bg-bgSurface border border-borderDefault rounded-[16px] font-body-md text-body-md text-on-surface appearance-none">
+<option selected="" value="cash">Cash</option>
+<option value="bank">Bank</option>
+<option value="gcash">GCash</option>
+</select>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-textMuted">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Date Picker -->
+<div class="flex flex-col">
+<label class="font-label-md text-label-md text-textMuted mb-1 ml-1">Date</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-textMuted text-[20px]">calendar_today</span>
+</div>
+<input class="w-full h-[56px] pl-10 pr-3 bg-bgSurface border border-borderDefault rounded-[16px] font-body-md text-body-md text-on-surface" type="date" value="2023-10-27"/>
+</div>
+</div>
+</div>
+<!-- Note Field -->
+<div class="flex flex-col mt-stack-sm">
+<label class="font-label-md text-label-md text-textMuted mb-1 ml-1">Note (Optional)</label>
+<div class="relative">
+<div class="absolute top-4 left-3 pointer-events-none">
+<span class="material-symbols-outlined text-textMuted text-[20px]">edit_note</span>
+</div>
+<textarea class="w-full pt-4 pl-10 pr-4 bg-bgSurface border border-borderDefault rounded-[16px] font-body-md text-body-md text-on-surface resize-none" placeholder="What was this for?" rows="3"></textarea>
+</div>
+</div>
+</div>
+</div>
+<!-- Fixed Bottom Action Area -->
+<div class="absolute bottom-0 left-0 w-full p-margin-mobile bg-bgSurface border-t border-borderDefault/50">
+<button class="w-full h-14 bg-primary text-on-primary rounded-[12px] font-body-lg text-body-lg flex justify-center items-center shadow-[0_4px_12px_rgba(142,78,0,0.15)] active:scale-[0.98] transition-transform">
+                Save Transaction
+            </button>
+</div>
+</main>
+</body></html>

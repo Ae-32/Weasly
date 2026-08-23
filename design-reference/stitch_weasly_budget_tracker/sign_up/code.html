@@ -1,0 +1,210 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Weasly - Sign Up</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#317054",
+                        "on-surface-variant": "#534438",
+                        "surface-tint": "#8e4e00",
+                        "on-secondary-fixed-variant": "#0b5137",
+                        "inverse-on-surface": "#fceee7",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#6c3a00",
+                        "primary-fixed": "#ffdcc1",
+                        "surface": "#fff8f5",
+                        "on-tertiary-container": "#453000",
+                        "borderDefault": "#E8E1D8",
+                        "outline": "#867466",
+                        "bgSurface": "#FFFFFF",
+                        "tertiary-container": "#c5942c",
+                        "primary-container": "#d98a3d",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#94d4b2",
+                        "surface-container-high": "#f3e5df",
+                        "surface-dim": "#e5d7d1",
+                        "inverse-primary": "#ffb778",
+                        "secondary-fixed": "#aff1cd",
+                        "inverse-surface": "#362f2b",
+                        "textMuted": "#8A7F73",
+                        "on-primary": "#ffffff",
+                        "on-background": "#211a16",
+                        "tertiary": "#7b5800",
+                        "on-error-container": "#93000a",
+                        "secondary": "#2b694e",
+                        "surface-container-low": "#fff1ea",
+                        "surface-variant": "#ede0d9",
+                        "on-primary-fixed": "#2e1500",
+                        "bgBase": "#FAF7F2",
+                        "tertiary-fixed": "#ffdea6",
+                        "on-primary-container": "#512a00",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#5d4200",
+                        "primary-fixed-dim": "#ffb778",
+                        "secondary-container": "#aff1cd",
+                        "background": "#fff8f5",
+                        "tertiary-fixed-dim": "#f4be53",
+                        "surface-bright": "#fff8f5",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary-fixed": "#271900",
+                        "on-secondary": "#ffffff",
+                        "stateError": "#D64545",
+                        "primary": "#8e4e00",
+                        "on-surface": "#211a16",
+                        "outline-variant": "#d8c2b3",
+                        "surface-container": "#f9ebe5",
+                        "surface-container-highest": "#ede0d9",
+                        "accentPrimary": "#8e4e00",
+                        "textPrimary": "#211a16"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "margin-tablet": "32px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "stack-lg": "24px",
+                        "base-unit": "4px",
+                        "stack-sm": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"],
+                        "numeric-body": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-sm": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "body-sm": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "numeric-display": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "numeric-body": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "numeric-display": ["28px", { "lineHeight": "34px", "fontWeight": "700" }]
+                    },
+                    "boxShadow": {
+                        "soft": "0 4px 12px 0 rgba(43, 36, 32, 0.04)",
+                        "floating": "0 8px 20px 0 rgba(43, 36, 32, 0.08)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-bgBase text-on-surface antialiased min-h-screen flex flex-col items-center justify-center font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation (Suppressed for transactional screen) -->
+<!-- Bottom Navigation (Suppressed for transactional screen) -->
+<main class="w-full max-w-[600px] px-margin-mobile flex flex-col justify-center min-h-[884px]">
+<!-- Header Section -->
+<div class="flex flex-col items-center mb-stack-lg space-y-stack-sm text-center pt-8">
+<!-- Brand Logo/Mascot Placeholder -->
+<div class="w-24 h-24 rounded-full bg-surface-container-high mb-2 flex items-center justify-center overflow-hidden border-2 border-borderDefault">
+<img class="w-full h-full object-cover" data-alt="A detailed, warm digital illustration of a cute weasel mascot wearing a green vest, holding a golden coin. Earthy tones, soft lighting, story-book style, set against a subtle woodland background. The aesthetic is friendly, approachable, and modern tactile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcPqQOUzjIXotUwm7Y9cjj-HKWVoDBtG5M5HNr8nQgYojNXx4o2QKHXx50WEtSXvcQ6bR4AywZHL-H2noyVPpPDT5FmVnPj5gYVUbs166QP0Ed1-kUOPJte53vTLsw8Btzt63SdD7pMWWzJHhS7JFKvzO6Vw3N8TiN81dfuHK3mB-rp3BeEO40AL5sDcFDo_ERcy01THDVeqNZfBtth_BDLc09z52RguNvVLx2qGFfAlizsquoxEGN">
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary">Join Weasly</h1>
+<p class="font-body-md text-body-md text-textMuted max-w-xs mx-auto">Start stashing your resources today.</p>
+</div>
+<!-- Form Card -->
+<div class="bg-bgSurface rounded-2xl shadow-soft p-stack-md w-full border border-borderDefault">
+<form class="space-y-stack-md" onsubmit="event.preventDefault();">
+<!-- Full Name Field -->
+<div class="space-y-stack-sm">
+<label class="block font-label-md text-label-md text-on-surface-variant" for="fullName">Full Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-textMuted" style="font-variation-settings: 'FILL' 0;">person</span>
+<input class="w-full bg-bgBase border border-borderDefault rounded-xl pl-10 pr-4 py-3 font-body-md text-body-md text-on-surface placeholder:text-textMuted focus:outline-none focus:ring-1 focus:ring-accentPrimary focus:border-accentPrimary transition-colors duration-200" id="fullName" name="fullName" placeholder="Weasly User" required="" type="text">
+</div>
+</div>
+<!-- Email Field -->
+<div class="space-y-stack-sm">
+<label class="block font-label-md text-label-md text-on-surface-variant" for="email">Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-textMuted" style="font-variation-settings: 'FILL' 0;">mail</span>
+<input class="w-full bg-bgBase border border-borderDefault rounded-xl pl-10 pr-4 py-3 font-body-md text-body-md text-on-surface placeholder:text-textMuted focus:outline-none focus:ring-1 focus:ring-accentPrimary focus:border-accentPrimary transition-colors duration-200" id="email" name="email" placeholder="you@example.com" required="" type="email">
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-stack-sm">
+<label class="block font-label-md text-label-md text-on-surface-variant" for="password">Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-textMuted" style="font-variation-settings: 'FILL' 0;">lock</span>
+<input class="w-full bg-bgBase border border-borderDefault rounded-xl pl-10 pr-4 py-3 font-body-md text-body-md text-on-surface placeholder:text-textMuted focus:outline-none focus:ring-1 focus:ring-accentPrimary focus:border-accentPrimary transition-colors duration-200" id="password" name="password" placeholder="••••••••" required="" type="password">
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-textMuted hover:text-on-surface focus:outline-none" onclick="togglePassword()" type="button">
+<span class="material-symbols-outlined" id="password-visibility-icon" style="font-variation-settings: &quot;FILL&quot; 0;">Sign Up with Google</span>
+</button>
+</div>
+</div>
+<!-- Create Account Button -->
+<button class="w-full bg-accentPrimary hover:bg-primary-container text-white font-body-md text-body-md font-semibold py-3 px-4 rounded-xl shadow-floating hover:shadow-soft transition-all duration-200 active:scale-[0.98] mt-stack-md flex justify-center items-center gap-2" type="submit">
+<span class="">Create Account</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</form>
+<div class="mt-stack-lg relative flex items-center justify-center">
+<hr class="w-full border-borderDefault absolute">
+<span class="bg-bgSurface px-3 font-label-md text-label-md text-textMuted relative">OR</span>
+</div>
+<!-- Google Sign Up Button -->
+<button class="mt-stack-lg w-full bg-bgBase border border-borderDefault hover:bg-surface-variant text-textPrimary font-body-md text-body-md py-3 px-4 rounded-xl transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-3" type="button">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzXmM1RaZfuDNz34omvGhX2cnpwEd8GhO29CkO99xofufz9qsxuMDOEmnTuXwrmNE0W_F1VMT4grmYnGk4Aa21X8Q2UmE8rwUwaFUM2UqprHWc9fLwrufCr8eG1rMOW8NT2x-2FJAEJ8EFDZCFm4DBOPVorFqEWS64eeyyTQ_ZovRaKFtw6ncNYUtYI2txQteERxtSjl3UKsRzLGdWSp2t4La0BLsWwiQjv0LAkVEiWE7MEIqGejwu" alt="Google Logo" class="w-5 h-5 object-contain">
+<span class="">Sign Up with Google</span>
+</button>
+</div>
+<!-- Login Link -->
+<div class="mt-stack-lg text-center pb-8">
+<p class="font-body-md text-body-md text-textMuted">
+                Already have an account? 
+                <a class="text-primary font-semibold hover:underline decoration-2 underline-offset-2" href="#">Login</a>
+</p>
+</div>
+</main>
+<script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.getElementById('password-visibility-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.textContent = 'visibility';
+            } else {
+                passwordInput.type = 'password';
+                icon.textContent = 'visibility_off';
+            }
+        }
+    </script>
+
+
+</body></html>

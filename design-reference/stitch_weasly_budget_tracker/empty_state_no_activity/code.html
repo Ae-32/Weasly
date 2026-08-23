@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Weasly - Activity</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#317054",
+                        "on-surface-variant": "#534438",
+                        "surface-tint": "#8e4e00",
+                        "on-secondary-fixed-variant": "#0b5137",
+                        "inverse-on-surface": "#fceee7",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#6c3a00",
+                        "primary-fixed": "#ffdcc1",
+                        "surface": "#fff8f5",
+                        "on-tertiary-container": "#453000",
+                        "borderDefault": "#E8E1D8",
+                        "outline": "#867466",
+                        "bgSurface": "#FFFFFF",
+                        "tertiary-container": "#c5942c",
+                        "primary-container": "#d98a3d",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#94d4b2",
+                        "surface-container-high": "#f3e5df",
+                        "surface-dim": "#e5d7d1",
+                        "inverse-primary": "#ffb778",
+                        "secondary-fixed": "#aff1cd",
+                        "inverse-surface": "#362f2b",
+                        "textMuted": "#8A7F73",
+                        "on-primary": "#ffffff",
+                        "on-background": "#211a16",
+                        "tertiary": "#7b5800",
+                        "on-error-container": "#93000a",
+                        "secondary": "#2b694e",
+                        "surface-container-low": "#fff1ea",
+                        "surface-variant": "#ede0d9",
+                        "on-primary-fixed": "#2e1500",
+                        "bgBase": "#FAF7F2",
+                        "tertiary-fixed": "#ffdea6",
+                        "on-primary-container": "#512a00",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#5d4200",
+                        "primary-fixed-dim": "#ffb778",
+                        "secondary-container": "#aff1cd",
+                        "background": "#fff8f5",
+                        "tertiary-fixed-dim": "#f4be53",
+                        "surface-bright": "#fff8f5",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary-fixed": "#271900",
+                        "on-secondary": "#ffffff",
+                        "stateError": "#D64545",
+                        "primary": "#8e4e00",
+                        "on-surface": "#211a16",
+                        "outline-variant": "#d8c2b3",
+                        "surface-container": "#f9ebe5",
+                        "surface-container-highest": "#ede0d9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "margin-tablet": "32px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "stack-lg": "24px",
+                        "base-unit": "4px",
+                        "stack-sm": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"],
+                        "numeric-body": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-sm": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "body-sm": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "numeric-display": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "numeric-body": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "numeric-display": ["28px", { "lineHeight": "34px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .soft-shadow {
+            box-shadow: 0 4px 12px rgba(43, 36, 32, 0.04);
+        }
+        .fab-shadow {
+            box-shadow: 0 8px 20px rgba(43, 36, 32, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-bgBase text-on-surface font-body-md antialiased min-h-screen flex flex-col items-center">
+<!-- Mobile Container -->
+<div class="w-full max-w-[600px] bg-bgBase min-h-screen relative flex flex-col">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-margin-mobile h-16 bg-background dark:bg-on-background sticky top-0 z-40">
+<div class="flex items-center gap-stack-sm">
+<!-- Mascot avatar leading -->
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="A small, stylized avatar of a friendly weasel mascot, warm earth tones, simple modern vector style, light background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHq8jTCB6TrtFcKJurPnz-TqjFaVvNDqn0kotam86rDpPIRSwdFr0DH3RgDzZDzfPOJoPNyuR1vnS2rqZ-kyG_sMvOqmIi_f47NqXvM95CNEkfCK1j6aJmZtFysm2-sJS-lNccwa6SYm6s19FjpRam_ip_mB_pKOC9G7Z6O2U1dnRuZCafC0mSg2eFt_4bSVaxEdWWISKk6qzD8a9fY62M0D1FC2vTfNirWRR7QnTkn6E9HpEheM1d">
+</div>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">Weasly</h1>
+</div>
+<button class="text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 px-margin-mobile pt-stack-lg pb-32 flex flex-col items-center justify-center text-center">
+<!-- Empty State Illustration -->
+<div class="w-64 h-64 mb-stack-lg relative rounded-2xl overflow-hidden soft-shadow bg-surface flex items-center justify-center">
+<img alt="Curious Weasel Mascot" class="w-full h-full object-cover absolute inset-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTxEjc4zlwCh1zCe-KAowQibjpb5QM3Gg0OCD3a-OJ0ExXPi2voLRjniFgUElXa2CEsvBG8gJWbrF0Ev_y43A5DPmpehDu0G_YKVrRHdTRTbCqKZHxOtjGS72e412aWPupbC-d3gBL314upXamZ15StfnGaMYTNkYVCiKEL1_d7TS_WzgWJPPleBa2N5byov2G8MnNqmbZn0V1OYe0pdnQEH__pw_rqyE1Ko-XY69AXgPs1-ly4-nE">
+</div>
+<!-- Empty State Typography -->
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">No transactions yet.</h2>
+<p class="font-body-md text-body-md text-textMuted max-w-xs mb-stack-lg">
+                Start stashing your money to see your activity here!
+            </p>
+<!-- Call to Action -->
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 fab-shadow">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                Add First Transaction
+            </button>
+</main>
+<!-- BottomNavBar (Activity is Active) -->
+<nav class="fixed bottom-0 w-full max-w-[600px] z-50 rounded-t-xl bg-bgSurface dark:bg-inverse-surface shadow-[0_-4px_12px_rgba(43,36,32,0.04)] shadow-lg left-1/2 -translate-x-1/2 flex justify-around items-center px-gutter py-2 pb-safe"><!-- Dashboard -->
+<a class="flex flex-col items-center justify-center text-textMuted dark:text-outline-variant px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<!-- Transactions (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-xl px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+<span class="font-label-md text-label-md">Transactions</span>
+</a>
+<!-- Budgets -->
+<a class="flex flex-col items-center justify-center text-textMuted dark:text-outline-variant px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+<span class="font-label-md text-label-md">Budgets</span>
+</a>
+<!-- Accounts -->
+<a class="flex flex-col items-center justify-center text-textMuted dark:text-outline-variant px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">account_balance</span>
+<span class="font-label-md text-label-md">Accounts</span>
+</a></nav>
+</div>
+
+
+</body></html>

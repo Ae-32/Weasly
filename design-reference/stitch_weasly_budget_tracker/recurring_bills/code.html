@@ -1,0 +1,217 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Weasly - Recurring Bills</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#317054",
+                        "on-surface-variant": "#534438",
+                        "surface-tint": "#8e4e00",
+                        "on-secondary-fixed-variant": "#0b5137",
+                        "inverse-on-surface": "#fceee7",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#6c3a00",
+                        "primary-fixed": "#ffdcc1",
+                        "surface": "#fff8f5",
+                        "on-tertiary-container": "#453000",
+                        "borderDefault": "#E8E1D8",
+                        "outline": "#867466",
+                        "bgSurface": "#FFFFFF",
+                        "tertiary-container": "#c5942c",
+                        "primary-container": "#d98a3d",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#94d4b2",
+                        "surface-container-high": "#f3e5df",
+                        "surface-dim": "#e5d7d1",
+                        "inverse-primary": "#ffb778",
+                        "secondary-fixed": "#aff1cd",
+                        "inverse-surface": "#362f2b",
+                        "textMuted": "#8A7F73",
+                        "on-primary": "#ffffff",
+                        "on-background": "#211a16",
+                        "tertiary": "#7b5800",
+                        "on-error-container": "#93000a",
+                        "secondary": "#2b694e",
+                        "surface-container-low": "#fff1ea",
+                        "surface-variant": "#ede0d9",
+                        "on-primary-fixed": "#2e1500",
+                        "bgBase": "#FAF7F2",
+                        "tertiary-fixed": "#ffdea6",
+                        "on-primary-container": "#512a00",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#5d4200",
+                        "primary-fixed-dim": "#ffb778",
+                        "secondary-container": "#aff1cd",
+                        "background": "#fff8f5",
+                        "tertiary-fixed-dim": "#f4be53",
+                        "surface-bright": "#fff8f5",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary-fixed": "#271900",
+                        "on-secondary": "#ffffff",
+                        "stateError": "#D64545",
+                        "primary": "#8e4e00",
+                        "on-surface": "#211a16",
+                        "outline-variant": "#d8c2b3",
+                        "surface-container": "#f9ebe5",
+                        "surface-container-highest": "#ede0d9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "margin-tablet": "32px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "stack-lg": "24px",
+                        "base-unit": "4px",
+                        "stack-sm": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"],
+                        "numeric-body": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-sm": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "body-sm": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "numeric-display": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "numeric-body": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "numeric-display": ["28px", { "lineHeight": "34px", "fontWeight": "700" }]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #FAF7F2; /* Level 0 base */
+            color: #211a16;
+            -webkit-font-smoothing: antialiased;
+        }
+        .shadow-soft {
+            box-shadow: 0 4px 12px rgba(43, 36, 32, 0.04);
+        }
+        .shadow-float {
+            box-shadow: 0 8px 20px rgba(43, 36, 32, 0.08);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-24 md:pb-0 md:pt-20">
+<!-- TopAppBar -->
+<header class="bg-background dark:bg-on-background font-headline-sm text-headline-sm docked full-width top-0 bg-background dark:bg-on-background flex justify-between items-center w-full px-margin-mobile h-16 fixed md:static z-40 transition-opacity duration-200">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed" data-icon="pets" data-weight="fill" style="font-variation-settings: 'FILL' 1;">pets</span>
+</div>
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-200">Weasly</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-200 cursor-pointer" data-icon="notifications">notifications</span>
+</div>
+</header>
+<!-- Main Content Container -->
+<main class="max-w-[600px] mx-auto px-margin-mobile md:px-margin-tablet pt-[80px] md:pt-stack-lg">
+<div class="flex justify-between items-center mb-stack-lg">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Recurring Bills</h1>
+<button class="bg-secondary text-on-secondary w-10 h-10 rounded-full flex items-center justify-center shadow-float hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+<div class="flex flex-col gap-stack-md">
+<!-- Bill Card 1 -->
+<div class="bg-bgSurface rounded-[16px] p-stack-md shadow-soft flex items-center justify-between border border-borderDefault border-opacity-50">
+<div class="flex items-center gap-stack-md">
+<div class="w-12 h-12 rounded-[8px] bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="live_tv">live_tv</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-on-surface">Netflix</span>
+<span class="font-body-sm text-body-sm text-textMuted">Monthly • Next due: Oct 12</span>
+</div>
+</div>
+<div class="font-numeric-body text-numeric-body text-on-surface">₱15.99</div>
+</div>
+<!-- Bill Card 2 -->
+<div class="bg-bgSurface rounded-[16px] p-stack-md shadow-soft flex items-center justify-between border border-borderDefault border-opacity-50">
+<div class="flex items-center gap-stack-md">
+<div class="w-12 h-12 rounded-[8px] bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="music_note">music_note</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-on-surface">Spotify</span>
+<span class="font-body-sm text-body-sm text-textMuted">Monthly • Next due: Oct 15</span>
+</div>
+</div>
+<div class="font-numeric-body text-numeric-body text-on-surface">₱10.99</div>
+</div>
+<!-- Bill Card 3 -->
+<div class="bg-bgSurface rounded-[16px] p-stack-md shadow-soft flex items-center justify-between border border-borderDefault border-opacity-50">
+<div class="flex items-center gap-stack-md">
+<div class="w-12 h-12 rounded-[8px] bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="water_drop">water_drop</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-on-surface">Water Utility</span>
+<span class="font-body-sm text-body-sm text-textMuted">Monthly • Next due: Oct 20</span>
+</div>
+</div>
+<div class="font-numeric-body text-numeric-body text-on-surface">₱45.00</div>
+</div>
+<!-- Bill Card 4 -->
+<div class="bg-bgSurface rounded-[16px] p-stack-md shadow-soft flex items-center justify-between border border-borderDefault border-opacity-50">
+<div class="flex items-center gap-stack-md">
+<div class="w-12 h-12 rounded-[8px] bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="fitness_center">fitness_center</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-lg text-body-lg text-on-surface">Gym Membership</span>
+<span class="font-body-sm text-body-sm text-textMuted">Monthly • Next due: Oct 28</span>
+</div>
+</div>
+<div class="font-numeric-body text-numeric-body text-on-surface">₱60.00</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden bg-bgSurface dark:bg-inverse-surface shadow-[0_-4px_12px_rgba(43,36,32,0.04)] fixed bottom-0 w-full z-50 rounded-t-xl fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter py-2 pb-safe">
+<a class="flex flex-col items-center justify-center text-textMuted dark:text-outline-variant px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-textMuted dark:text-outline-variant px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span><span class="font-label-md text-label-md mt-1">Transactions</span></a>
+<a class="flex flex-col items-center justify-center dark:text-on-secondary rounded-xl px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150 text-textMuted" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-label-md text-label-md mt-1">Budgets</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-xl px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined" data-icon="account_balance">account_balance</span><span class="font-label-md text-label-md mt-1">Accounts</span></a>
+</nav>
+
+
+</body></html>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "790773540431",
+    "project_id": "weasly-personal-budget-t-dc51f",
+    "storage_bucket": "weasly-personal-budget-t-dc51f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:790773540431:android:e7fdd3dcc6cf743af86c3a",
+        "android_client_info": {
+          "package_name": "com.weasly.app.weasly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "790773540431-abqpjj17asbd0u1di24o20n6aqfa9qkc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDBqy3qEXi6fcLk8YkE1Bs9vAboX5tq0E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "790773540431-abqpjj17asbd0u1di24o20n6aqfa9qkc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

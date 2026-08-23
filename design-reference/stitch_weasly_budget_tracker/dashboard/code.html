@@ -1,0 +1,299 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Weasly Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#317054",
+                        "on-surface-variant": "#534438",
+                        "surface-tint": "#8e4e00",
+                        "on-secondary-fixed-variant": "#0b5137",
+                        "inverse-on-surface": "#fceee7",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#6c3a00",
+                        "primary-fixed": "#ffdcc1",
+                        "surface": "#fff8f5",
+                        "on-tertiary-container": "#453000",
+                        "borderDefault": "#E8E1D8",
+                        "outline": "#867466",
+                        "bgSurface": "#FFFFFF",
+                        "tertiary-container": "#c5942c",
+                        "primary-container": "#d98a3d",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#94d4b2",
+                        "surface-container-high": "#f3e5df",
+                        "surface-dim": "#e5d7d1",
+                        "inverse-primary": "#ffb778",
+                        "secondary-fixed": "#aff1cd",
+                        "inverse-surface": "#362f2b",
+                        "textMuted": "#8A7F73",
+                        "on-primary": "#ffffff",
+                        "on-background": "#211a16",
+                        "tertiary": "#7b5800",
+                        "on-error-container": "#93000a",
+                        "secondary": "#2b694e",
+                        "surface-container-low": "#fff1ea",
+                        "surface-variant": "#ede0d9",
+                        "on-primary-fixed": "#2e1500",
+                        "bgBase": "#FAF7F2",
+                        "tertiary-fixed": "#ffdea6",
+                        "on-primary-container": "#512a00",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#5d4200",
+                        "primary-fixed-dim": "#ffb778",
+                        "secondary-container": "#aff1cd",
+                        "background": "#fff8f5",
+                        "tertiary-fixed-dim": "#f4be53",
+                        "surface-bright": "#fff8f5",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary-fixed": "#271900",
+                        "on-secondary": "#ffffff",
+                        "stateError": "#D64545",
+                        "primary": "#8e4e00",
+                        "on-surface": "#211a16",
+                        "outline-variant": "#d8c2b3",
+                        "surface-container": "#f9ebe5",
+                        "surface-container-highest": "#ede0d9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "margin-tablet": "32px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "stack-lg": "24px",
+                        "base-unit": "4px",
+                        "stack-sm": "8px",
+                        "safe": "env(safe-area-inset-bottom, 20px)"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"],
+                        "numeric-body": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-sm": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "body-sm": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "numeric-display": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "26px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "numeric-body": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "numeric-display": ["28px", { "lineHeight": "34px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .soft-shadow-level-1 {
+            box-shadow: 0 4px 12px rgba(43, 36, 32, 0.04);
+        }
+        .soft-shadow-level-2 {
+            box-shadow: 0 8px 20px rgba(43, 36, 32, 0.08);
+        }
+        /* Custom progress bar styles */
+        .progress-bar-track {
+            background-color: rgba(43, 105, 78, 0.1); /* 10% of secondary */
+        }
+        /* Hide scrollbar for clean horizontal scrolling if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-bgBase text-on-background antialiased pb-24 md:pb-0">
+<!-- Main Container -->
+<main class="w-full max-w-[600px] mx-auto min-h-screen flex flex-col relative md:pt-16">
+<!-- TopAppBar (Web only md:flex) -->
+<header class="hidden md:flex flex justify-between items-center w-full px-margin-mobile h-16 bg-background dark:bg-on-background docked full-width top-0 absolute z-50">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A small, friendly, warm, illustrated mascot head character suitable for an approachable mobile budget tracker application logo. Light earthy amber tones, clean and minimal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnPrlZsFPfObr_9n6kVcWC9gwXkg49eBDAwdxfI3BBq6kDLyAiD-tzvFRDIq_GmXthbQeF8GoetOuIa_PnWBpqftdm8knRDtoUwO1H299P8EhnZikplbXh0nEZwY9gJXIMxas-ohUY-CYmbq9wgZeimB8PuIDOCg1wovcPXyASgR2308GfuGA7de0i61oONovtzdBkIv-iEH_OdtpQY8_54N_WOIGmMqe_qFvX71XaCazIruwr2Qzf">
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Weasly</h1>
+</div>
+<nav class="flex gap-4"><a class="text-primary dark:text-primary-fixed hover:opacity-80 transition-opacity duration-200 font-label-md text-label-md" href="#">Dashboard</a><a class="text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity duration-200 font-label-md text-label-md" href="#">Transactions</a><a class="text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity duration-200 font-label-md text-label-md" href="#">Budgets</a><a class="text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity duration-200 font-label-md text-label-md" href="#">Accounts</a></nav>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity duration-200">
+<span class="material-symbols-outlined" data-icon="notifications" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+</header>
+<!-- Mobile Header (Optional fallback if not using the exact TopAppBar component structure for mobile, keeping it simple) -->
+<div class="md:hidden flex justify-between items-center px-margin-mobile pt-8 pb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container overflow-hidden soft-shadow-level-1">
+<img class="w-full h-full object-cover" data-alt="A small, friendly, warm, illustrated mascot head character suitable for an approachable mobile budget tracker application logo. Light earthy amber tones, clean and minimal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ_NnPfPGLNmS4_0T9HSyozBUkkWB0F_gQX-fpC6Hsnca-ugLY_HlY2L602dRkymekym53JX2_AAqxbSjmJACasOO9N8_8N-cfqQ6fnRIXmYarMOi6UJk7Hlp2bl6clxxg5iqV9W3piBBh8FOLW4oOWTPYSi_jnjVYPhlE4wzjPj5s6XRswXtMmX-Cyybu4BML4Du4g7IYG6b0RjG_CVbVIpO7ANTBJmah0aDdzRpwRDqRtOdb8NBQ">
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-textMuted">Good morning,</p>
+<p class="font-headline-sm text-headline-sm text-on-background">Alex</p>
+</div>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-bgSurface soft-shadow-level-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+<!-- Content Canvas -->
+<div class="px-margin-mobile flex-1 flex flex-col gap-stack-lg pt-4">
+<!-- Balance Summary Card -->
+<section class="bg-bgSurface rounded-[16px] p-stack-md soft-shadow-level-1 flex flex-col relative overflow-hidden">
+<!-- Subtle decorative background blob -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-container opacity-10 rounded-full blur-2xl"></div>
+<p class="font-body-md text-body-md text-textMuted mb-stack-sm z-10">Total Balance</p>
+<h2 class="font-numeric-display text-numeric-display text-on-background z-10 tabular-nums">₱24,500.00</h2>
+<div class="flex gap-stack-md mt-stack-md z-10">
+<button class="flex-1 bg-secondary text-white font-label-md text-label-md py-3 rounded-xl flex items-center justify-center gap-2 soft-shadow-level-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                        Add Income
+                    </button>
+<button class="flex-1 bg-bgBase border border-borderDefault text-on-background font-label-md text-label-md py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="remove">remove</span>
+                        Add Expense
+                    </button>
+</div>
+</section>
+<!-- Spending by Category (Simplified Chart Representation via UI) -->
+<section class="flex flex-col gap-stack-md">
+<div class="flex justify-between items-end">
+<h3 class="font-headline-sm text-headline-sm text-on-background">Spending</h3>
+<a class="font-label-md text-label-md text-primary hover:opacity-80" href="#">View Chart</a>
+</div>
+<div class="bg-bgSurface rounded-[16px] p-stack-md soft-shadow-level-1 flex flex-col gap-stack-md">
+<!-- Progress Bar 1: Food -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-tertiary-container/20 flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined text-[16px]" data-icon="restaurant">restaurant</span>
+</div>
+<span class="font-body-md text-body-md text-on-background">Food</span>
+</div>
+<span class="font-numeric-body text-numeric-body text-on-background tabular-nums">₱8,200</span>
+</div>
+<div class="w-full h-2 rounded-full progress-bar-track overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 45%;"></div>
+</div>
+</div>
+<!-- Progress Bar 2: Transport -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-primary-container/20 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[16px]" data-icon="directions_bus">directions_bus</span>
+</div>
+<span class="font-body-md text-body-md text-on-background">Transport</span>
+</div>
+<span class="font-numeric-body text-numeric-body text-on-background tabular-nums">₱3,500</span>
+</div>
+<div class="w-full h-2 rounded-full progress-bar-track overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 20%;"></div>
+</div>
+</div>
+<!-- Progress Bar 3: Bills -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-outline/20 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[16px]" data-icon="receipt">receipt</span>
+</div>
+<span class="font-body-md text-body-md text-on-background">Bills</span>
+</div>
+<span class="font-numeric-body text-numeric-body text-on-background tabular-nums">₱5,100</span>
+</div>
+<div class="w-full h-2 rounded-full progress-bar-track overflow-hidden">
+<div class="h-full bg-outline rounded-full" style="width: 30%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Transactions -->
+<section class="flex flex-col gap-stack-md mb-stack-lg">
+<div class="flex justify-between items-end">
+<h3 class="font-headline-sm text-headline-sm text-on-background">Recent</h3>
+<a class="font-label-md text-label-md text-primary hover:opacity-80" href="#">See All</a>
+</div>
+<div class="bg-bgSurface rounded-[16px] p-stack-md soft-shadow-level-1 flex flex-col gap-stack-md">
+<!-- Transaction 1 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-[8px] bg-bgBase flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="local_cafe">local_cafe</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-background">Coffee Bean</span>
+<span class="font-body-sm text-body-sm text-textMuted">Food &amp; Drink</span>
+</div>
+</div>
+<span class="font-numeric-body text-numeric-body text-on-background tabular-nums">-₱250.00</span>
+</div>
+<div class="w-full h-px bg-borderDefault opacity-50"></div>
+<!-- Transaction 2 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-[8px] bg-bgBase flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-background">Grocery Store</span>
+<span class="font-body-sm text-body-sm text-textMuted">Groceries</span>
+</div>
+</div>
+<span class="font-numeric-body text-numeric-body text-on-background tabular-nums">-₱1,850.00</span>
+</div>
+<div class="w-full h-px bg-borderDefault opacity-50"></div>
+<!-- Transaction 3 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-[8px] bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-background">Freelance Payment</span>
+<span class="font-body-sm text-body-sm text-textMuted">Income</span>
+</div>
+</div>
+<span class="font-numeric-body text-numeric-body text-secondary tabular-nums">+₱5,000.00</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only md:hidden) -->
+<nav class="md:hidden bg-bgSurface dark:bg-inverse-surface shadow-[0_-4px_12px_rgba(43,36,32,0.04)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter py-2 pb-safe rounded-t-xl"><a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-xl px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span><span class="font-label-md text-label-md mt-1">Dashboard</span></a><a class="flex flex-col items-center justify-center text-textMuted dark:text-outline-variant px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined">receipt_long</span><span class="font-label-md text-label-md mt-1">Transactions</span></a><a class="flex flex-col items-center justify-center text-textMuted dark:text-outline-variant px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined">account_balance_wallet</span><span class="font-label-md text-label-md mt-1">Budgets</span></a><a class="flex flex-col items-center justify-center text-textMuted dark:text-outline-variant px-4 py-1 hover:bg-surface-container-low dark:hover:bg-surface-variant scale-95 active:scale-90 transition-transform duration-150" href="#"><span class="material-symbols-outlined">account_balance</span><span class="font-label-md text-label-md mt-1">Accounts</span></a></nav>
+
+
+</body></html>
