@@ -315,8 +315,10 @@ class _AccountFormBottomSheetState extends ConsumerState<_AccountFormBottomSheet
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final balanceVal = double.tryParse(_balanceController.text.trim()) ?? 0.0;
     final isEdit = widget.accountToEdit != null;
+    final balanceVal = isEdit
+        ? widget.accountToEdit!.balance
+        : (double.tryParse(_balanceController.text.trim()) ?? 0.0);
 
     final newAccount = AccountModel(
       id: isEdit ? widget.accountToEdit!.id : '',
@@ -341,6 +343,7 @@ class _AccountFormBottomSheetState extends ConsumerState<_AccountFormBottomSheet
   Widget build(BuildContext context) {
     final isEdit = widget.accountToEdit != null;
     final accountState = ref.watch(accountControllerProvider);
+    final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -411,19 +414,42 @@ class _AccountFormBottomSheetState extends ConsumerState<_AccountFormBottomSheet
               ),
               const SizedBox(height: 16),
 
-              // Starting Balance
-              const Text('Balance (₱)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-              const SizedBox(height: 6),
-              TextFormField(
-                controller: _balanceController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(hintText: '0.00'),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) return 'Please enter a balance';
-                  if (double.tryParse(val.trim()) == null) return 'Please enter a valid number';
-                  return null;
-                },
-              ),
+              // Balance handling: editable only when creating NEW account
+              if (!isEdit) ...[
+                const Text('Starting Balance (₱)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _balanceController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(hintText: '0.00'),
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) return 'Please enter a balance';
+                    if (double.tryParse(val.trim()) == null) return 'Please enter a valid number';
+                    return null;
+                  },
+                ),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgBase,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.borderDefault),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline_rounded, size: 20, color: AppColors.textMuted),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Current Balance: ${currencyFormatter.format(widget.accountToEdit!.balance)}\nTo adjust balance, log an expense or income in Transactions.',
+                          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
 
               // Note / Description

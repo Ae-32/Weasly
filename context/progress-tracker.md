@@ -4,11 +4,11 @@ Update this file after every meaningful implementation change.
 
 ## Current Phase
 
-- Unit 04 — Transactions Preparation
+- Unit 05 — Budgets Preparation
 
 ## Current Goal
 
-- Begin Unit 04: Transactions (Add/edit/delete expense, income, transfer transactions, tied to accounts & categories).
+- Begin Unit 05: Budgets (per category, user-chosen period, progress tracking).
 
 ## Completed
 
@@ -21,17 +21,17 @@ Update this file after every meaningful implementation change.
 - Unit 01 — Authentication: Login & Sign Up screens matching `design-reference/` exact layout and colors, email/password & Google Sign-In via `AuthService` in `lib/services/`, Riverpod state management in `lib/providers/`, Firestore profile syncing under `users/{userId}`, plain-language error mapping, and auto-navigation to Dashboard upon login.
 - Unit 02 — Accounts: `AccountModel`, Firestore `AccountService` under `users/{userId}/accounts/`, `accountsStreamProvider`, `totalBalanceProvider`, `AccountCard` widget, `AccountsScreen` matching `design-reference/accounts_overview/code.html`, bottom navigation bar (`BottomNavBar` & `HomeShellScreen`), add/edit/delete bottom sheet modal, and auto-seeding default stashes (Cash, GCash, Main Bank).
 - Unit 03 — Categories: `CategoryModel`, default 8 preset financial categories (`Food & Dining`, `Shopping`, `Bills & Utilities`, `Transportation`, `Entertainment`, `Health`, `Salary`, `Investment`), `CategoryService` under `users/{userId}/categories/` with auto-seeding, Riverpod state management (`categoriesStreamProvider`, `expenseCategoriesProvider`, `incomeCategoriesProvider`), `CategoriesScreen` with expense/income tabbed listing, custom category modal (`AddEditCategoryModal`) with color chip and icon grid picker, and default category protection rule (preset categories are editable, but non-deletable).
+- Unit 04 — Transactions: `TransactionModel`, `TransactionService` under `users/{userId}/transactions/` with atomic Firestore transactions (`runTransaction`) ensuring account balances update safely for Expense, Income, and Transfer types, Riverpod state management (`transactionsStreamProvider`, `filteredTransactionsProvider` with search, category, account, and type filtering), `AddEditTransactionModal` matching `design-reference/add_transaction/code.html`, and `TransactionsScreen` matching `design-reference/transactions_history/code.html` with date grouping and color-coded amounts.
 
 ## In Progress
 
-- Unit 04 — Transactions
+- Unit 05 — Budgets
 
 ## Next Up
 
-1. Unit 04 — Transactions (add/edit/delete expense, income, transfer)
-2. Unit 05 — Budgets (per category, user-chosen period, progress tracking)
-3. Unit 06 — Recurring Bills (add/edit/delete + due reminders)
-4. Unit 07 — Dashboard/Reports (balance overview, category spending chart)
+1. Unit 05 — Budgets (per category, user-chosen period, progress tracking)
+2. Unit 06 — Recurring Bills (add/edit/delete + due reminders)
+3. Unit 07 — Dashboard/Reports (balance overview, category spending chart)
 
 This order follows the "dependencies first, security before
 functionality" rule from the build methodology — auth and

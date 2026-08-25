@@ -3,6 +3,8 @@ import '../widgets/bottom_nav_bar.dart';
 import 'accounts/accounts_screen.dart';
 import 'dashboard/dashboard_screen.dart';
 
+import 'transactions/transactions_screen.dart';
+
 /// Main container screen holding bottom navigation bar and page tabs.
 class HomeShellScreen extends StatefulWidget {
   final int initialIndex;
@@ -52,7 +54,7 @@ class _HomeShellScreenState extends State<HomeShellScreen> {
   Widget build(BuildContext context) {
     final pages = [
       const DashboardScreen(),
-      _buildPlaceholderTab('Transactions', Icons.receipt_long_rounded),
+      const TransactionsScreen(),
       _buildPlaceholderTab('Budgets', Icons.account_balance_wallet_rounded),
       const AccountsScreen(),
     ];

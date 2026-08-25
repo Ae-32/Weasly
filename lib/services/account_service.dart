@@ -27,13 +27,58 @@ class AccountService {
   }
 
   /// Adds a new account document to Firestore under users/{userId}/accounts.
+  /// If the new account has a non-zero starting balance, automatically logs a "Starting Balance" transaction.
   Future<void> addAccount(String userId, AccountModel account) async {
-    await _userAccountsRef(userId).add(account.toMap());
+    final batch = _firestore.batch();
+    final accountDocRef = _userAccountsRef(userId).doc();
+    final accountId = accountDocRef.id;
+
+    final accountWithId = account.copyWith(id: accountId);
+    batch.set(accountDocRef, accountWithId.toMap());
+
+    // Automatically create a "Starting Balance" transaction log if balance > 0
+    if (account.balance > 0) {
+      final txDocRef = _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('transactions')
+          .doc();
+
+      final startingTxData = {
+        'id': txDocRef.id,
+        'type': 'income',
+        'amount': account.balance,
+        'categoryId': 'starting_balance',
+        'categoryName': 'Starting Balance',
+        'categoryIcon': 'account_balance_wallet',
+        'categoryColorHex': '#2B694E',
+        'accountId': accountId,
+        'accountName': account.name,
+        'toAccountId': null,
+        'toAccountName': null,
+        'date': Timestamp.fromDate(DateTime.now()),
+        'note': 'Starting balance for ${account.name}',
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+
+      batch.set(txDocRef, startingTxData);
+    }
+
+    await batch.commit();
   }
 
   /// Updates an existing account document in Firestore.
+  /// Note: Balance is deliberately omitted here; balance adjustments must happen via transactions.
   Future<void> updateAccount(String userId, AccountModel account) async {
-    await _userAccountsRef(userId).doc(account.id).update(account.toMap());
+    final updateData = <String, dynamic>{
+      'name': account.name,
+      'type': account.type,
+      'note': account.note,
+    };
+    if (account.colorHex != null) {
+      updateData['colorHex'] = account.colorHex;
+    }
+    await _userAccountsRef(userId).doc(account.id).update(updateData);
   }
 
   /// Deletes an account document from Firestore.

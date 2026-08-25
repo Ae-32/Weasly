@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import '../../providers/account_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_colors.dart';
 
-/// Placeholder Dashboard screen shown after successful login.
+/// Live Dashboard screen displaying real-time balance overview.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
+    final totalBalance = ref.watch(totalBalanceProvider);
     final user = authState.value;
+    final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
 
     return Scaffold(
       appBar: AppBar(
@@ -81,7 +85,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
 
-              // Placeholder balance summary card
+              // Live Total Balance summary card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -101,9 +105,9 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      '₱0.00',
-                      style: TextStyle(
+                    Text(
+                      currencyFormatter.format(totalBalance),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
