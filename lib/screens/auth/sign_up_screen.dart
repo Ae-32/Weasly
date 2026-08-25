@@ -109,10 +109,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: AppColors.borderDefault, width: 2),
                         ),
-                        child: const Icon(
-                          Icons.pets_rounded,
-                          size: 48,
-                          color: AppColors.accentPrimary,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/images/Weasly_Logo1.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => const Icon(
+                              Icons.pets_rounded,
+                              size: 48,
+                              color: AppColors.accentPrimary,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),

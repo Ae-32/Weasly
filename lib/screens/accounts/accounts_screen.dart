@@ -6,6 +6,8 @@ import '../../providers/account_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/account_card.dart';
 
+import '../categories/categories_screen.dart';
+
 /// Accounts overview screen matching design-reference/accounts_overview/code.html.
 class AccountsScreen extends ConsumerWidget {
   const AccountsScreen({super.key});
@@ -79,10 +81,17 @@ class AccountsScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.bgBase, width: 2),
               ),
-              child: const Icon(
-                Icons.pets_rounded,
-                size: 20,
-                color: Color(0xFF512A00),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.asset(
+                  'assets/images/Weasly_Logo1.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.pets_rounded,
+                    size: 20,
+                    color: Color(0xFF512A00),
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -96,6 +105,20 @@ class AccountsScreen extends ConsumerWidget {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CategoriesScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.category_rounded, color: AppColors.accentPrimary),
+            tooltip: 'Categories',
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

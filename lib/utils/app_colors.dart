@@ -17,6 +17,18 @@ class AppColors {
   static const Color stateSuccess = Color(0xFF4E8C6E);
   static const Color stateWarning = Color(0xFFD9A63D);
 
+  // Semantic Aliases
+  static const Color primary = accentPrimary;
+  static const Color onPrimary = Color(0xFFFFFFFF);
+  static const Color secondary = accentSecondary;
+  static const Color onSurface = textPrimary;
+  static const Color onSurfaceVariant = Color(0xFF534438);
+  static const Color surfaceVariant = Color(0xFFEDE0D9);
+  static const Color surfaceContainerHigh = Color(0xFFF3E5DF);
+  static const Color error = stateError;
+  static const Color errorContainer = Color(0xFFFFDAD6);
+  static const Color onErrorContainer = Color(0xFF93000A);
+
   // Dark Mode Tokens
   static const Color darkBgBase = Color(0xFF1A1714);
   static const Color darkBgSurface = Color(0xFF26221E);

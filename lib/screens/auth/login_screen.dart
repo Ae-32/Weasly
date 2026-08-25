@@ -101,10 +101,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.savings_rounded,
-                          size: 48,
-                          color: AppColors.accentPrimary,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/images/Weasly_Logo1.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => const Icon(
+                              Icons.savings_rounded,
+                              size: 48,
+                              color: AppColors.accentPrimary,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),

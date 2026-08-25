@@ -1,0 +1,308 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../models/category_model.dart';
+import '../../providers/category_provider.dart';
+import '../../utils/app_colors.dart';
+import '../../utils/default_categories.dart';
+import '../../widgets/add_edit_category_modal.dart';
+
+class CategoriesScreen extends ConsumerStatefulWidget {
+  const CategoriesScreen({super.key});
+
+  @override
+  ConsumerState<CategoriesScreen> createState() => _CategoriesScreenState();
+}
+
+class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _confirmDelete(BuildContext context, CategoryModel category) {
+    if (category.isDefault) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Default categories cannot be deleted to protect your transaction history.',
+            style: TextStyle(fontFamily: 'Quicksand'),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Delete Category',
+          style: TextStyle(fontFamily: 'Quicksand', fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${category.name}"? This action cannot be undone.',
+          style: const TextStyle(fontFamily: 'Quicksand'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              final success = await ref
+                  .read(categoryControllerProvider.notifier)
+                  .deleteCategory(category);
+              if (context.mounted && !success) {
+                final err = ref.read(categoryControllerProvider).errorMessage;
+                if (err != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(err, style: const TextStyle(fontFamily: 'Quicksand')),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final categoriesAsync = ref.watch(categoriesStreamProvider);
+
+    return Scaffold(
+      backgroundColor: AppColors.bgBase,
+      appBar: AppBar(
+        backgroundColor: AppColors.bgSurface,
+        elevation: 0,
+        centerTitle: false,
+        title: const Text(
+          'Categories',
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: AppColors.onSurface,
+          ),
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: AppColors.primary,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.textMuted,
+          labelStyle: const TextStyle(
+            fontFamily: 'Quicksand',
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+          tabs: const [
+            Tab(text: 'Expenses'),
+            Tab(text: 'Income'),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => AddEditCategoryModal.show(context),
+        backgroundColor: AppColors.primary,
+        icon: const Icon(Icons.add, color: AppColors.onPrimary),
+        label: const Text(
+          'New Category',
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontWeight: FontWeight.bold,
+            color: AppColors.onPrimary,
+          ),
+        ),
+      ),
+      body: categoriesAsync.when(
+        data: (categories) {
+          final expenseList = categories
+              .where((c) => c.type == CategoryType.expense || c.type == CategoryType.both)
+              .toList();
+          final incomeList = categories
+              .where((c) => c.type == CategoryType.income || c.type == CategoryType.both)
+              .toList();
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildCategoryList(expenseList, 'No expense categories found.'),
+              _buildCategoryList(incomeList, 'No income categories found.'),
+            ],
+          );
+        },
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+        error: (error, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Text(
+              'Failed to load categories: $error',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontFamily: 'Quicksand', color: AppColors.error),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryList(List<CategoryModel> categories, String emptyMessage) {
+    if (categories.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.category_outlined, size: 64, color: AppColors.textMuted.withValues(alpha: 0.5)),
+            const SizedBox(height: 12),
+            Text(
+              emptyMessage,
+              style: const TextStyle(
+                fontFamily: 'Quicksand',
+                fontSize: 16,
+                color: AppColors.textMuted,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      itemCount: categories.length,
+      itemBuilder: (context, index) {
+        final category = categories[index];
+        final color = DefaultCategories.getColor(category.colorHex);
+        final iconData = DefaultCategories.getIcon(category.iconName);
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          elevation: 0,
+          color: AppColors.bgSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: AppColors.borderDefault),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // Category Icon Badge
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    iconData,
+                    color: color,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 14),
+
+                // Name and Badge
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              category.name,
+                              style: const TextStyle(
+                                fontFamily: 'Quicksand',
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.onSurface,
+                              ),
+                            ),
+                          ),
+                          if (category.isDefault) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'Preset',
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Edit Action Button
+                IconButton(
+                  onPressed: () => AddEditCategoryModal.show(
+                    context,
+                    categoryToEdit: category,
+                  ),
+                  icon: const Icon(Icons.edit_outlined, color: AppColors.textMuted, size: 20),
+                  tooltip: 'Edit Category',
+                ),
+
+                // Delete Action Button (Disabled for default categories)
+                IconButton(
+                  onPressed: category.isDefault
+                      ? null
+                      : () => _confirmDelete(context, category),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: category.isDefault
+                        ? AppColors.borderDefault
+                        : AppColors.error,
+                    size: 20,
+                  ),
+                  tooltip: category.isDefault
+                      ? 'Default category (Protected)'
+                      : 'Delete Category',
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
