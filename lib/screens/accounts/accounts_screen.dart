@@ -7,6 +7,7 @@ import '../../utils/app_colors.dart';
 import '../../widgets/account_card.dart';
 
 import '../categories/categories_screen.dart';
+import '../recurring_bills/recurring_bills_screen.dart';
 
 /// Accounts overview screen matching design-reference/accounts_overview/code.html.
 class AccountsScreen extends ConsumerWidget {
@@ -110,6 +111,17 @@ class AccountsScreen extends ConsumerWidget {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
+                  builder: (context) => const RecurringBillsScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.event_repeat_rounded, color: AppColors.accentPrimary),
+            tooltip: 'Recurring Bills',
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
                   builder: (context) => const CategoriesScreen(),
                 ),
               );
@@ -117,9 +129,10 @@ class AccountsScreen extends ConsumerWidget {
             icon: const Icon(Icons.category_rounded, color: AppColors.accentPrimary),
             tooltip: 'Categories',
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
         ],
       ),
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),

@@ -4,11 +4,11 @@ Update this file after every meaningful implementation change.
 
 ## Current Phase
 
-- Unit 05 — Budgets Preparation
+- Unit 07 — Dashboard/Reports Preparation
 
 ## Current Goal
 
-- Begin Unit 05: Budgets (per category, user-chosen period, progress tracking).
+- Begin Unit 07: Dashboard/Reports (balance overview, category spending breakdown chart).
 
 ## Completed
 
@@ -22,16 +22,17 @@ Update this file after every meaningful implementation change.
 - Unit 02 — Accounts: `AccountModel`, Firestore `AccountService` under `users/{userId}/accounts/`, `accountsStreamProvider`, `totalBalanceProvider`, `AccountCard` widget, `AccountsScreen` matching `design-reference/accounts_overview/code.html`, bottom navigation bar (`BottomNavBar` & `HomeShellScreen`), add/edit/delete bottom sheet modal, and auto-seeding default stashes (Cash, GCash, Main Bank).
 - Unit 03 — Categories: `CategoryModel`, default 8 preset financial categories (`Food & Dining`, `Shopping`, `Bills & Utilities`, `Transportation`, `Entertainment`, `Health`, `Salary`, `Investment`), `CategoryService` under `users/{userId}/categories/` with auto-seeding, Riverpod state management (`categoriesStreamProvider`, `expenseCategoriesProvider`, `incomeCategoriesProvider`), `CategoriesScreen` with expense/income tabbed listing, custom category modal (`AddEditCategoryModal`) with color chip and icon grid picker, and default category protection rule (preset categories are editable, but non-deletable).
 - Unit 04 — Transactions: `TransactionModel`, `TransactionService` under `users/{userId}/transactions/` with atomic Firestore transactions (`runTransaction`) ensuring account balances update safely for Expense, Income, and Transfer types, Riverpod state management (`transactionsStreamProvider`, `filteredTransactionsProvider` with search, category, account, and type filtering), `AddEditTransactionModal` matching `design-reference/add_transaction/code.html`, and `TransactionsScreen` matching `design-reference/transactions_history/code.html` with date grouping and color-coded amounts.
+- Unit 05 — Budgets: `BudgetModel`, `BudgetService` under `users/{userId}/budgets/`, dynamic spending calculation from live `transactionsStreamProvider` expenses within weekly/monthly/custom period boundaries, Riverpod state management (`budgetsWithSpentProvider`), status classification (On track / Nearing limit / Over budget), `AddEditBudgetModal` matching `design-reference/set_budget/code.html`, and `BudgetsScreen` matching `design-reference/budgets_overview/code.html`.
+- Unit 06 — Recurring Bills: `RecurringBillModel`, Firestore `RecurringBillService` under `users/{userId}/recurringBills/`, `recurringBillsStreamProvider`, `NotificationService` integration with `flutter_local_notifications` for local due date reminders, `RecurringBillCard` widget, `AddEditRecurringBillModal` bottom sheet form, `RecurringBillsScreen` with estimated monthly commitment calculation, Android 13+ runtime notification permission handling, and Unit 06 test suite (`recurring_bill_model_test.dart`).
 
 ## In Progress
 
-- Unit 05 — Budgets
+- Unit 07 — Dashboard/Reports
 
 ## Next Up
 
-1. Unit 05 — Budgets (per category, user-chosen period, progress tracking)
-2. Unit 06 — Recurring Bills (add/edit/delete + due reminders)
-3. Unit 07 — Dashboard/Reports (balance overview, category spending chart)
+1. Unit 07 — Dashboard/Reports (balance overview, category spending breakdown chart)
+
 
 This order follows the "dependencies first, security before
 functionality" rule from the build methodology — auth and
