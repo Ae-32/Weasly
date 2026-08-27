@@ -112,7 +112,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Image.asset(
-                            'assets/images/Weasly_Logo1.png',
+                            'assets/images/Weasly.png',
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) => const Icon(
                               Icons.pets_rounded,

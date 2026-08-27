@@ -85,7 +85,7 @@ class AccountsScreen extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: Image.asset(
-                  'assets/images/Weasly_Logo1.png',
+                  'assets/images/Weasly.png',
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => const Icon(
                     Icons.pets_rounded,
