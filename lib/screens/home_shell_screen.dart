@@ -1,32 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/home_nav_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
 import 'accounts/accounts_screen.dart';
-import 'dashboard/dashboard_screen.dart';
-
 import 'budgets/budgets_screen.dart';
+import 'dashboard/dashboard_screen.dart';
 import 'transactions/transactions_screen.dart';
 
 /// Main container screen holding bottom navigation bar and page tabs.
-class HomeShellScreen extends StatefulWidget {
+class HomeShellScreen extends ConsumerStatefulWidget {
   final int initialIndex;
 
   const HomeShellScreen({super.key, this.initialIndex = 0});
 
   @override
-  State<HomeShellScreen> createState() => _HomeShellScreenState();
+  ConsumerState<HomeShellScreen> createState() => _HomeShellScreenState();
 }
 
-class _HomeShellScreenState extends State<HomeShellScreen> {
-  late int _currentIndex;
-
+class _HomeShellScreenState extends ConsumerState<HomeShellScreen> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(homeNavIndexProvider.notifier).state = widget.initialIndex;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = ref.watch(homeNavIndexProvider);
+
     final pages = [
       const DashboardScreen(),
       const TransactionsScreen(),
@@ -36,17 +39,16 @@ class _HomeShellScreenState extends State<HomeShellScreen> {
 
     return Scaffold(
       body: IndexedStack(
-        index: _currentIndex,
+        index: currentIndex,
         children: pages,
       ),
       bottomNavigationBar: BottomNavBar(
-        currentIndex: _currentIndex,
+        currentIndex: currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          ref.read(homeNavIndexProvider.notifier).state = index;
         },
       ),
     );
   }
 }
+

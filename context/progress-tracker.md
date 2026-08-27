@@ -4,11 +4,11 @@ Update this file after every meaningful implementation change.
 
 ## Current Phase
 
-- Unit 07 — Dashboard/Reports Preparation
+- Core Implementation Complete (Units 01-07)
 
 ## Current Goal
 
-- Begin Unit 07: Dashboard/Reports (balance overview, category spending breakdown chart).
+- All core units (01-07) implemented! App is feature-complete for core scope.
 
 ## Completed
 
@@ -25,14 +25,15 @@ Update this file after every meaningful implementation change.
 - Unit 05 — Budgets: `BudgetModel`, `BudgetService` under `users/{userId}/budgets/`, dynamic spending calculation from live `transactionsStreamProvider` expenses within weekly/monthly/custom period boundaries, Riverpod state management (`budgetsWithSpentProvider`), status classification (On track / Nearing limit / Over budget), `AddEditBudgetModal` matching `design-reference/set_budget/code.html`, and `BudgetsScreen` matching `design-reference/budgets_overview/code.html`.
 - Unit 06 — Recurring Bills: `RecurringBillModel`, Firestore `RecurringBillService` under `users/{userId}/recurringBills/`, `recurringBillsStreamProvider`, `NotificationService` integration with `flutter_local_notifications` for local due date reminders, `RecurringBillCard` widget, `AddEditRecurringBillModal` bottom sheet form, `RecurringBillsScreen` with estimated monthly commitment calculation, Android 13+ runtime notification permission handling, and Unit 06 test suite (`recurring_bill_model_test.dart`).
 - Pre-Unit 07 Polish — Onboarding & Logo Update: Built `OnboardingScreen` matching `design-reference/onboarding_welcome/code.html`, added device-level `shared_preferences` onboarding flag (`onboardingControllerProvider`), updated `main.dart` routing flow (First launch -> Onboarding -> Login; Later launch -> Login directly; Logged in -> Dashboard), replaced old logo assets with `assets/images/Weasly.png` across `pubspec.yaml`, `login_screen.dart`, `sign_up_screen.dart`, `accounts_screen.dart`, and deleted old logo files.
+- Unit 07 — Dashboard & Reports: Built the full live dashboard matching `design-reference/dashboard/code.html` replacing the placeholder. Features total balance summary card with instant "Add Income" / "Add Expense" shortcuts, category spending pie chart using `fl_chart` with current month expense progress breakdown, recent transactions feed with "See All" link to Transactions tab, upcoming recurring bills preview sorted by due date with urgency badge colors ("Due Today", "Due in X days", "Overdue"), budget warning highlights for budgets nearing/over limits, and `homeNavIndexProvider` for tab navigation across the app.
 
 ## In Progress
 
-- Unit 07 — Dashboard/Reports
+- None (All core units 01 through 07 complete!)
 
 ## Next Up
 
-1. Unit 07 — Dashboard/Reports (balance overview, category spending breakdown chart)
+- QA, polish, and deployment preparation.
 
 
 This order follows the "dependencies first, security before

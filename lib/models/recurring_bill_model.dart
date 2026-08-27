@@ -175,4 +175,16 @@ class RecurringBillModel {
         return DateTime(year, month, day, nextDueDate.hour, nextDueDate.minute);
     }
   }
+
+  /// Calculates days remaining until the next due date.
+  int get daysUntilDue {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dueDateOnly = DateTime(nextDueDate.year, nextDueDate.month, nextDueDate.day);
+    return dueDateOnly.difference(today).inDays;
+  }
+
+  /// Returns true if the next due date has already passed.
+  bool get isOverdue => daysUntilDue < 0;
 }
+
