@@ -115,7 +115,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           ],
                         ),
                         child: Image.asset(
-                          'assets/images/Weasly.png',
+                          'assets/images/WeaslyLogo.png',
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) => Icon(
                             _items[_currentPage].icon,
