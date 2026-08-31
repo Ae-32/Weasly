@@ -5,12 +5,16 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Light Mode Tokens
+  // Light Mode Tokens (Confirmed Figma CSS Export)
   static const Color bgBase = Color(0xFFFAF7F2);
   static const Color bgSurface = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF2B2420);
+  static const Color textPrimary = Color(0xFF211A16);
   static const Color textMuted = Color(0xFF8A7F73);
-  static const Color accentPrimary = Color(0xFFD98A3D);
+  static const Color textMutedAlt = Color(0xFF9A9998);
+  static const Color textMutedLight = Color(0xFFBBB6B4);
+  static const Color accentPrimary = Color(0xFFE06E03);
+  static const Color accentPrimaryLight = Color(0xFFEFD8C2);
+  static const Color iconButtonBg = Color(0xFFEDE0D9);
   static const Color accentSecondary = Color(0xFF4E8C6E);
   static const Color borderDefault = Color(0xFFE8E1D8);
   static const Color stateError = Color(0xFFD64545);

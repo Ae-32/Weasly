@@ -77,12 +77,12 @@ class BudgetWithSpent {
     return ratio > 1.0 ? 1.0 : ratio;
   }
 
-  /// Budget status based on thresholds: <80% safe, 80-99% nearing limit, >=100% over budget.
+  /// Budget status based on thresholds: below alert threshold safe, >= alert threshold nearing limit, >= 100% over budget.
   BudgetStatus get status {
     final pct = spentPercentage;
     if (pct >= 100.0) {
       return BudgetStatus.overBudget;
-    } else if (pct >= 80.0) {
+    } else if (pct >= budget.alertThreshold) {
       return BudgetStatus.nearingLimit;
     } else {
       return BudgetStatus.safe;

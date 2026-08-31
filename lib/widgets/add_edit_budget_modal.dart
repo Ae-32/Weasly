@@ -37,6 +37,7 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
   DateTime? _endDate;
 
   CategoryModel? _selectedCategory;
+  bool _isAlertEnabled = true;
 
   @override
   void initState() {
@@ -50,6 +51,7 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
     _selectedPeriod = isEditing ? budget.periodType : BudgetPeriodType.monthly;
     _startDate = isEditing ? budget.startDate : DateTime.now();
     _endDate = isEditing ? budget.endDate : DateTime.now().add(const Duration(days: 30));
+    _isAlertEnabled = isEditing ? budget.isAlertEnabled : true;
   }
 
   @override
@@ -137,6 +139,8 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
       startDate: _startDate,
       endDate: _selectedPeriod == BudgetPeriodType.custom ? _endDate : null,
       createdAt: widget.budgetToEdit?.createdAt ?? DateTime.now(),
+      isAlertEnabled: _isAlertEnabled,
+      alertThreshold: widget.budgetToEdit?.alertThreshold ?? 80.0,
     );
 
     final success = isEditing
@@ -434,6 +438,41 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
                 ),
                 const SizedBox(height: 16),
               ],
+
+              // Alert me when 80% is reached toggle
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.borderDefault),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: SwitchListTile(
+                  value: _isAlertEnabled,
+                  onChanged: (val) {
+                    setState(() {
+                      _isAlertEnabled = val;
+                    });
+                  },
+                  activeThumbColor: AppColors.accentPrimary,
+                  title: const Text(
+                    'Alert me when 80% is reached',
+                    style: TextStyle(
+                      fontFamily: 'Quicksand',
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.onSurface,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'Receive a notification when spending reaches 80%',
+                    style: TextStyle(
+                      fontFamily: 'Quicksand',
+                      fontSize: 12,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
 
               // Submit Button
               SizedBox(

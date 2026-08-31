@@ -31,6 +31,8 @@ class BudgetModel {
   final DateTime startDate;
   final DateTime? endDate;
   final DateTime? createdAt;
+  final bool isAlertEnabled;
+  final double alertThreshold;
 
   const BudgetModel({
     required this.id,
@@ -43,6 +45,8 @@ class BudgetModel {
     required this.startDate,
     this.endDate,
     this.createdAt,
+    this.isAlertEnabled = true,
+    this.alertThreshold = 80.0,
   });
 
   Map<String, dynamic> toMap() {
@@ -59,6 +63,8 @@ class BudgetModel {
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
+      'isAlertEnabled': isAlertEnabled,
+      'alertThreshold': alertThreshold,
     };
   }
 
@@ -87,12 +93,14 @@ class BudgetModel {
       categoryId: map['categoryId'] ?? '',
       categoryName: map['categoryName'] ?? 'Category',
       categoryIcon: map['categoryIcon'] ?? 'shopping_cart',
-      categoryColorHex: map['categoryColorHex'] ?? '#8E4E00',
+      categoryColorHex: map['categoryColorHex'] ?? '#D9553A',
       amount: (map['amount'] as num?)?.toDouble() ?? 0.0,
       periodType: BudgetPeriodType.fromString(map['periodType'] ?? 'monthly'),
       startDate: parsedStartDate,
       endDate: parsedEndDate,
       createdAt: parsedCreatedAt,
+      isAlertEnabled: map['isAlertEnabled'] as bool? ?? true,
+      alertThreshold: (map['alertThreshold'] as num?)?.toDouble() ?? 80.0,
     );
   }
 
@@ -112,6 +120,8 @@ class BudgetModel {
     DateTime? startDate,
     DateTime? endDate,
     DateTime? createdAt,
+    bool? isAlertEnabled,
+    double? alertThreshold,
   }) {
     return BudgetModel(
       id: id ?? this.id,
@@ -124,6 +134,8 @@ class BudgetModel {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       createdAt: createdAt ?? this.createdAt,
+      isAlertEnabled: isAlertEnabled ?? this.isAlertEnabled,
+      alertThreshold: alertThreshold ?? this.alertThreshold,
     );
   }
 

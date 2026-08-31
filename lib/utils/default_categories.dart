@@ -10,7 +10,7 @@ class DefaultCategories {
       id: 'food_dining',
       name: 'Food & Dining',
       iconName: 'restaurant',
-      colorHex: '#8E4E00',
+      colorHex: '#D9553A',
       type: CategoryType.expense,
       isDefault: true,
     ),
@@ -18,7 +18,7 @@ class DefaultCategories {
       id: 'shopping',
       name: 'Shopping',
       iconName: 'shopping_bag',
-      colorHex: '#C5942C',
+      colorHex: '#D94A6E',
       type: CategoryType.expense,
       isDefault: true,
     ),
@@ -26,7 +26,7 @@ class DefaultCategories {
       id: 'bills_utilities',
       name: 'Bills & Utilities',
       iconName: 'receipt_long',
-      colorHex: '#D64545',
+      colorHex: '#D9884A',
       type: CategoryType.expense,
       isDefault: true,
     ),
@@ -34,7 +34,7 @@ class DefaultCategories {
       id: 'transportation',
       name: 'Transportation',
       iconName: 'directions_bus',
-      colorHex: '#2B694E',
+      colorHex: '#4A8CD9',
       type: CategoryType.expense,
       isDefault: true,
     ),
@@ -42,7 +42,7 @@ class DefaultCategories {
       id: 'entertainment',
       name: 'Entertainment',
       iconName: 'movie',
-      colorHex: '#7B5800',
+      colorHex: '#8B6BB8',
       type: CategoryType.expense,
       isDefault: true,
     ),
@@ -50,7 +50,7 @@ class DefaultCategories {
       id: 'health',
       name: 'Health',
       iconName: 'medical_services',
-      colorHex: '#317054',
+      colorHex: '#D9A63D',
       type: CategoryType.expense,
       isDefault: true,
     ),
@@ -58,7 +58,7 @@ class DefaultCategories {
       id: 'salary',
       name: 'Salary',
       iconName: 'payments',
-      colorHex: '#2B694E',
+      colorHex: '#4E8C6E',
       type: CategoryType.income,
       isDefault: true,
     ),
@@ -66,22 +66,41 @@ class DefaultCategories {
       id: 'investment',
       name: 'Investment',
       iconName: 'trending_up',
-      colorHex: '#8E4E00',
+      colorHex: '#4AD98F',
       type: CategoryType.income,
       isDefault: true,
     ),
   ];
 
+  /// Category colors table from ui-context.md (Confirmed Figma Export).
+  static const Map<String, String> categoryColorsTable = {
+    'Food & Dining': '#EE4818',
+    'Bills & Utilities': '#F48423',
+    'Transportation': '#E08B03',
+    'Shopping': '#D94A6E',
+    'Entertainment': '#8B6BB8',
+    'Health': '#D9A63D',
+    'Housing': '#A8664A',
+    'Education': '#6B8A9E',
+    'Other': '#8A7F73',
+    'Salary': '#4E8C6E',
+    'Investment': '#4AD98F',
+    'Other Income': '#6FAE8C',
+  };
+
   /// Curated color choices matching brand tokens for category chips.
   static const List<String> categoryColorChoices = [
-    '#8E4E00', // Warm Amber (Primary)
-    '#C5942C', // Gold / Tertiary
-    '#D64545', // Error / Coral
-    '#2B694E', // Forest Green / Secondary
-    '#7B5800', // Deep Gold
-    '#317054', // Sage Green
-    '#D98A3D', // Bright Terracotta
-    '#867466', // Muted Earth
+    '#D9553A', // Food & Dining
+    '#D9884A', // Bills & Utilities
+    '#4A8CD9', // Transportation
+    '#D94A6E', // Shopping
+    '#8B6BB8', // Entertainment
+    '#D9A63D', // Health
+    '#4E8C6E', // Salary
+    '#4AD98F', // Investment
+    '#A8664A', // Housing
+    '#6B8A9E', // Education
+    '#8A7F73', // Other
   ];
 
   /// Selectable icon choices for user-defined custom categories.
@@ -109,6 +128,18 @@ class DefaultCategories {
   /// Safely resolves a category icon by name, falling back to a default folder icon.
   static IconData getIcon(String iconName) {
     return availableIcons[iconName] ?? Icons.category_rounded;
+  }
+
+  /// Resolves category color by category name matching ui-context.md table, or falls back to hex string.
+  static Color getCategoryColorByName(String categoryName, [String? fallbackHex]) {
+    final tableHex = categoryColorsTable[categoryName];
+    if (tableHex != null) {
+      return getColor(tableHex);
+    }
+    if (fallbackHex != null && fallbackHex.isNotEmpty) {
+      return getColor(fallbackHex);
+    }
+    return getColor('#8A7F73');
   }
 
   /// Converts hex color string (#RRGGBB) to Flutter Color instance.

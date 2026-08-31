@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 
-/// Reusable Bottom Navigation Bar matching design-reference tokens.
+/// Reusable Bottom Navigation Bar styled strictly per Figma CSS & design specifications.
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -14,46 +15,108 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final navItems = [
+      const _NavItemData(
+        label: 'Home',
+        selectedIcon: Icons.home_rounded,
+        unselectedIcon: Icons.home_outlined,
+      ),
+      const _NavItemData(
+        label: 'Transactions',
+        selectedIcon: Icons.receipt_long_rounded,
+        unselectedIcon: Icons.receipt_long_outlined,
+      ),
+      const _NavItemData(
+        label: 'Budgets',
+        selectedIcon: Icons.account_balance_wallet_rounded,
+        unselectedIcon: Icons.account_balance_wallet_outlined,
+      ),
+      const _NavItemData(
+        label: 'Accounts',
+        selectedIcon: Icons.account_box_rounded,
+        unselectedIcon: Icons.account_box_outlined,
+      ),
+    ];
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
-        boxShadow: [
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        boxShadow: const [
           BoxShadow(
-            color: AppColors.textPrimary.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, -4),
+            color: Color.fromRGBO(43, 36, 32, 0.06),
+            blurRadius: 16,
+            offset: Offset(0, -4),
           ),
         ],
       ),
-      child: NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected: onTap,
-        backgroundColor: AppColors.bgSurface,
-        indicatorColor: const Color(0xFFAFF1CD), // secondary-container tint
-        surfaceTintColor: Colors.transparent,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard_rounded, color: Color(0xFF317054)),
-            label: 'Dashboard',
+      child: SafeArea(
+        top: false,
+        child: Container(
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(navItems.length, (index) {
+              final item = navItems[index];
+              final isSelected = index == currentIndex;
+
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => onTap(index),
+                  behavior: HitTestBehavior.opaque,
+                  child: Center(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFFEFD8C2) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isSelected ? item.selectedIcon : item.unselectedIcon,
+                            size: 20,
+                            color: isSelected ? AppColors.accentPrimary : const Color(0xFF8A7F73),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            item.label,
+                            style: GoogleFonts.quicksand(
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                              color: isSelected ? AppColors.accentPrimary : const Color(0xFF8A7F73),
+                              letterSpacing: 0.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long_rounded, color: Color(0xFF317054)),
-            label: 'Transactions',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF317054)),
-            label: 'Budgets',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_balance_outlined),
-            selectedIcon: Icon(Icons.account_balance_rounded, color: Color(0xFF317054)),
-            label: 'Accounts',
-          ),
-        ],
+        ),
       ),
     );
   }
+}
+
+class _NavItemData {
+  final String label;
+  final IconData selectedIcon;
+  final IconData unselectedIcon;
+
+  const _NavItemData({
+    required this.label,
+    required this.selectedIcon,
+    required this.unselectedIcon,
+  });
 }

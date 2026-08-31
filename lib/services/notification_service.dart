@@ -126,4 +126,30 @@ class NotificationService {
     await initialize();
     await _notificationsPlugin.cancel(billId.hashCode);
   }
+
+  /// Displays an immediate budget limit notification when spending hits the alert threshold.
+  Future<void> showBudgetAlertNotification({
+    required String budgetId,
+    required String categoryName,
+    required double percentSpent,
+  }) async {
+    await initialize();
+    final notificationId = ('budget_$budgetId').hashCode;
+    const androidDetails = AndroidNotificationDetails(
+      'budget_alerts_channel',
+      'Budget Alerts',
+      channelDescription: 'Notifications for budget spending limits',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+    const notificationDetails = NotificationDetails(android: androidDetails);
+    await _notificationsPlugin.show(
+      notificationId,
+      'Budget Alert: $categoryName',
+      'You have used ${percentSpent.toStringAsFixed(0)}% of your budget for $categoryName.',
+      notificationDetails,
+      payload: budgetId,
+    );
+  }
 }

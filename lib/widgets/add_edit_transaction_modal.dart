@@ -411,7 +411,7 @@ class _AddEditTransactionModalState
                           isExpanded: true,
                           icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
                           items: filteredCats.map((cat) {
-                            final color = DefaultCategories.getColor(cat.colorHex);
+                            final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
                             final icon = DefaultCategories.getIcon(cat.iconName);
                             return DropdownMenuItem<CategoryModel>(
                               value: cat,
