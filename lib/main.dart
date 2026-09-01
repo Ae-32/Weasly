@@ -9,6 +9,8 @@ import 'screens/onboarding/onboarding_screen.dart';
 import 'services/firebase_service.dart';
 import 'utils/app_theme.dart';
 
+import 'widgets/loading_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseService.initialize();
@@ -46,11 +48,7 @@ class WeaslyApp extends ConsumerWidget {
           }
           return const LoginScreen();
         },
-        loading: () => const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
+        loading: () => const LoadingScreen(),
         error: (error, stack) => hasSeenOnboarding ? const LoginScreen() : const OnboardingScreen(),
       ),
     );
