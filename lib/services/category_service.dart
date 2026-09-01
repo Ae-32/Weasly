@@ -17,6 +17,8 @@ class CategoryException implements Exception {
 class CategoryService {
   final FirebaseFirestore _firestore;
 
+  static final Set<String> _seedingUserIds = {};
+
   CategoryService({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
@@ -25,24 +27,36 @@ class CategoryService {
   }
 
   /// Streams real-time category updates for a specific user.
+  /// Automatically deduplicates categories by ID and (name, type).
   Stream<List<CategoryModel>> getCategoriesStream(String userId) {
     if (userId.isEmpty) {
       return Stream.value([]);
     }
 
     return _categoriesRef(userId).snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => CategoryModel.fromFirestore(doc))
-          .toList();
+      final list = <CategoryModel>[];
+      final seenIds = <String>{};
+      final seenKeys = <String>{};
+
+      for (final doc in snapshot.docs) {
+        final cat = CategoryModel.fromFirestore(doc);
+        final key = '${cat.name.trim().toLowerCase()}_${cat.type.name}';
+        if (seenIds.add(cat.id) && seenKeys.add(key)) {
+          list.add(cat);
+        }
+      }
+      return list;
     });
   }
 
-  /// Automatically seeds default categories if the collection is empty for a user.
+  /// Automatically seeds default categories if the collection is empty for a user,
+  /// and cleans up duplicate default categories if any exist.
   Future<void> seedDefaultCategoriesIfEmpty(String userId) async {
-    if (userId.isEmpty) return;
+    if (userId.isEmpty || _seedingUserIds.contains(userId)) return;
+    _seedingUserIds.add(userId);
 
     try {
-      final snapshot = await _categoriesRef(userId).limit(1).get();
+      final snapshot = await _categoriesRef(userId).get();
       if (snapshot.docs.isEmpty) {
         debugPrint("Seeding default categories for user: $userId");
         final batch = _firestore.batch();
@@ -51,9 +65,45 @@ class CategoryService {
           batch.set(docRef, category.toMap());
         }
         await batch.commit();
+      } else {
+        // Check for and clean up duplicate category documents in Firestore
+        final seenKeys = <String, DocumentSnapshot>{};
+        final docsToDelete = <DocumentSnapshot>[];
+
+        for (final doc in snapshot.docs) {
+          final data = doc.data();
+          final name = (data['name'] as String? ?? '').trim().toLowerCase();
+          final type = (data['type'] as String? ?? 'expense').trim().toLowerCase();
+          final key = '${name}_$type';
+
+          if (seenKeys.containsKey(key)) {
+            // Keep the canonical document with fixed ID if available, otherwise delete duplicate
+            final existingDoc = seenKeys[key]!;
+            final defaultIds = DefaultCategories.defaultList.map((c) => c.id).toSet();
+            if (defaultIds.contains(doc.id) && !defaultIds.contains(existingDoc.id)) {
+              docsToDelete.add(existingDoc);
+              seenKeys[key] = doc;
+            } else {
+              docsToDelete.add(doc);
+            }
+          } else {
+            seenKeys[key] = doc;
+          }
+        }
+
+        if (docsToDelete.isNotEmpty) {
+          debugPrint("Cleaning up ${docsToDelete.length} duplicate category documents for user: $userId");
+          final batch = _firestore.batch();
+          for (final d in docsToDelete) {
+            batch.delete(d.reference);
+          }
+          await batch.commit();
+        }
       }
     } catch (e) {
-      debugPrint("Error seeding default categories: $e");
+      debugPrint("Error seeding/cleaning default categories: $e");
+    } finally {
+      _seedingUserIds.remove(userId);
     }
   }
 

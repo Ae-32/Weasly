@@ -14,6 +14,7 @@ import '../../widgets/payday_countdown_card.dart';
 
 import '../auth/logout_confirmation_modal.dart';
 import '../auth/logout_success_screen.dart';
+import '../settings/settings_screen.dart';
 
 /// Account & Stashes screen matching exact Figma CSS export & redesign specifications.
 class AccountsScreen extends ConsumerWidget {
@@ -202,7 +203,9 @@ class AccountsScreen extends ConsumerWidget {
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(
                     icon: Icons.settings_rounded,
-                    onTap: () => _showComingSoonSnackBar(context, 'Settings'),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(

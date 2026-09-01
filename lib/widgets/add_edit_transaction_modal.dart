@@ -316,50 +316,70 @@ class _AddEditTransactionModalState
                       letterSpacing: 1.0,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        '₱',
-                        style: TextStyle(
-                          fontFamily: 'Quicksand',
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textMuted,
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: AppColors.accentPrimary,
+                          width: 2.5,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      IntrinsicWidth(
-                        child: TextFormField(
-                          controller: _amountController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '₱',
+                          style: TextStyle(
                             fontFamily: 'Quicksand',
                             fontSize: 36,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.onSurface,
+                            color: AppColors.accentPrimary,
                           ),
-                          decoration: const InputDecoration(
-                            hintText: '0.00',
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          validator: (val) {
-                            if (val == null || val.trim().isEmpty) {
-                              return 'Enter amount';
-                            }
-                            if (double.tryParse(val.trim()) == null) {
-                              return 'Invalid number';
-                            }
-                            return null;
-                          },
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 6),
+                        IntrinsicWidth(
+                          stepWidth: 10,
+                          child: TextFormField(
+                            controller: _amountController,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontFamily: 'Quicksand',
+                              fontSize: 44,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.onSurface,
+                            ),
+                            decoration: const InputDecoration(
+                              hintText: '0.00',
+                              hintStyle: TextStyle(
+                                fontFamily: 'Quicksand',
+                                fontSize: 44,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textMuted,
+                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            validator: (val) {
+                              if (val == null || val.trim().isEmpty) {
+                                return 'Enter amount';
+                              }
+                              if (double.tryParse(val.trim()) == null) {
+                                return 'Invalid number';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -387,15 +407,27 @@ class _AddEditTransactionModalState
                       }
                     }).toList();
 
+                    final uniqueFilteredCats = <CategoryModel>[];
+                    final seenCatIds = <String>{};
+                    for (final c in filteredCats) {
+                      if (seenCatIds.add(c.id)) {
+                        uniqueFilteredCats.add(c);
+                      }
+                    }
+
+                    if (_selectedCategory != null && !uniqueFilteredCats.contains(_selectedCategory)) {
+                      _selectedCategory = null;
+                    }
+
                     // Auto-select first category or match editing tx
-                    if (_selectedCategory == null && filteredCats.isNotEmpty) {
-                      if (isEditing) {
-                        _selectedCategory = filteredCats.firstWhere(
+                    if (_selectedCategory == null && uniqueFilteredCats.isNotEmpty) {
+                      if (isEditing && widget.transactionToEdit!.type == _selectedType) {
+                        _selectedCategory = uniqueFilteredCats.firstWhere(
                           (c) => c.id == widget.transactionToEdit!.categoryId,
-                          orElse: () => filteredCats.first,
+                          orElse: () => uniqueFilteredCats.first,
                         );
                       } else {
-                        _selectedCategory = filteredCats.first;
+                        _selectedCategory = uniqueFilteredCats.first;
                       }
                     }
 
@@ -410,7 +442,7 @@ class _AddEditTransactionModalState
                           value: _selectedCategory,
                           isExpanded: true,
                           icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
-                          items: filteredCats.map((cat) {
+                          items: uniqueFilteredCats.map((cat) {
                             final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
                             final icon = DefaultCategories.getIcon(cat.iconName);
                             return DropdownMenuItem<CategoryModel>(
@@ -457,28 +489,43 @@ class _AddEditTransactionModalState
               // Account Pickers
               accountsAsync.when(
                 data: (accounts) {
-                  if (_selectedAccount == null && accounts.isNotEmpty) {
+                  final uniqueAccounts = <AccountModel>[];
+                  final seenAccIds = <String>{};
+                  for (final a in accounts) {
+                    if (seenAccIds.add(a.id)) {
+                      uniqueAccounts.add(a);
+                    }
+                  }
+
+                  if (_selectedAccount != null && !uniqueAccounts.contains(_selectedAccount)) {
+                    _selectedAccount = null;
+                  }
+                  if (_selectedToAccount != null && !uniqueAccounts.contains(_selectedToAccount)) {
+                    _selectedToAccount = null;
+                  }
+
+                  if (_selectedAccount == null && uniqueAccounts.isNotEmpty) {
                     if (isEditing) {
-                      _selectedAccount = accounts.firstWhere(
+                      _selectedAccount = uniqueAccounts.firstWhere(
                         (a) => a.id == widget.transactionToEdit!.accountId,
-                        orElse: () => accounts.first,
+                        orElse: () => uniqueAccounts.first,
                       );
                     } else {
-                      _selectedAccount = accounts.first;
+                      _selectedAccount = uniqueAccounts.first;
                     }
                   }
 
                   if (_selectedType == TransactionType.transfer) {
-                    if (_selectedToAccount == null && accounts.length > 1) {
+                    if (_selectedToAccount == null && uniqueAccounts.length > 1) {
                       if (isEditing && widget.transactionToEdit!.toAccountId != null) {
-                        _selectedToAccount = accounts.firstWhere(
+                        _selectedToAccount = uniqueAccounts.firstWhere(
                           (a) => a.id == widget.transactionToEdit!.toAccountId,
-                          orElse: () => accounts.last,
+                          orElse: () => uniqueAccounts.last,
                         );
                       } else {
-                        _selectedToAccount = accounts.firstWhere(
+                        _selectedToAccount = uniqueAccounts.firstWhere(
                           (a) => a.id != _selectedAccount?.id,
-                          orElse: () => accounts.last,
+                          orElse: () => uniqueAccounts.last,
                         );
                       }
                     }
@@ -506,7 +553,7 @@ class _AddEditTransactionModalState
                                 ),
                                 const SizedBox(height: 6),
                                 _buildAccountDropdown(
-                                  accounts: accounts,
+                                  accounts: uniqueAccounts,
                                   selected: _selectedAccount,
                                   onChanged: (acc) => setState(() => _selectedAccount = acc),
                                 ),
@@ -530,7 +577,7 @@ class _AddEditTransactionModalState
                                   ),
                                   const SizedBox(height: 6),
                                   _buildAccountDropdown(
-                                    accounts: accounts,
+                                    accounts: uniqueAccounts,
                                     selected: _selectedToAccount,
                                     onChanged: (acc) => setState(() => _selectedToAccount = acc),
                                   ),
@@ -697,9 +744,12 @@ class _AddEditTransactionModalState
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedType = type;
-        });
+        if (_selectedType != type) {
+          setState(() {
+            _selectedType = type;
+            _selectedCategory = null;
+          });
+        }
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

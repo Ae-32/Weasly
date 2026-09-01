@@ -2,10 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:weasly/models/user_model.dart';
-import 'package:weasly/providers/auth_provider.dart';
-import 'package:weasly/screens/auth/login_screen.dart';
-import 'package:weasly/services/auth_service.dart';
+import 'package:Weasly/models/user_model.dart';
+import 'package:Weasly/providers/auth_provider.dart';
+import 'package:Weasly/screens/auth/login_screen.dart';
+import 'package:Weasly/services/auth_service.dart';
 
 class FakeAuthService implements AuthService {
   @override

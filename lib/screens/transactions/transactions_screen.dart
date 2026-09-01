@@ -9,6 +9,7 @@ import '../../providers/transaction_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/add_edit_transaction_modal.dart';
+import '../settings/settings_screen.dart';
 
 class TransactionsScreen extends ConsumerStatefulWidget {
   const TransactionsScreen({super.key});
@@ -168,20 +169,12 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             ),
           ],
         ),
-        child: FloatingActionButton.extended(
+        child: FloatingActionButton(
           onPressed: () => AddEditTransactionModal.show(context),
           backgroundColor: AppColors.accentPrimary,
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          icon: const Icon(Icons.add_rounded, color: Colors.white, size: 24),
-          label: Text(
-            'Add Transaction',
-            style: GoogleFonts.quicksand(
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-              color: Colors.white,
-            ),
-          ),
+          child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
         ),
       ),
       body: SafeArea(
@@ -461,7 +454,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(
                     icon: Icons.settings_rounded,
-                    onTap: () => _showComingSoonSnackBar(context, 'Settings'),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(

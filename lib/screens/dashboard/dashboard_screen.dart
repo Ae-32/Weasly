@@ -18,6 +18,7 @@ import '../auth/logout_confirmation_modal.dart';
 import '../auth/logout_success_screen.dart';
 import '../../widgets/income_expense_donut_chart.dart';
 import '../recurring_bills/recurring_bills_screen.dart';
+import '../settings/settings_screen.dart';
 
 /// Full live Dashboard screen matching exact Figma CSS export & redesign-v2 specifications
 /// with large overlapping mascot illustrations that break container boundaries.
@@ -229,7 +230,9 @@ class DashboardScreen extends ConsumerWidget {
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(
                     icon: Icons.settings_rounded,
-                    onTap: () => _showComingSoonSnackBar(context, 'Settings'),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(

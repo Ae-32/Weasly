@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/auth_service.dart';
+import 'biometric_provider.dart';
+import 'pin_provider.dart';
 
 /// Provider for accessing the AuthService instance across the app.
 final authServiceProvider = Provider<AuthService>((ref) {
@@ -38,8 +40,9 @@ class AuthState {
 /// Controller managing authentication state and actions for the UI.
 class AuthController extends StateNotifier<AuthState> {
   final AuthService _authService;
+  final Ref? _ref;
 
-  AuthController(this._authService) : super(const AuthState());
+  AuthController(this._authService, [this._ref]) : super(const AuthState());
 
   /// Clears any currently displayed error message.
   void clearError() {
@@ -112,6 +115,10 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> signOut() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
+      if (_ref != null) {
+        _ref.read(biometricUnlockedProvider.notifier).lock();
+        _ref.read(isPinUnlockedProvider.notifier).lock();
+      }
       await _authService.signOut();
       state = state.copyWith(isLoading: false);
     } catch (e) {
@@ -126,5 +133,5 @@ class AuthController extends StateNotifier<AuthState> {
 /// Provider for accessing the AuthController in screens.
 final authControllerProvider = StateNotifierProvider<AuthController, AuthState>((ref) {
   final authService = ref.watch(authServiceProvider);
-  return AuthController(authService);
+  return AuthController(authService, ref);
 });

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:weasly/providers/dashboard_provider.dart';
+import 'package:Weasly/providers/dashboard_provider.dart';
 
 void main() {
   group('DashboardProvider & Period Logic Tests', () {

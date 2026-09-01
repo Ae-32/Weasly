@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:weasly/models/recurring_bill_model.dart';
+import 'package:Weasly/models/recurring_bill_model.dart';
 
 void main() {
   group('RecurringBillModel Tests', () {

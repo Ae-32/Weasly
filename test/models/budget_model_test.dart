@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:weasly/models/budget_model.dart';
+import 'package:Weasly/models/budget_model.dart';
 
 void main() {
   group('BudgetModel Tests', () {

@@ -249,14 +249,26 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
                       .where((c) => c.type == CategoryType.expense || c.type == CategoryType.both)
                       .toList();
 
-                  if (_selectedCategory == null && expenseCategories.isNotEmpty) {
+                  final uniqueExpenseCategories = <CategoryModel>[];
+                  final seenCatIds = <String>{};
+                  for (final c in expenseCategories) {
+                    if (seenCatIds.add(c.id)) {
+                      uniqueExpenseCategories.add(c);
+                    }
+                  }
+
+                  if (_selectedCategory != null && !uniqueExpenseCategories.contains(_selectedCategory)) {
+                    _selectedCategory = null;
+                  }
+
+                  if (_selectedCategory == null && uniqueExpenseCategories.isNotEmpty) {
                     if (isEditing) {
-                      _selectedCategory = expenseCategories.firstWhere(
+                      _selectedCategory = uniqueExpenseCategories.firstWhere(
                         (c) => c.id == widget.budgetToEdit!.categoryId,
-                        orElse: () => expenseCategories.first,
+                        orElse: () => uniqueExpenseCategories.first,
                       );
                     } else {
-                      _selectedCategory = expenseCategories.first;
+                      _selectedCategory = uniqueExpenseCategories.first;
                     }
                   }
 
@@ -273,7 +285,7 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
                             value: _selectedCategory,
                             isExpanded: true,
                             icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
-                            items: expenseCategories.map((cat) {
+                            items: uniqueExpenseCategories.map((cat) {
                               final color = DefaultCategories.getColor(cat.colorHex);
                               final icon = DefaultCategories.getIcon(cat.iconName);
                               return DropdownMenuItem<CategoryModel>(

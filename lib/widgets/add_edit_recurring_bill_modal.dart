@@ -166,16 +166,28 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
     final categories = ref.watch(expenseCategoriesProvider);
     final accountsAsync = ref.watch(accountsStreamProvider);
 
-    if (_selectedCategory == null && categories.isNotEmpty) {
+    final uniqueCategories = <CategoryModel>[];
+    final seenCatIds = <String>{};
+    for (final c in categories) {
+      if (seenCatIds.add(c.id)) {
+        uniqueCategories.add(c);
+      }
+    }
+
+    if (_selectedCategory != null && !uniqueCategories.contains(_selectedCategory)) {
+      _selectedCategory = null;
+    }
+
+    if (_selectedCategory == null && uniqueCategories.isNotEmpty) {
       if (isEdit) {
-        _selectedCategory = categories.firstWhere(
+        _selectedCategory = uniqueCategories.firstWhere(
           (c) => c.id == widget.billToEdit!.categoryId,
-          orElse: () => categories.first,
+          orElse: () => uniqueCategories.first,
         );
       } else {
-        _selectedCategory = categories.firstWhere(
+        _selectedCategory = uniqueCategories.firstWhere(
           (c) => c.name.contains('Bills'),
-          orElse: () => categories.first,
+          orElse: () => uniqueCategories.first,
         );
       }
     }
@@ -251,7 +263,7 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
               DropdownButtonFormField<CategoryModel>(
                 initialValue: _selectedCategory,
                 decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-                items: categories.map((cat) {
+                items: uniqueCategories.map((cat) {
                   final icon = DefaultCategories.getIcon(cat.iconName);
                   final color = DefaultCategories.getColor(cat.colorHex);
                   return DropdownMenuItem(
@@ -275,21 +287,33 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
               const SizedBox(height: 6),
               accountsAsync.when(
                 data: (accounts) {
-                  if (_selectedAccount == null && accounts.isNotEmpty) {
+                  final uniqueAccounts = <AccountModel>[];
+                  final seenAccIds = <String>{};
+                  for (final a in accounts) {
+                    if (seenAccIds.add(a.id)) {
+                      uniqueAccounts.add(a);
+                    }
+                  }
+
+                  if (_selectedAccount != null && !uniqueAccounts.contains(_selectedAccount)) {
+                    _selectedAccount = null;
+                  }
+
+                  if (_selectedAccount == null && uniqueAccounts.isNotEmpty) {
                     if (isEdit) {
-                      _selectedAccount = accounts.firstWhere(
+                      _selectedAccount = uniqueAccounts.firstWhere(
                         (a) => a.id == widget.billToEdit!.accountId,
-                        orElse: () => accounts.first,
+                        orElse: () => uniqueAccounts.first,
                       );
                     } else {
-                      _selectedAccount = accounts.first;
+                      _selectedAccount = uniqueAccounts.first;
                     }
                   }
 
                   return DropdownButtonFormField<AccountModel>(
                     initialValue: _selectedAccount,
                     decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-                    items: accounts.map((acc) {
+                    items: uniqueAccounts.map((acc) {
                       return DropdownMenuItem(
                         value: acc,
                         child: Row(

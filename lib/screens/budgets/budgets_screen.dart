@@ -8,6 +8,7 @@ import '../../providers/budget_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/add_edit_budget_modal.dart';
+import '../settings/settings_screen.dart';
 
 class BudgetsScreen extends ConsumerWidget {
   const BudgetsScreen({super.key});
@@ -242,7 +243,9 @@ class BudgetsScreen extends ConsumerWidget {
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(
                     icon: Icons.settings_rounded,
-                    onTap: () => _showComingSoonSnackBar(context, 'Settings'),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(
