@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../models/transaction_model.dart';
-import '../../providers/auth_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/transaction_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/add_edit_transaction_modal.dart';
-import '../settings/settings_screen.dart';
+import '../../widgets/weasly_app_header.dart';
 
 class TransactionsScreen extends ConsumerStatefulWidget {
   const TransactionsScreen({super.key});
@@ -75,50 +74,6 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     );
   }
 
-  void _handleLogout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Log Out',
-          style: GoogleFonts.quicksand(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          'Are you sure you want to log out of Weasly?',
-          style: GoogleFonts.quicksand(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text('Cancel', style: GoogleFonts.quicksand(color: AppColors.textMuted)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(dialogContext).pop();
-              await ref.read(authControllerProvider.notifier).signOut();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.accentPrimary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('Log Out'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showComingSoonSnackBar(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature coming soon!', style: GoogleFonts.quicksand()),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   /// Groups transactions into date headers (Today, Yesterday, Oct 12, etc.)
   Map<String, List<TransactionModel>> _groupTransactionsByDate(
       List<TransactionModel> transactions) {
@@ -178,16 +133,51 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Top Header Bar (Logo Badge, Action Buttons, Title & Subtitle)
-              _buildTopHeader(context),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Fixed Top Header Bar (Logo Badge & Action Buttons)
+            const WeaslyAppHeader(),
+            const SizedBox(height: 8),
 
-              // 2. Search & Filter Bar Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            // 2. Scrollable Content Area
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. Scrollable Page Title & Subtitle Section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Transactions',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF211A16),
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Review your recent activity',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF8A7F73),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // 2. Search & Filter Bar Section
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   children: [
                     // Search Bar Input
@@ -417,104 +407,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  /// Top Header Bar matching Dashboard, Accounts, & Budgets pattern
-  Widget _buildTopHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 18.0, bottom: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top Row: Weasly App Logo Badge (Left) & Action Buttons (Right)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Weasly App Logo Badge
-              Container(
-                width: 44,
-                height: 44,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/Weasly_Logo.png'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-
-              // Action Buttons Row (Notification, Settings, Logout)
-              Row(
-                children: [
-                  _buildHeaderIconButton(
-                    icon: Icons.notifications_rounded,
-                    onTap: () => _showComingSoonSnackBar(context, 'Notifications'),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildHeaderIconButton(
-                    icon: Icons.settings_rounded,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildHeaderIconButton(
-                    icon: Icons.person_rounded,
-                    onTap: () => _handleLogout(context),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Title: "Transactions"
-          Text(
-            'Transactions',
-            style: GoogleFonts.quicksand(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.64,
-              color: const Color(0xFF211A16),
-            ),
-          ),
-          const SizedBox(height: 4),
-
-          // Subtitle
-          Text(
-            'Review your recent activity',
-            style: GoogleFonts.quicksand(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: const Color(0xFF8A7F73),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeaderIconButton({required IconData icon, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: const BoxDecoration(
-          color: Color(0xFFEDE0D9),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(43, 36, 32, 0.04),
-              blurRadius: 12,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(icon, size: 20, color: AppColors.accentPrimary),
-      ),
-    );
+    ],
+  ),
+),
+);
   }
 
   /// Individual Transaction Card matching Figma CSS specs & redesign mockups

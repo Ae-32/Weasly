@@ -88,6 +88,19 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/images/Weasly_Account_Stashes.png
+    - assets/images/Weasly_Account_TotalBalance.png
+    - assets/images/Weasly_App.png
+    - assets/images/Weasly_App_full.png
+    - assets/images/Weasly_Dashboard_PayCheck.png
+    - assets/images/Weasly_Dashboard_TotalBalance.png
+    - assets/images/Weasly_Dashboard_Welcome.png
+    - assets/images/Weasly_Logo.png
+    - assets/images/Weasly_Logout.png
+    - assets/images/Weasly_Logout_Success.png
+    - assets/images/Weasly_NoTransaction.png
+    - assets/images/Weasly_Spare.png
+    - assets/images/Weasly_Transaction_InsufficientBalance.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

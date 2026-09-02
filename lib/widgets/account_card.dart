@@ -25,6 +25,9 @@ class AccountCard extends StatelessWidget {
     switch (account.type.toLowerCase()) {
       case 'gcash':
       case 'e-wallet':
+      case 'ewallet':
+      case 'digital':
+      case 'digital_stash':
         return (
           Icons.phone_iphone_rounded,
           const Color(0xFFE08B03),
@@ -32,6 +35,7 @@ class AccountCard extends StatelessWidget {
           account.note ?? 'Digital Transaction',
         );
       case 'bank':
+      case 'bank_wallet':
         return (
           Icons.account_balance_rounded,
           const Color(0xFFF48423),
@@ -51,6 +55,13 @@ class AccountCard extends StatelessWidget {
           AppColors.stateError,
           const Color(0xFFFFDAD6),
           account.note ?? 'Credit Card',
+        );
+      case 'other':
+        return (
+          Icons.more_horiz_rounded,
+          const Color(0xFF8A7F73),
+          const Color(0xFFEDE0D9),
+          account.note ?? 'Custom Stash',
         );
       case 'cash':
       default:
@@ -117,14 +128,31 @@ class AccountCard extends StatelessWidget {
                 ),
               ),
 
-              // Balance
-              Text(
-                currencyFormatter.format(account.balance),
-                style: GoogleFonts.quicksand(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: accentColor,
-                ),
+              // Balance (Highlighted red if negative)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    currencyFormatter.format(account.balance),
+                    style: GoogleFonts.quicksand(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: account.balance < 0 ? AppColors.stateError : accentColor,
+                    ),
+                  ),
+                  if (account.balance < 0) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      'Needs Adjustment',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.stateError,
+                      ),
+                    ),
+                  ],
+                ],
               ),
 
               // Popup Menu for Edit / Delete

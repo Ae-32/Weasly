@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/account_model.dart';
@@ -7,8 +8,10 @@ import '../models/transaction_model.dart';
 import '../providers/account_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
+import 'insufficient_balance_modal.dart';
 
 class AddEditTransactionModal extends ConsumerStatefulWidget {
   final TransactionModel? transactionToEdit;
@@ -35,6 +38,7 @@ class AddEditTransactionModal extends ConsumerStatefulWidget {
 class _AddEditTransactionModalState
     extends ConsumerState<AddEditTransactionModal> {
   final _formKey = GlobalKey<FormState>();
+  final FocusNode _amountFocusNode = FocusNode();
   late TextEditingController _amountController;
   late TextEditingController _noteController;
   late TransactionType _selectedType;
@@ -62,6 +66,7 @@ class _AddEditTransactionModalState
   void dispose() {
     _amountController.dispose();
     _noteController.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
   }
 
@@ -195,8 +200,50 @@ class _AddEditTransactionModalState
       );
     }
 
-    if (mounted && success) {
-      Navigator.of(context).pop();
+    if (mounted) {
+      if (success) {
+        Navigator.of(context).pop();
+      } else {
+        final err = ref.read(transactionControllerProvider).errorMessage;
+        if (err != null && (err.contains("INSUFFICIENT_BALANCE") || err.toLowerCase().contains("insufficient balance"))) {
+          double availBal = 0.0;
+          if (err.contains("INSUFFICIENT_BALANCE")) {
+            final parts = err.split('|');
+            if (parts.length >= 3) {
+              final rawAvail = parts[2].replaceAll('₱', '').replaceAll(',', '').trim();
+              availBal = double.tryParse(rawAvail) ?? 0.0;
+            }
+          } else {
+            availBal = _selectedAccount?.balance ?? 0.0;
+          }
+
+          final result = await showModalBottomSheet<String>(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (ctx) => InsufficientBalanceModal(
+              accountName: _selectedAccount?.name ?? 'Account',
+              accountIcon: _getAccountIconData(_selectedAccount?.type),
+              categoryIcon: _getCategoryIconData(_selectedCategory?.iconName),
+              availableBalance: availBal,
+              attemptedAmount: amountVal,
+              isTransfer: _selectedType == TransactionType.transfer,
+            ),
+          );
+
+          if (mounted) {
+            if (result == 'adjust') {
+              _amountFocusNode.requestFocus();
+              _amountController.selection = TextSelection(
+                baseOffset: 0,
+                extentOffset: _amountController.text.length,
+              );
+            } else if (result == 'cancel') {
+              Navigator.of(context).pop();
+            }
+          }
+        }
+      }
     }
   }
 
@@ -261,22 +308,8 @@ class _AddEditTransactionModalState
               ),
               const SizedBox(height: 16),
 
-              if (state.errorMessage != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.errorContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    state.errorMessage!,
-                    style: const TextStyle(
-                      color: AppColors.onErrorContainer,
-                      fontSize: 13,
-                      fontFamily: 'Quicksand',
-                    ),
-                  ),
-                ),
+              if (state.errorMessage != null && !state.errorMessage!.contains("INSUFFICIENT_BALANCE")) ...[
+                _buildErrorBanner(state.errorMessage!),
                 const SizedBox(height: 16),
               ],
 
@@ -346,7 +379,11 @@ class _AddEditTransactionModalState
                           stepWidth: 10,
                           child: TextFormField(
                             controller: _amountController,
+                            focusNode: _amountFocusNode,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            inputFormatters: [
+                              DecimalTextInputFormatter(decimalRange: 2),
+                            ],
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontFamily: 'Quicksand',
@@ -770,5 +807,163 @@ class _AddEditTransactionModalState
         ),
       ),
     );
+  }
+
+  Widget _buildErrorBanner(String rawError) {
+    String headline = 'Transaction Error';
+    String explanation = rawError;
+
+    // Handle structured INSUFFICIENT_BALANCE error string: INSUFFICIENT_BALANCE|AccountName|Available|Attempted|Action
+    if (rawError.contains("INSUFFICIENT_BALANCE") || rawError.toLowerCase().contains("insufficient balance")) {
+      final parts = rawError.split('|');
+      if (parts.length >= 5 && parts[0] == "INSUFFICIENT_BALANCE") {
+        final accName = parts[1];
+        final availableStr = parts[2];
+        final attemptedStr = parts[3];
+        final actionStr = parts[4]; // 'spend' or 'transfer'
+
+        headline = "Not enough in $accName";
+        explanation = "You're trying to $actionStr $attemptedStr, but this account only has $availableStr available.";
+      } else {
+        // Fallback for unstructured string like "Insufficient balance in Ae_Bank. Available: ₱0.00."
+        final regex = RegExp(r'Insufficient balance in ([^.]+)\. Available: ([^.]+)\.', caseSensitive: false);
+        final match = regex.firstMatch(rawError);
+        if (match != null) {
+          final accName = match.group(1) ?? 'this account';
+          final availableStr = match.group(2) ?? '₱0.00';
+          final amtVal = double.tryParse(_amountController.text) ?? 0.0;
+          final attemptedStr = NumberFormat.currency(symbol: '₱', decimalDigits: 2).format(amtVal);
+          final actionStr = _selectedType == TransactionType.transfer ? 'transfer' : 'spend';
+
+          headline = "Not enough in $accName";
+          explanation = "You're trying to $actionStr $attemptedStr, but this account only has $availableStr available.";
+        } else {
+          headline = "Insufficient Balance";
+          explanation = rawError;
+        }
+      }
+    } else {
+      // General error cleaning (strip out exception dumps if any remain)
+      explanation = rawError
+          .replaceAll(RegExp(r'^(Exception|TransactionException|Failed to add transaction|Failed to update transaction):\s*'), '')
+          .replaceAll(RegExp(r'Error: Dart exception thrown.*'), '')
+          .trim();
+      if (explanation.isEmpty) {
+        explanation = "An unexpected error occurred. Please try again.";
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.errorContainer,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.stateError.withOpacity(0.4), width: 1.5),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.stateError.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.account_balance_wallet_outlined,
+              color: AppColors.stateError,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  headline,
+                  style: GoogleFonts.quicksand(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onErrorContainer,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  explanation,
+                  style: GoogleFonts.quicksand(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.onErrorContainer.withOpacity(0.9),
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getAccountIconData(String? type) {
+    switch (type?.toLowerCase()) {
+      case 'gcash':
+      case 'e-wallet':
+        return Icons.phone_iphone_rounded;
+      case 'bank':
+        return Icons.account_balance_rounded;
+      case 'savings':
+        return Icons.savings_rounded;
+      case 'credit':
+        return Icons.credit_card_rounded;
+      case 'cash':
+      default:
+        return Icons.account_balance_wallet_rounded;
+    }
+  }
+
+  IconData _getCategoryIconData(String? iconName) {
+    switch (iconName) {
+      case 'shopping_bag':
+        return Icons.shopping_bag_outlined;
+      case 'restaurant':
+        return Icons.restaurant_rounded;
+      case 'directions_bus':
+        return Icons.directions_bus_rounded;
+      case 'movie':
+        return Icons.movie_rounded;
+      case 'home':
+        return Icons.home_rounded;
+      case 'work':
+        return Icons.work_rounded;
+      case 'receipt':
+        return Icons.receipt_long_rounded;
+      default:
+        return Icons.shopping_cart_rounded;
+    }
+  }
+}
+
+/// Custom TextInputFormatter allowing only numeric digits and at most 1 decimal point with up to decimalRange digits.
+class DecimalTextInputFormatter extends TextInputFormatter {
+  final int decimalRange;
+  DecimalTextInputFormatter({this.decimalRange = 2});
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    String newText = newValue.text;
+    if (newText.isEmpty) {
+      return newValue;
+    }
+    final regex = RegExp('^\\d*\\.?\\d{0,$decimalRange}\$');
+    if (regex.hasMatch(newText)) {
+      return newValue;
+    }
+    return oldValue;
   }
 }

@@ -66,6 +66,70 @@ class AccountModel {
     );
   }
 
+  /// Fixed account type constants for new stashes.
+  static const String typeCash = 'cash';
+  static const String typeDigital = 'digital';
+  static const String typeBank = 'bank';
+  static const String typeOther = 'other';
+
+  /// Standard display names for fixed account types.
+  static const String nameCash = 'Cash Stash';
+  static const String nameDigital = 'Digital Stash';
+  static const String nameBank = 'Bank Stash';
+
+  /// Checks if an existing account list already contains an account of the given fixed type.
+  /// Fixed types ('cash', 'digital', 'bank') only allow 1 instance per user.
+  /// 'other' allows multiple instances and always returns false.
+  static bool isDuplicateType(String targetType, List<AccountModel> existingAccounts, {String? excludeAccountId}) {
+    if (targetType == typeOther) return false;
+
+    for (final acc in existingAccounts) {
+      if (excludeAccountId != null && acc.id.isNotEmpty && acc.id == excludeAccountId) continue;
+
+      final accType = acc.type.toLowerCase();
+      final accName = acc.name.trim().toLowerCase();
+
+      switch (targetType) {
+        case typeCash:
+          if (accType == 'cash' ||
+              accType == 'cash_wallet' ||
+              accType == 'cash_stash' ||
+              accName == 'cash stash' ||
+              accName == 'cash wallet') {
+            return true;
+          }
+          break;
+        case typeDigital:
+        case 'ewallet':
+          if (accType == 'digital' ||
+              accType == 'digital_stash' ||
+              accType == 'ewallet' ||
+              accType == 'e-wallet' ||
+              accType == 'gcash' ||
+              accName == 'digital stash' ||
+              accName == 'e-wallet' ||
+              accName == 'ewallet' ||
+              accName == 'gcash' ||
+              accName == 'e-cash') {
+            return true;
+          }
+          break;
+        case typeBank:
+          if (accType == 'bank' ||
+              accType == 'bank_wallet' ||
+              accType == 'bank_stash' ||
+              accName == 'bank stash' ||
+              accName == 'bank wallet' ||
+              accName == 'main bank' ||
+              accName == 'ae_bank') {
+            return true;
+          }
+          break;
+      }
+    }
+    return false;
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -76,3 +140,4 @@ class AccountModel {
   @override
   int get hashCode => id.hashCode;
 }
+

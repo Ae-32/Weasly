@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/account_model.dart';
@@ -247,6 +248,9 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
               TextFormField(
                 controller: _amountController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                ],
                 decoration: const InputDecoration(hintText: '0.00'),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) return 'Please enter an amount';

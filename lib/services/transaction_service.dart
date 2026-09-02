@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import '../models/transaction_model.dart';
 
 class TransactionException implements Exception {
@@ -93,6 +94,29 @@ class TransactionService {
       createdAt: DateTime.now(),
     );
 
+    final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
+
+    // Pre-check balance before runTransaction to ensure clean Dart exception throwing (especially on Flutter Web)
+    if (type == TransactionType.expense || type == TransactionType.transfer) {
+      final sourceAccountRef = _accountsRef(userId).doc(accountId);
+      final sourceSnap = await sourceAccountRef.get();
+      if (!sourceSnap.exists) {
+        throw const TransactionException("Selected account does not exist.");
+      }
+      final sourceData = sourceSnap.data() ?? {};
+      final double currentSourceBal = (sourceData['balance'] as num?)?.toDouble() ?? 0.0;
+      final String sourceAccountName = (sourceData['name'] as String?) ?? accountName;
+
+      if (currentSourceBal < amount) {
+        final formattedBal = currencyFormatter.format(currentSourceBal);
+        final formattedAmount = currencyFormatter.format(amount);
+        final action = type == TransactionType.transfer ? 'transfer' : 'spend';
+        throw TransactionException(
+          "INSUFFICIENT_BALANCE|$sourceAccountName|$formattedBal|$formattedAmount|$action",
+        );
+      }
+    }
+
     try {
       await _firestore.runTransaction((transaction) async {
         final sourceAccountRef = _accountsRef(userId).doc(accountId);
@@ -100,8 +124,23 @@ class TransactionService {
         if (!sourceSnap.exists) {
           throw const TransactionException("Selected account does not exist.");
         }
+        final sourceData = sourceSnap.data() ?? {};
         final double currentSourceBal =
-            (sourceSnap.data()?['balance'] as num?)?.toDouble() ?? 0.0;
+            (sourceData['balance'] as num?)?.toDouble() ?? 0.0;
+        final String sourceAccountName =
+            (sourceData['name'] as String?) ?? accountName;
+
+        // Validation 1 & 2: Expense / Transfer source account must have sufficient balance
+        if (type == TransactionType.expense || type == TransactionType.transfer) {
+          if (currentSourceBal < amount) {
+            final formattedBal = currencyFormatter.format(currentSourceBal);
+            final formattedAmount = currencyFormatter.format(amount);
+            final action = type == TransactionType.transfer ? 'transfer' : 'spend';
+            throw TransactionException(
+              "INSUFFICIENT_BALANCE|$sourceAccountName|$formattedBal|$formattedAmount|$action",
+            );
+          }
+        }
 
         if (type == TransactionType.expense) {
           transaction.update(sourceAccountRef, {
@@ -133,8 +172,13 @@ class TransactionService {
 
       return transactionModel;
     } catch (e) {
-      if (e is TransactionException) rethrow;
-      throw TransactionException("Failed to add transaction: ${e.toString()}");
+      final unboxed = _unwrapException(e);
+      if (unboxed is TransactionException) rethrow;
+      final errStr = unboxed.toString();
+      if (errStr.contains("INSUFFICIENT_BALANCE") || errStr.contains("Insufficient balance")) {
+        throw TransactionException(errStr);
+      }
+      throw TransactionException(_cleanErrorMessage(errStr));
     }
   }
 
@@ -150,11 +194,93 @@ class TransactionService {
     if (newTx.amount <= 0) {
       throw const TransactionException("Amount must be greater than zero.");
     }
+    if (newTx.accountId.isEmpty) {
+      throw const TransactionException("Please select an account.");
+    }
+    if (newTx.type == TransactionType.transfer) {
+      if (newTx.toAccountId == null || newTx.toAccountId!.isEmpty) {
+        throw const TransactionException("Please select a destination account for the transfer.");
+      }
+      if (newTx.accountId == newTx.toAccountId) {
+        throw const TransactionException("Source and destination accounts cannot be the same.");
+      }
+    }
 
     final txDocRef = _transactionsRef(userId).doc(oldTx.id);
+    final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
+
+    // Pre-check balance before runTransaction
+    final newSourceRef = _accountsRef(userId).doc(newTx.accountId);
+    final newSourceSnap = await newSourceRef.get();
+    if (!newSourceSnap.exists) {
+      throw const TransactionException("Selected account does not exist.");
+    }
+    final newSourceData = newSourceSnap.data() ?? {};
+    final double currentNewSourceBal = (newSourceData['balance'] as num?)?.toDouble() ?? 0.0;
+    final String newSourceAccountName = (newSourceData['name'] as String?) ?? newTx.accountName;
+
+    double effectiveAvailableBal = currentNewSourceBal;
+    if (oldTx.accountId == newTx.accountId) {
+      if (oldTx.type == TransactionType.expense || oldTx.type == TransactionType.transfer) {
+        effectiveAvailableBal += oldTx.amount;
+      } else if (oldTx.type == TransactionType.income) {
+        effectiveAvailableBal -= oldTx.amount;
+      }
+    }
+    if (oldTx.toAccountId == newTx.accountId && oldTx.type == TransactionType.transfer) {
+      effectiveAvailableBal -= oldTx.amount;
+    }
+
+    if (newTx.type == TransactionType.expense || newTx.type == TransactionType.transfer) {
+      if (effectiveAvailableBal < newTx.amount) {
+        final formattedBal = currencyFormatter.format(effectiveAvailableBal);
+        final formattedAmount = currencyFormatter.format(newTx.amount);
+        final action = newTx.type == TransactionType.transfer ? 'transfer' : 'spend';
+        throw TransactionException(
+          "INSUFFICIENT_BALANCE|$newSourceAccountName|$formattedBal|$formattedAmount|$action",
+        );
+      }
+    }
 
     try {
       await _firestore.runTransaction((transaction) async {
+        // Fetch source account for new transaction
+        final newSourceRef = _accountsRef(userId).doc(newTx.accountId);
+        final newSourceSnap = await transaction.get(newSourceRef);
+        if (!newSourceSnap.exists) {
+          throw const TransactionException("Selected account does not exist.");
+        }
+        final newSourceData = newSourceSnap.data() ?? {};
+        final double currentNewSourceBal =
+            (newSourceData['balance'] as num?)?.toDouble() ?? 0.0;
+        final String newSourceAccountName =
+            (newSourceData['name'] as String?) ?? newTx.accountName;
+
+        // Validation 4: Calculate effective available balance for newTx source account (reverting oldTx impact first)
+        double effectiveAvailableBal = currentNewSourceBal;
+        if (oldTx.accountId == newTx.accountId) {
+          if (oldTx.type == TransactionType.expense || oldTx.type == TransactionType.transfer) {
+            effectiveAvailableBal += oldTx.amount;
+          } else if (oldTx.type == TransactionType.income) {
+            effectiveAvailableBal -= oldTx.amount;
+          }
+        }
+        if (oldTx.toAccountId == newTx.accountId && oldTx.type == TransactionType.transfer) {
+          effectiveAvailableBal -= oldTx.amount;
+        }
+
+        // Check if new transaction is expense or transfer and exceeds effective available balance
+        if (newTx.type == TransactionType.expense || newTx.type == TransactionType.transfer) {
+          if (effectiveAvailableBal < newTx.amount) {
+            final formattedBal = currencyFormatter.format(effectiveAvailableBal);
+            final formattedAmount = currencyFormatter.format(newTx.amount);
+            final action = newTx.type == TransactionType.transfer ? 'transfer' : 'spend';
+            throw TransactionException(
+              "INSUFFICIENT_BALANCE|$newSourceAccountName|$formattedBal|$formattedAmount|$action",
+            );
+          }
+        }
+
         // 1. Revert old transaction balance impact
         await _applyBalanceDelta(
           transaction: transaction,
@@ -179,8 +305,13 @@ class TransactionService {
         transaction.set(txDocRef, newTx.toMap(), SetOptions(merge: true));
       });
     } catch (e) {
-      if (e is TransactionException) rethrow;
-      throw TransactionException("Failed to update transaction: ${e.toString()}");
+      final unboxed = _unwrapException(e);
+      if (unboxed is TransactionException) rethrow;
+      final errStr = unboxed.toString();
+      if (errStr.contains("INSUFFICIENT_BALANCE") || errStr.contains("Insufficient balance")) {
+        throw TransactionException(errStr);
+      }
+      throw TransactionException(_cleanErrorMessage(errStr));
     }
   }
 
@@ -245,5 +376,40 @@ class TransactionService {
         }
       }
     }
+  }
+
+  /// Helper to unwrap Web JS exception wrappers around boxed Dart exceptions.
+  dynamic _unwrapException(dynamic e) {
+    if (e is TransactionException) return e;
+    final str = e.toString();
+    if (str.contains("INSUFFICIENT_BALANCE")) {
+      final idx = str.indexOf("INSUFFICIENT_BALANCE");
+      return TransactionException(str.substring(idx));
+    }
+    try {
+      final boxed = (e as dynamic).error;
+      if (boxed != null) {
+        if (boxed is TransactionException) return boxed;
+        final boxedStr = boxed.toString();
+        if (boxedStr.contains("INSUFFICIENT_BALANCE")) {
+          final idx = boxedStr.indexOf("INSUFFICIENT_BALANCE");
+          return TransactionException(boxedStr.substring(idx));
+        }
+        return boxed;
+      }
+    } catch (_) {}
+    return e;
+  }
+
+  /// Strips technical stack trace prefixes and raw Dart exception wrapper boilerplate.
+  String _cleanErrorMessage(String rawStr) {
+    String cleaned = rawStr
+        .replaceAll(RegExp(r'^(Exception|TransactionException|Failed to add transaction|Failed to update transaction):\s*'), '')
+        .replaceAll(RegExp(r'Error: Dart exception thrown from converted Future.*'), '')
+        .trim();
+    if (cleaned.isEmpty) {
+      cleaned = "An error occurred while processing the transaction. Please try again.";
+    }
+    return cleaned;
   }
 }

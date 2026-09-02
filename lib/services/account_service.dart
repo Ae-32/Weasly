@@ -27,8 +27,21 @@ class AccountService {
   }
 
   /// Adds a new account document to Firestore under users/{userId}/accounts.
+  /// Enforces duplicate prevention for fixed account types (Cash Wallet, E-Wallet, Bank Wallet).
   /// If the new account has a non-zero starting balance, automatically logs a "Starting Balance" transaction.
   Future<void> addAccount(String userId, AccountModel account) async {
+    // Validate duplicate fixed account type before creating
+    if (account.type != AccountModel.typeOther) {
+      final snapshot = await _userAccountsRef(userId).get();
+      final existingAccounts = snapshot.docs
+          .map((doc) => AccountModel.fromMap(doc.data(), doc.id))
+          .toList();
+
+      if (AccountModel.isDuplicateType(account.type, existingAccounts)) {
+        throw Exception('An account of type "${account.name}" already exists.');
+      }
+    }
+
     final batch = _firestore.batch();
     final accountDocRef = _userAccountsRef(userId).doc();
     final accountId = accountDocRef.id;

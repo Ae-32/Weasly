@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/budget_model.dart';
@@ -345,6 +346,9 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
               TextFormField(
                 controller: _amountController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                ],
                 style: const TextStyle(
                   fontFamily: 'Quicksand',
                   fontSize: 18,

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,11 +15,10 @@ import '../../providers/home_nav_provider.dart';
 import '../../providers/recurring_bill_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
-import '../auth/logout_confirmation_modal.dart';
-import '../auth/logout_success_screen.dart';
 import '../../widgets/income_expense_donut_chart.dart';
+import '../../widgets/percentage_speech_bubble.dart';
+import '../../widgets/weasly_app_header.dart';
 import '../recurring_bills/recurring_bills_screen.dart';
-import '../settings/settings_screen.dart';
 
 /// Full live Dashboard screen matching exact Figma CSS export & redesign-v2 specifications
 /// with large overlapping mascot illustrations that break container boundaries.
@@ -34,31 +34,6 @@ class DashboardScreen extends ConsumerWidget {
     } else {
       return 'Good evening';
     }
-  }
-
-  Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
-    final confirmed = await LogoutConfirmationModal.show(context);
-    if (confirmed == true && context.mounted) {
-      await ref.read(authControllerProvider.notifier).signOut();
-      if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LogoutSuccessScreen()),
-          (route) => false,
-        );
-      }
-    }
-  }
-
-  void _showComingSoonSnackBar(BuildContext context, String featureName) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$featureName feature coming soon!'),
-        backgroundColor: AppColors.accentPrimary,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   @override
@@ -92,163 +67,94 @@ class DashboardScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.bgBase,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Top Header Bar & Mascot Insight Speech Bubble (Overlapping Band)
-              _buildTopHeaderBanner(
-                context: context,
-                ref: ref,
-                dateHeader: dateHeader,
-                greetingText: '$greetingPrefix, $userName!',
-                mascotInsight: mascotInsight,
-              ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Fixed Top Header Bar (Logo, Date, Greeting, Action Buttons)
+            WeaslyAppHeader(
+              topLabel: dateHeader,
+              title: '$greetingPrefix, $userName!',
+              inlineTitle: true,
+            ),
 
-              // Content Canvas Container
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+            // 2. Scrollable Dashboard Body Area
+            Expanded(
+              child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 2. Total Balance Summary Card (Overlapping Top-Right Mascot)
-                    _buildTotalBalanceCard(totalBalance, currencyFormatter),
-                    const SizedBox(height: 20),
-
-                    // 3. Income and Expenses Card (with Period Toggle)
-                    IncomeExpenseDonutChart(
-                      summary: periodSummary,
-                      period: activePeriod,
-                      periodToggle: _buildPeriodToggleBar(ref, activePeriod),
+                    // Mascot Insight Speech Bubble (Overlapping Band Stack)
+                    _buildMascotSpeechBubbleBanner(
+                      mascotInsight: mascotInsight,
                     ),
-                    const SizedBox(height: 16),
 
-                    // 4. Spending by Category Card
-                    _buildCategorySpendingSection(
-                      context,
-                      ref,
-                      periodTransactions,
-                      activePeriod,
-                      currencyFormatterShort,
+                    // Content Canvas Container
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 2. Total Balance Summary Card (Overlapping Top-Right Mascot)
+                          _buildTotalBalanceCard(totalBalance, currencyFormatter),
+                          const SizedBox(height: 20),
+
+                          // 3. Income and Expenses Card (with Period Toggle)
+                          IncomeExpenseDonutChart(
+                            summary: periodSummary,
+                            period: activePeriod,
+                            periodToggle: _buildPeriodToggleBar(ref, activePeriod),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 4. Spending by Category Card
+                          _buildCategorySpendingSection(
+                            context,
+                            ref,
+                            periodTransactions,
+                            activePeriod,
+                            currencyFormatterShort,
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Budget Alerts (Hidden if no budgets in warning/over state)
+                          if (warningBudgets.isNotEmpty) ...[
+                            _buildBudgetAlertsSection(context, ref, warningBudgets, currencyFormatter),
+                            const SizedBox(height: 16),
+                          ],
+
+                          // 6. Recent Transactions List
+                          _buildRecentTransactionsSection(
+                            context,
+                            ref,
+                            periodTransactions,
+                            activePeriod,
+                            currencyFormatter,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Upcoming Bills Preview Section
+                          _buildRecurringBillsSection(context, ref, recurringBillsAsync, currencyFormatter),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // Budget Alerts (Hidden if no budgets in warning/over state)
-                    if (warningBudgets.isNotEmpty) ...[
-                      _buildBudgetAlertsSection(context, ref, warningBudgets, currencyFormatter),
-                      const SizedBox(height: 16),
-                    ],
-
-                    // 6. Recent Transactions List
-                    _buildRecentTransactionsSection(
-                      context,
-                      ref,
-                      periodTransactions,
-                      activePeriod,
-                      currencyFormatter,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Upcoming Bills Preview Section
-                    _buildRecurringBillsSection(context, ref, recurringBillsAsync, currencyFormatter),
-                    const SizedBox(height: 24),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  /// Top Header Bar + Orange Background Accent Band + Mascot Insight Bubble (Figma Spec)
-  Widget _buildTopHeaderBanner({
-    required BuildContext context,
-    required WidgetRef ref,
-    required String dateHeader,
-    required String greetingText,
+  /// Orange Background Accent Band + Mascot Insight Bubble Stack (Figma Spec)
+  Widget _buildMascotSpeechBubbleBanner({
     required String mascotInsight,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Top Header Row with Action Buttons
-        Padding(
-          padding: const EdgeInsets.only(left: 16.0, right: 20.0, top: 12.0, bottom: 4.0),
-          child: Row(
-            children: [
-              // Weasly App Logo Badge (image 3 in Figma spec)
-              Container(
-                width: 42,
-                height: 42,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/Weasly_Logo.png'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-
-              // Date & Greeting
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      dateHeader,
-                      style: GoogleFonts.quicksand(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFBBB6B4),
-                        letterSpacing: -0.64,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      greetingText,
-                      style: GoogleFonts.quicksand(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF211A16),
-                        letterSpacing: -0.64,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Action Buttons Row (Notification, Settings, Logout)
-              Row(
-                children: [
-                  _buildHeaderIconButton(
-                    icon: Icons.notifications_rounded,
-                    onTap: () => _showComingSoonSnackBar(context, 'Notifications'),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildHeaderIconButton(
-                    icon: Icons.settings_rounded,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildHeaderIconButton(
-                    icon: Icons.logout_rounded,
-                    onTap: () => _handleLogout(context, ref),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        // Stack with Orange Band, Overlapping Mascot, and Speech Bubble
-        SizedBox(
-          height: 135,
-          child: Stack(
+    return SizedBox(
+      height: 135,
+      child: Stack(
             clipBehavior: Clip.none,
             children: [
               // Orange Background Band (Rectangle 1)
@@ -336,32 +242,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ],
           ),
-        ),
-      ],
-    );
-  }
-
-  /// Circular Action Button at Top Right
-  Widget _buildHeaderIconButton({required IconData icon, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: AppColors.iconButtonBg,
-          shape: BoxShape.circle,
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(43, 36, 32, 0.04),
-              blurRadius: 12,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(icon, size: 20, color: AppColors.accentPrimary),
-      ),
-    );
+        );
   }
 
   /// Total Balance Summary Card (Overlapping Mascot Top-Right Corner)
@@ -453,15 +334,13 @@ class DashboardScreen extends ConsumerWidget {
   /// Segmented period toggle pill (Day | Week | Month)
   Widget _buildPeriodToggleBar(WidgetRef ref, DashboardPeriod activePeriod) {
     return Container(
-      width: 108,
-      height: 22,
-      padding: const EdgeInsets.all(2),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppColors.accentPrimaryLight,
-        borderRadius: BorderRadius.circular(11),
+        color: const Color(0xFFEDE0D9),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: DashboardPeriod.values.map((period) {
           final isSelected = period == activePeriod;
           final label = period == DashboardPeriod.today ? 'Day' : period.label;
@@ -470,16 +349,17 @@ class DashboardScreen extends ConsumerWidget {
             onTap: () {
               ref.read(dashboardPeriodProvider.notifier).state = period;
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.accentPrimary : Colors.transparent,
-                borderRadius: BorderRadius.circular(9),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
                 label,
                 style: GoogleFonts.quicksand(
-                  fontSize: 8,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: isSelected ? Colors.white : AppColors.accentPrimary,
                 ),
@@ -589,7 +469,38 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  /// Section - Spending by Category Card (Figma Spec)
+  Widget _buildPeriodBadgePill(DashboardPeriod activePeriod) {
+    String label;
+    switch (activePeriod) {
+      case DashboardPeriod.today:
+        label = 'Today';
+        break;
+      case DashboardPeriod.week:
+        label = 'Week';
+        break;
+      case DashboardPeriod.month:
+        label = 'Month';
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEDE0D9),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.quicksand(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.accentPrimary,
+        ),
+      ),
+    );
+  }
+
+  /// Section - Category Spending Breakdown (Figma Spec)
   Widget _buildCategorySpendingSection(
     BuildContext context,
     WidgetRef ref,
@@ -601,10 +512,12 @@ class DashboardScreen extends ConsumerWidget {
         .where((tx) => tx.type == TransactionType.expense)
         .toList();
 
+    final badgePill = _buildPeriodBadgePill(activePeriod);
+
     if (periodExpenses.isEmpty) {
       return _buildCardWrapper(
         title: 'SPENDING BY CATEGORY',
-        actionWidget: _buildPeriodToggleBar(ref, activePeriod),
+        actionWidget: badgePill,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20.0),
           child: Center(
@@ -641,30 +554,38 @@ class DashboardScreen extends ConsumerWidget {
 
     return _buildCardWrapper(
       title: 'SPENDING BY CATEGORY',
-      actionWidget: _buildPeriodToggleBar(ref, activePeriod),
+      actionWidget: badgePill,
       child: Column(
         children: [
           // Donut Chart & Category Summary Row
           Row(
             children: [
               SizedBox(
-                width: 110,
-                height: 110,
-                child: PieChart(
-                  PieChartData(
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 32,
-                    sections: List.generate(sortedCategories.length, (index) {
-                      final cat = sortedCategories[index];
-                      final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
-                      return PieChartSectionData(
-                        color: color,
-                        value: cat.total,
-                        title: '',
-                        radius: 16,
-                      );
-                    }),
-                  ),
+                width: 140,
+                height: 140,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    PieChart(
+                      PieChartData(
+                        sectionsSpace: 2,
+                        centerSpaceRadius: 30,
+                        startDegreeOffset: -90,
+                        sections: List.generate(sortedCategories.length, (index) {
+                          final cat = sortedCategories[index];
+                          final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
+                          return PieChartSectionData(
+                            color: color,
+                            value: cat.total,
+                            title: '',
+                            radius: 16,
+                          );
+                        }),
+                      ),
+                    ),
+                    ..._buildCategoryPercentageBubbles(sortedCategories, totalExpensePeriod),
+                  ],
                 ),
               ),
               const SizedBox(width: 16),
@@ -764,6 +685,78 @@ class DashboardScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// Dynamic Floating Percentage Speech Bubbles for Category Donut Chart
+  List<Widget> _buildCategoryPercentageBubbles(
+    List<_CategoryExpenseAggregate> categories,
+    double totalExpense,
+  ) {
+    if (totalExpense <= 0 || categories.isEmpty) return [];
+
+    final widgets = <Widget>[];
+    double currentAngle = -90.0; // fl_chart startDegreeOffset
+
+    // Take top 4 categories that have at least 3% share
+    final topCategories = categories.where((c) => (c.total / totalExpense) >= 0.03).take(4).toList();
+
+    for (final cat in categories) {
+      final fraction = cat.total / totalExpense;
+      final pct = (fraction * 100).round();
+      final angleSpan = fraction * 360.0;
+      final midAngle = currentAngle + (angleSpan / 2.0);
+      currentAngle += angleSpan;
+
+      if (!topCategories.contains(cat)) continue;
+
+      final rad = midAngle * (math.pi / 180.0);
+      const centerX = 70.0;
+      const centerY = 70.0;
+      const radius = 52.0;
+
+      final targetX = centerX + radius * math.cos(rad);
+      final targetY = centerY + radius * math.sin(rad);
+
+      final normAngle = (midAngle % 360.0 + 360.0) % 360.0;
+      BubblePointerPosition pointer;
+      double left;
+      double top;
+
+      if (normAngle >= 270 || normAngle < 0) {
+        pointer = BubblePointerPosition.bottomLeft;
+        left = targetX - 4;
+        top = targetY - 24;
+      } else if (normAngle >= 0 && normAngle < 90) {
+        pointer = BubblePointerPosition.topLeft;
+        left = targetX - 4;
+        top = targetY;
+      } else if (normAngle >= 90 && normAngle < 180) {
+        pointer = BubblePointerPosition.topRight;
+        left = targetX - 32;
+        top = targetY;
+      } else {
+        pointer = BubblePointerPosition.bottomRight;
+        left = targetX - 32;
+        top = targetY - 24;
+      }
+
+      final catColor = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
+
+      widgets.add(
+        Positioned(
+          left: left,
+          top: top,
+          child: PercentageSpeechBubble(
+            text: '$pct%',
+            backgroundColor: catColor,
+            textColor: Colors.white,
+            pointerPosition: pointer,
+          ),
+        ),
+      );
+    }
+
+    return widgets;
   }
 
   /// Section - Recent Transactions (Figma Spec)

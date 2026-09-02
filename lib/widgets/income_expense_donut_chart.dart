@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../providers/dashboard_provider.dart';
 import '../utils/app_colors.dart';
+import 'percentage_speech_bubble.dart';
 
 /// Circular / Donut chart displaying the ratio of Income vs. Expense for the selected period
 /// strictly styled per Figma CSS export.
@@ -82,17 +83,18 @@ class IncomeExpenseDonutChart extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    // Donut Chart with Center Label & Percentage Callouts
+                    // Donut Chart with Center Label & Floating Percentage Speech Bubble Callouts
                     SizedBox(
-                      width: 130,
-                      height: 130,
+                      width: 140,
+                      height: 140,
                       child: Stack(
+                        clipBehavior: Clip.none,
                         alignment: Alignment.center,
                         children: [
                           PieChart(
                             PieChartData(
                               sectionsSpace: 2,
-                              centerSpaceRadius: 36,
+                              centerSpaceRadius: 34,
                               startDegreeOffset: -90,
                               sections: [
                                 PieChartSectionData(
@@ -102,7 +104,7 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                                   radius: 14,
                                 ),
                                 PieChartSectionData(
-                                  color: AppColors.accentPrimaryLight,
+                                  color: const Color(0xFFE8B381),
                                   value: summary.totalExpense > 0 ? summary.totalExpense : 0.1,
                                   showTitle: false,
                                   radius: 14,
@@ -118,6 +120,30 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                               color: AppColors.accentPrimary,
                             ),
                           ),
+
+                          // Floating Expense % Badge (Left - matching light peach expense slice)
+                          if (summary.totalExpense > 0)
+                            Positioned(
+                              left: -4,
+                              top: -2,
+                              child: PercentageSpeechBubble(
+                                text: '${summary.expensePercentage.round()}%',
+                                backgroundColor: const Color(0xFFFCE9D6),
+                                textColor: const Color(0xFFC25814),
+                              ),
+                            ),
+
+                          // Floating Income % Badge (Right - matching dark orange income slice)
+                          if (summary.totalIncome > 0)
+                            Positioned(
+                              right: -4,
+                              top: -2,
+                              child: PercentageSpeechBubble(
+                                text: '${summary.incomePercentage.round()}%',
+                                backgroundColor: AppColors.accentPrimary,
+                                textColor: Colors.white,
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -130,7 +156,7 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                         children: [
                           // Income Row
                           _buildBreakdownRow(
-                            iconBg: AppColors.iconButtonBg,
+                            iconBg: const Color(0xFFFCE9D6),
                             iconColor: AppColors.accentPrimary,
                             isUp: true,
                             label: 'INCOME',
@@ -144,14 +170,14 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                           const SizedBox(height: 12),
                           // Expense Row
                           _buildBreakdownRow(
-                            iconBg: AppColors.bgBase,
-                            iconColor: AppColors.accentPrimaryLight,
+                            iconBg: const Color(0xFFFCE9D6),
+                            iconColor: const Color(0xFFE8B381),
                             isUp: false,
                             label: 'EXPENSES',
                             amountText: currencyFormatter.format(summary.totalExpense),
-                            amountColor: AppColors.accentPrimaryLight,
+                            amountColor: const Color(0xFFE8B381),
                             pctText: '${summary.expensePercentage.toStringAsFixed(0)}%',
-                            pctColor: AppColors.accentPrimaryLight,
+                            pctColor: const Color(0xFFE8B381),
                           ),
                         ],
                       ),
@@ -190,19 +216,19 @@ class IncomeExpenseDonutChart extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 26,
-          height: 26,
+          width: 30,
+          height: 30,
           decoration: BoxDecoration(
             color: iconBg,
             shape: BoxShape.circle,
           ),
           child: Icon(
             isUp ? Icons.trending_up_rounded : Icons.trending_down_rounded,
-            size: 16,
+            size: 18,
             color: iconColor,
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,15 +237,16 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                 label,
                 style: GoogleFonts.quicksand(
                   fontSize: 10,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.textMutedAlt,
+                  letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 amountText,
                 style: GoogleFonts.quicksand(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: amountColor,
                 ),
@@ -229,8 +256,8 @@ class IncomeExpenseDonutChart extends StatelessWidget {
         ),
         Text(
           pctText,
-          style: GoogleFonts.amaranth(
-            fontSize: 10,
+          style: GoogleFonts.quicksand(
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: pctColor,
           ),

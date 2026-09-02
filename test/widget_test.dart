@@ -6,6 +6,7 @@ import 'package:Weasly/models/user_model.dart';
 import 'package:Weasly/providers/auth_provider.dart';
 import 'package:Weasly/screens/auth/login_screen.dart';
 import 'package:Weasly/services/auth_service.dart';
+import 'package:Weasly/widgets/weasly_app_header.dart';
 
 class FakeAuthService implements AuthService {
   @override
@@ -60,5 +61,22 @@ void main() {
     expect(find.text('Weasly'), findsOneWidget);
     expect(find.text('Stash your cash, gently.'), findsOneWidget);
     expect(find.text('Sign In'), findsWidgets);
+  });
+
+  testWidgets('Renders Weasly brand name in WeaslyAppHeader', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: WeaslyAppHeader(
+            title: 'Transactions',
+            subtitle: 'Review your recent activity',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Weasly'), findsOneWidget);
+    expect(find.text('Transactions'), findsOneWidget);
+    expect(find.text('Review your recent activity'), findsOneWidget);
   });
 }
