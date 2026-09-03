@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/transaction_model.dart';
-import 'recurring_bill_provider.dart';
 import 'transaction_provider.dart';
+
 
 /// Enum representing the active period filter on the Dashboard.
 enum DashboardPeriod {
@@ -24,6 +24,12 @@ enum DashboardPeriod {
 
 /// Active period selection provider.
 final dashboardPeriodProvider = StateProvider<DashboardPeriod>((ref) => DashboardPeriod.month);
+
+/// Provider for toggling show all categories in Spending by Category section
+final categorySpendingShowAllProvider = StateProvider<bool>((ref) => false);
+
+/// Active touched category index on the Donut Chart (-1 means top category/default)
+final touchedCategoryIndexProvider = StateProvider.autoDispose<int>((ref) => -1);
 
 /// Helper function checking if a DateTime falls within the given DashboardPeriod.
 bool isDateInDashboardPeriod(DateTime date, DashboardPeriod period, DateTime referenceNow) {
@@ -159,88 +165,3 @@ final mascotInsightProvider = Provider<String>((ref) {
   );
 });
 
-/// Model holding computed payday countdown details.
-class PaydayInfo {
-  final int daysRemaining;
-  final DateTime expectedDate;
-  final double? expectedAmount;
-  final String title;
-  final String sourceDescription;
-
-  const PaydayInfo({
-    required this.daysRemaining,
-    required this.expectedDate,
-    this.expectedAmount,
-    required this.title,
-    required this.sourceDescription,
-  });
-}
-
-/// Computed provider calculating the countdown to the user's next expected income/payday.
-final paydayCountdownProvider = Provider<PaydayInfo?>((ref) {
-  final recurringBillsAsync = ref.watch(recurringBillsStreamProvider);
-  final transactionsAsync = ref.watch(transactionsStreamProvider);
-
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-
-  // 1. Check recurring bills/income entries for upcoming income
-  final recurringBills = recurringBillsAsync.asData?.value ?? [];
-  final upcomingIncomeBills = recurringBills.where((bill) {
-    final catName = bill.categoryName.toLowerCase();
-    final billName = bill.name.toLowerCase();
-    final isIncomeType = catName.contains('salary') ||
-        catName.contains('income') ||
-        billName.contains('salary') ||
-        billName.contains('payday') ||
-        billName.contains('income');
-    final isUpcoming = !bill.nextDueDate.isBefore(today);
-    return isIncomeType && isUpcoming;
-  }).toList();
-
-  if (upcomingIncomeBills.isNotEmpty) {
-    upcomingIncomeBills.sort((a, b) => a.nextDueDate.compareTo(b.nextDueDate));
-    final earliest = upcomingIncomeBills.first;
-    final dueDateOnly = DateTime(earliest.nextDueDate.year, earliest.nextDueDate.month, earliest.nextDueDate.day);
-    final days = dueDateOnly.difference(today).inDays;
-
-    return PaydayInfo(
-      daysRemaining: days < 0 ? 0 : days,
-      expectedDate: earliest.nextDueDate,
-      expectedAmount: earliest.amount,
-      title: earliest.name,
-      sourceDescription: 'From recurring schedule',
-    );
-  }
-
-  // 2. Check past salary/income transactions pattern
-  final transactions = transactionsAsync.asData?.value ?? [];
-  final salaryTxs = transactions.where((tx) {
-    final catName = tx.categoryName.toLowerCase();
-    final note = (tx.note ?? '').toLowerCase();
-    return tx.type == TransactionType.income &&
-        (catName.contains('salary') || catName.contains('income') || note.contains('salary') || note.contains('payday'));
-  }).toList();
-
-  if (salaryTxs.isNotEmpty) {
-    salaryTxs.sort((a, b) => b.date.compareTo(a.date));
-    final latestSalary = salaryTxs.first;
-
-    // Project next payday date based on monthly/semi-monthly frequency
-    DateTime projected = DateTime(latestSalary.date.year, latestSalary.date.month + 1, latestSalary.date.day);
-    while (projected.isBefore(today)) {
-      projected = DateTime(projected.year, projected.month + 1, projected.day);
-    }
-
-    final days = projected.difference(today).inDays;
-    return PaydayInfo(
-      daysRemaining: days < 0 ? 0 : days,
-      expectedDate: projected,
-      expectedAmount: latestSalary.amount,
-      title: latestSalary.categoryName,
-      sourceDescription: 'Estimated from past salary',
-    );
-  }
-
-  return null;
-});

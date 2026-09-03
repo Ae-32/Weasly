@@ -7,7 +7,7 @@ void main() {
       final budget = BudgetModel(
         id: 'budget_1',
         categoryId: 'cat_food',
-        categoryName: 'Food & Dining',
+        categoryName: 'Foods & Drinks',
         categoryIcon: 'restaurant',
         categoryColorHex: '#D9553A',
         amount: 5000.0,
@@ -42,6 +42,29 @@ void main() {
       expect(restored.alertThreshold, 75.0);
       expect(restored.categoryName, 'Shopping');
       expect(restored.amount, 3000.0);
+    });
+
+    test('isDuplicateCategory detects duplicate budgets by categoryId or categoryName', () {
+      final existing = [
+        BudgetModel(
+          id: 'b1',
+          categoryId: 'cat_bills',
+          categoryName: 'Bills & Utilities',
+          categoryIcon: 'receipt',
+          categoryColorHex: '#E08B03',
+          amount: 4500.0,
+          periodType: BudgetPeriodType.monthly,
+          startDate: DateTime.now(),
+        ),
+      ];
+
+      expect(BudgetModel.isDuplicateCategory('cat_bills', 'Bills & Utilities', existing), isTrue);
+      expect(BudgetModel.isDuplicateCategory('cat_other', 'bills & utilities', existing), isTrue);
+      expect(BudgetModel.isDuplicateCategory('cat_food', 'Foods & Drinks', existing), isFalse);
+      expect(
+        BudgetModel.isDuplicateCategory('cat_bills', 'Bills & Utilities', existing, excludeBudgetId: 'b1'),
+        isFalse,
+      );
     });
   });
 }

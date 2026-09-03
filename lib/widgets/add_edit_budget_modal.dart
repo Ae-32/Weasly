@@ -8,6 +8,7 @@ import '../providers/budget_provider.dart';
 import '../providers/category_provider.dart';
 import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
+import 'category_icon.dart';
 
 class AddEditBudgetModal extends ConsumerStatefulWidget {
   final BudgetModel? budgetToEdit;
@@ -127,6 +128,25 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
     }
 
     final isEditing = widget.budgetToEdit != null;
+    final existingBudgets = ref.read(budgetsStreamProvider).value ?? [];
+    if (BudgetModel.isDuplicateCategory(
+      _selectedCategory!.id,
+      _selectedCategory!.name,
+      existingBudgets,
+      excludeBudgetId: isEditing ? widget.budgetToEdit!.id : null,
+    )) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'A budget for "${_selectedCategory!.name}" already exists. Please edit the existing budget instead.',
+            style: const TextStyle(fontFamily: 'Quicksand'),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     final controller = ref.read(budgetControllerProvider.notifier);
 
     final model = BudgetModel(
@@ -250,13 +270,14 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
                       .where((c) => c.type == CategoryType.expense || c.type == CategoryType.both)
                       .toList();
 
-                  final uniqueExpenseCategories = <CategoryModel>[];
+                  final rawUniqueExpenseCategories = <CategoryModel>[];
                   final seenCatIds = <String>{};
                   for (final c in expenseCategories) {
                     if (seenCatIds.add(c.id)) {
-                      uniqueExpenseCategories.add(c);
+                      rawUniqueExpenseCategories.add(c);
                     }
                   }
+                  final uniqueExpenseCategories = DefaultCategories.sortCategoriesWithOtherLast(rawUniqueExpenseCategories);
 
                   if (_selectedCategory != null && !uniqueExpenseCategories.contains(_selectedCategory)) {
                     _selectedCategory = null;
@@ -288,7 +309,6 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
                             icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
                             items: uniqueExpenseCategories.map((cat) {
                               final color = DefaultCategories.getColor(cat.colorHex);
-                              final icon = DefaultCategories.getIcon(cat.iconName);
                               return DropdownMenuItem<CategoryModel>(
                                 value: cat,
                                 child: Row(
@@ -300,7 +320,16 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
                                         color: color.withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: Icon(icon, size: 18, color: color),
+                                      child: Center(
+                                        child: CategoryIcon(
+                                          categoryName: cat.name,
+                                          iconName: cat.iconName,
+                                          color: color,
+                                          size: 18,
+                                          containerSize: 32,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(width: 12),
                                     Text(

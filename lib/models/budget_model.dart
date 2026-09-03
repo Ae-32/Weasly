@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/default_categories.dart';
 
 enum BudgetPeriodType {
   weekly,
@@ -91,7 +92,7 @@ class BudgetModel {
     return BudgetModel(
       id: docId.isNotEmpty ? docId : (map['id'] ?? ''),
       categoryId: map['categoryId'] ?? '',
-      categoryName: map['categoryName'] ?? 'Category',
+      categoryName: DefaultCategories.sanitizeCategoryName(map['categoryName'] ?? 'Category'),
       categoryIcon: map['categoryIcon'] ?? 'shopping_cart',
       categoryColorHex: map['categoryColorHex'] ?? '#D9553A',
       amount: (map['amount'] as num?)?.toDouble() ?? 0.0,
@@ -163,5 +164,22 @@ class BudgetModel {
         final end = endDate ?? DateTime(ref.year, ref.month + 1, 1).subtract(const Duration(milliseconds: 1));
         return (start, end);
     }
+  }
+
+  /// Checks if a budget for the given category already exists among existing budgets.
+  static bool isDuplicateCategory(
+    String categoryId,
+    String categoryName,
+    List<BudgetModel> existingBudgets, {
+    String? excludeBudgetId,
+  }) {
+    final lowerName = categoryName.trim().toLowerCase();
+    return existingBudgets.any((budget) {
+      if (excludeBudgetId != null && budget.id == excludeBudgetId) {
+        return false;
+      }
+      return budget.categoryId == categoryId ||
+          budget.categoryName.trim().toLowerCase() == lowerName;
+    });
   }
 }

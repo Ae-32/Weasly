@@ -10,11 +10,13 @@ import '../../models/transaction_model.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/budget_provider.dart';
+import '../../providers/chart_style_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/home_nav_provider.dart';
 import '../../providers/recurring_bill_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
+import '../../widgets/category_icon.dart';
 import '../../widgets/income_expense_donut_chart.dart';
 import '../../widgets/percentage_speech_bubble.dart';
 import '../../widgets/weasly_app_header.dart';
@@ -39,7 +41,9 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
+    final accountsAsync = ref.watch(accountsStreamProvider);
     final totalBalance = ref.watch(totalBalanceProvider);
+    final accountsCount = accountsAsync.value?.length ?? 0;
     final recurringBillsAsync = ref.watch(recurringBillsStreamProvider);
     final budgetsWithSpent = ref.watch(budgetsWithSpentProvider);
 
@@ -95,8 +99,10 @@ class DashboardScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // 2. Total Balance Summary Card (Overlapping Top-Right Mascot)
-                          _buildTotalBalanceCard(totalBalance, currencyFormatter),
+                          _buildTotalBalanceCard(totalBalance, accountsCount, currencyFormatter),
                           const SizedBox(height: 20),
+
+
 
                           // 3. Income and Expenses Card (with Period Toggle)
                           IncomeExpenseDonutChart(
@@ -132,9 +138,9 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 20),
 
-                          // Upcoming Bills Preview Section
-                          _buildRecurringBillsSection(context, ref, recurringBillsAsync, currencyFormatter),
-                          const SizedBox(height: 24),
+                          // Upcoming Bills Preview Section (Temporarily hidden)
+                          // _buildRecurringBillsSection(context, ref, recurringBillsAsync, currencyFormatter),
+                          // const SizedBox(height: 24),
                         ],
                       ),
                     ),
@@ -246,7 +252,11 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   /// Total Balance Summary Card (Overlapping Mascot Top-Right Corner)
-  Widget _buildTotalBalanceCard(double totalBalance, NumberFormat currencyFormatter) {
+  Widget _buildTotalBalanceCard(
+    double totalBalance,
+    int accountsCount,
+    NumberFormat currencyFormatter,
+  ) {
     return Container(
       margin: const EdgeInsets.only(top: 30),
       child: Stack(
@@ -299,7 +309,7 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        'Across 3 Categories',
+                        'Across $accountsCount ${accountsCount == 1 ? 'Stash' : 'Stashes'}',
                         style: GoogleFonts.quicksand(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -552,6 +562,28 @@ class DashboardScreen extends ConsumerWidget {
     final sortedCategories = categoryMap.values.toList()
       ..sort((a, b) => b.total.compareTo(a.total));
 
+    final showAll = ref.watch(categorySpendingShowAllProvider);
+    final hasMoreCategories = sortedCategories.length > 4;
+    final displayCategories = (showAll || !hasMoreCategories)
+        ? sortedCategories
+        : sortedCategories.take(4).toList();
+
+    final pieChartStyle = ref.watch(pieChartStyleProvider);
+    final isInteractive = pieChartStyle == PieChartStyle.interactive;
+
+    final touchedIndex = ref.watch(touchedCategoryIndexProvider);
+    final activeIndex = (touchedIndex >= 0 && touchedIndex < sortedCategories.length)
+        ? touchedIndex
+        : 0;
+
+    final focusCat = sortedCategories.isNotEmpty ? sortedCategories[activeIndex] : null;
+    final focusPct = (focusCat != null && totalExpensePeriod > 0)
+        ? ((focusCat.total / totalExpensePeriod) * 100).round()
+        : 0;
+    final focusColor = focusCat != null
+        ? DefaultCategories.getCategoryColorByName(focusCat.name, focusCat.colorHex)
+        : AppColors.accentPrimary;
+
     return _buildCardWrapper(
       title: 'SPENDING BY CATEGORY',
       actionWidget: badgePill,
@@ -560,35 +592,85 @@ class DashboardScreen extends ConsumerWidget {
           // Donut Chart & Category Summary Row
           Row(
             children: [
-              SizedBox(
-                width: 140,
-                height: 140,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.center,
-                  children: [
-                    PieChart(
-                      PieChartData(
-                        sectionsSpace: 2,
-                        centerSpaceRadius: 30,
-                        startDegreeOffset: -90,
-                        sections: List.generate(sortedCategories.length, (index) {
-                          final cat = sortedCategories[index];
-                          final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
-                          return PieChartSectionData(
-                            color: color,
-                            value: cat.total,
-                            title: '',
-                            radius: 16,
-                          );
-                        }),
+              Padding(
+                padding: const EdgeInsets.only(left: 22, top: 10, bottom: 10),
+                child: SizedBox(
+                  width: 140,
+                  height: 140,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      PieChart(
+                        PieChartData(
+                          pieTouchData: PieTouchData(
+                            touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                              if (!event.isInterestedForInteractions ||
+                                  pieTouchResponse == null ||
+                                  pieTouchResponse.touchedSection == null) {
+                                return;
+                              }
+                              final idx = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                              if (idx >= 0 && idx < sortedCategories.length) {
+                                ref.read(touchedCategoryIndexProvider.notifier).state = idx;
+                              }
+                            },
+                          ),
+                          sectionsSpace: 3,
+                          centerSpaceRadius: isInteractive ? 38 : 34,
+                          startDegreeOffset: -90,
+                          sections: List.generate(sortedCategories.length, (index) {
+                            final isTouched = isInteractive && (index == activeIndex);
+                            final cat = sortedCategories[index];
+                            final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
+                            return PieChartSectionData(
+                              color: color,
+                              value: cat.total,
+                              title: '',
+                              radius: isTouched ? 20 : 15,
+                            );
+                          }),
+                        ),
                       ),
-                    ),
-                    ..._buildCategoryPercentageBubbles(sortedCategories, totalExpensePeriod),
-                  ],
+                      // Center Interactive Category Focus Indicator (When Interactive Mode Enabled)
+                      if (isInteractive && focusCat != null)
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              constraints: const BoxConstraints(maxWidth: 52),
+                              child: Text(
+                                focusCat.name,
+                                style: GoogleFonts.quicksand(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textMuted,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            Text(
+                              '$focusPct%',
+                              style: GoogleFonts.quicksand(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: focusColor,
+                                height: 1.1,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      // Dynamic Clockwise Slice-Anchored Speech Bubbles (When Bubble Mode Enabled)
+                      if (!isInteractive)
+                        ..._buildCategoryPercentageBubbles(sortedCategories, totalExpensePeriod),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 24),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -624,13 +706,39 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
-          // Category Progress Bars List
-          ...sortedCategories.take(4).map((cat) {
+          // View All button positioned directly on top of the divider line
+          if (hasMoreCategories) ...[
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () {
+                  ref.read(categorySpendingShowAllProvider.notifier).state = !showAll;
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 6.0),
+                  child: Text(
+                    showAll ? 'Show Less' : 'View All',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.accentPrimary,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ] else
+            const SizedBox(height: 4),
+
+          const Divider(height: 1, thickness: 0.5, color: AppColors.borderDefault),
+          const SizedBox(height: 12),
+
+          // Category Progress Bars List (Top 4 by default or all if expanded)
+          ...displayCategories.map((cat) {
             final pct = (cat.total / totalExpensePeriod) * 100;
             final catColor = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
-            final icon = DefaultCategories.getIcon(cat.iconName);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
@@ -638,14 +746,12 @@ class DashboardScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: catColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Icon(icon, size: 14, color: catColor),
+                      CategoryIcon(
+                        categoryName: cat.name,
+                        iconName: cat.iconName,
+                        size: 26,
+                        containerSize: 26,
+                        color: catColor,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -685,78 +791,6 @@ class DashboardScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  /// Dynamic Floating Percentage Speech Bubbles for Category Donut Chart
-  List<Widget> _buildCategoryPercentageBubbles(
-    List<_CategoryExpenseAggregate> categories,
-    double totalExpense,
-  ) {
-    if (totalExpense <= 0 || categories.isEmpty) return [];
-
-    final widgets = <Widget>[];
-    double currentAngle = -90.0; // fl_chart startDegreeOffset
-
-    // Take top 4 categories that have at least 3% share
-    final topCategories = categories.where((c) => (c.total / totalExpense) >= 0.03).take(4).toList();
-
-    for (final cat in categories) {
-      final fraction = cat.total / totalExpense;
-      final pct = (fraction * 100).round();
-      final angleSpan = fraction * 360.0;
-      final midAngle = currentAngle + (angleSpan / 2.0);
-      currentAngle += angleSpan;
-
-      if (!topCategories.contains(cat)) continue;
-
-      final rad = midAngle * (math.pi / 180.0);
-      const centerX = 70.0;
-      const centerY = 70.0;
-      const radius = 52.0;
-
-      final targetX = centerX + radius * math.cos(rad);
-      final targetY = centerY + radius * math.sin(rad);
-
-      final normAngle = (midAngle % 360.0 + 360.0) % 360.0;
-      BubblePointerPosition pointer;
-      double left;
-      double top;
-
-      if (normAngle >= 270 || normAngle < 0) {
-        pointer = BubblePointerPosition.bottomLeft;
-        left = targetX - 4;
-        top = targetY - 24;
-      } else if (normAngle >= 0 && normAngle < 90) {
-        pointer = BubblePointerPosition.topLeft;
-        left = targetX - 4;
-        top = targetY;
-      } else if (normAngle >= 90 && normAngle < 180) {
-        pointer = BubblePointerPosition.topRight;
-        left = targetX - 32;
-        top = targetY;
-      } else {
-        pointer = BubblePointerPosition.bottomRight;
-        left = targetX - 32;
-        top = targetY - 24;
-      }
-
-      final catColor = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
-
-      widgets.add(
-        Positioned(
-          left: left,
-          top: top,
-          child: PercentageSpeechBubble(
-            text: '$pct%',
-            backgroundColor: catColor,
-            textColor: Colors.white,
-            pointerPosition: pointer,
-          ),
-        ),
-      );
-    }
-
-    return widgets;
   }
 
   /// Section - Recent Transactions (Figma Spec)
@@ -831,7 +865,6 @@ class DashboardScreen extends ConsumerWidget {
                   children: List.generate(displayTxs.length, (index) {
                     final tx = displayTxs[index];
                     final isIncome = tx.type == TransactionType.income;
-                    final icon = DefaultCategories.getIcon(tx.categoryIcon);
                     final prefix = isIncome ? '+' : (tx.type == TransactionType.transfer ? '⇄ ' : '-');
                     final amountColor = isIncome ? AppColors.accentPrimary : AppColors.textPrimary;
 
@@ -848,7 +881,16 @@ class DashboardScreen extends ConsumerWidget {
                                 color: AppColors.bgBase,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(icon, size: 20, color: const Color(0xFF534438)),
+                              child: Center(
+                                child: CategoryIcon(
+                                  categoryName: tx.categoryName,
+                                  iconName: tx.categoryIcon,
+                                  size: 20,
+                                  containerSize: 40,
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: const Color(0xFF534438),
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -949,7 +991,6 @@ class DashboardScreen extends ConsumerWidget {
                 urgencyText = 'Due ${dateFormatter.format(bill.nextDueDate)}';
               }
 
-              final icon = DefaultCategories.getIcon(bill.categoryIcon);
               final iconColor = DefaultCategories.getCategoryColorByName(bill.categoryName, bill.categoryColorHex);
 
               return Padding(
@@ -963,7 +1004,16 @@ class DashboardScreen extends ConsumerWidget {
                         color: iconColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(icon, size: 18, color: iconColor),
+                      child: Center(
+                        child: CategoryIcon(
+                          categoryName: bill.categoryName,
+                          iconName: bill.categoryIcon,
+                          size: 18,
+                          containerSize: 36,
+                          borderRadius: BorderRadius.circular(10),
+                          color: iconColor,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1134,4 +1184,98 @@ class _SpeechBubblePointerPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
+/// Dynamic Clockwise Slice-Anchored Speech Bubbles for Category Spending Pie Chart
+List<Widget> _buildCategoryPercentageBubbles(
+  List<_CategoryExpenseAggregate> sortedCategories,
+  double totalExpensePeriod,
+) {
+  if (totalExpensePeriod <= 0 || sortedCategories.isEmpty) return [];
+
+  final widgets = <Widget>[];
+  double currentAngle = -90.0; // fl_chart startDegreeOffset (top center)
+  double? lastTop;
+  double? lastLeft;
+
+  for (int i = 0; i < sortedCategories.length; i++) {
+    final cat = sortedCategories[i];
+    final fraction = cat.total / totalExpensePeriod;
+    final pct = (fraction * 100).round();
+    final angleSpan = fraction * 360.0;
+    final midAngle = currentAngle + (angleSpan / 2.0);
+    currentAngle += angleSpan;
+
+    // Filter out tiny slices < 3% if there are many categories to avoid clutter
+    final minThreshold = sortedCategories.length > 4 ? 3 : 2;
+    if (pct < minThreshold) continue;
+
+    final rad = midAngle * (math.pi / 180.0);
+    const centerX = 70.0;
+    const centerY = 70.0;
+    const radius = 58.0;
+
+    final targetX = centerX + radius * math.cos(rad);
+    final targetY = centerY + radius * math.sin(rad);
+
+    final normAngle = (midAngle % 360.0 + 360.0) % 360.0;
+    double left;
+    double top;
+
+    if (normAngle >= 270 || normAngle < 0) {
+      left = targetX;
+      top = targetY - 18;
+    } else if (normAngle >= 0 && normAngle < 90) {
+      left = targetX;
+      top = targetY;
+    } else if (normAngle >= 90 && normAngle < 180) {
+      left = targetX - 32;
+      top = targetY;
+    } else {
+      left = targetX - 32;
+      top = targetY - 18;
+    }
+
+    // De-collision adjustment for consecutive badges
+    if (lastTop != null && lastLeft != null) {
+      final vDiff = (top - lastTop).abs();
+      final hDiff = (left - lastLeft).abs();
+
+      if (vDiff < 18.0 && hDiff < 30.0) {
+        if (left < 70.0) {
+          // Left side of chart: stagger upwards/outwards
+          top = math.min(top, lastTop - 18.0);
+          left = math.max(2.0, left - 4.0);
+        } else {
+          // Right side of chart: stagger downwards/outwards
+          top = math.max(top, lastTop + 18.0);
+        }
+      }
+    }
+
+    // Enforce strict left edge & top bounds inside Stack
+    if (left < 2.0) left = 2.0;
+    if (top < 2.0) top = 2.0;
+
+    lastTop = top;
+    lastLeft = left;
+
+    final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
+
+    widgets.add(
+      Positioned(
+        left: left,
+        top: top,
+        child: PercentageSpeechBubble(
+          text: '$pct%',
+          backgroundColor: color,
+          textColor: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  return widgets;
+}
+
+
 

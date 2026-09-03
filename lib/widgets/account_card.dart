@@ -22,56 +22,85 @@ class AccountCard extends StatelessWidget {
   });
 
   (IconData, Color, Color, String) _getAccountStyle() {
+    Color accentColor;
+    Color bgOverlay;
+
+    if (account.colorHex != null && account.colorHex!.isNotEmpty) {
+      final hex = account.colorHex!.replaceAll('#', '');
+      final intVal = int.parse('FF$hex', radix: 16);
+      accentColor = Color(intVal);
+      bgOverlay = accentColor.withValues(alpha: 0.15);
+    } else {
+      switch (account.type.toLowerCase()) {
+        case 'gcash':
+        case 'e-wallet':
+        case 'ewallet':
+        case 'digital':
+        case 'digital_stash':
+          accentColor = const Color(0xFFE08B03);
+          bgOverlay = const Color(0xFFFCE9D6);
+          break;
+        case 'bank':
+        case 'bank_wallet':
+          accentColor = const Color(0xFFF48423);
+          bgOverlay = const Color(0xFFFBE4D2);
+          break;
+        case 'savings':
+          accentColor = const Color(0xFFE05F03);
+          bgOverlay = const Color(0xFFFBDCC6);
+          break;
+        case 'credit':
+          accentColor = AppColors.stateError;
+          bgOverlay = const Color(0xFFFFDAD6);
+          break;
+        case 'other':
+          accentColor = const Color(0xFF8A7F73);
+          bgOverlay = const Color(0xFFEDE0D9);
+          break;
+        case 'cash':
+        default:
+          accentColor = const Color(0xFFEE4818);
+          bgOverlay = const Color(0xFFFCDED5);
+          break;
+      }
+    }
+
+    IconData iconData;
+    String subtitle;
     switch (account.type.toLowerCase()) {
       case 'gcash':
       case 'e-wallet':
       case 'ewallet':
       case 'digital':
       case 'digital_stash':
-        return (
-          Icons.phone_iphone_rounded,
-          const Color(0xFFE08B03),
-          const Color(0xFFFCE9D6),
-          account.note ?? 'Digital Transaction',
-        );
+        iconData = Icons.phone_iphone_rounded;
+        subtitle = account.note ?? 'Digital Transaction';
+        break;
       case 'bank':
       case 'bank_wallet':
-        return (
-          Icons.account_balance_rounded,
-          const Color(0xFFF48423),
-          const Color(0xFFFBE4D2),
-          account.note ?? 'Saving & Salary',
-        );
+        iconData = Icons.account_balance_rounded;
+        subtitle = account.note ?? 'Saving & Salary';
+        break;
       case 'savings':
-        return (
-          Icons.savings_rounded,
-          const Color(0xFFE05F03),
-          const Color(0xFFFBDCC6),
-          account.note ?? 'Long-term Savings',
-        );
+        iconData = Icons.savings_rounded;
+        subtitle = account.note ?? 'Long-term Savings';
+        break;
       case 'credit':
-        return (
-          Icons.credit_card_rounded,
-          AppColors.stateError,
-          const Color(0xFFFFDAD6),
-          account.note ?? 'Credit Card',
-        );
+        iconData = Icons.credit_card_rounded;
+        subtitle = account.note ?? 'Credit Card';
+        break;
       case 'other':
-        return (
-          Icons.more_horiz_rounded,
-          const Color(0xFF8A7F73),
-          const Color(0xFFEDE0D9),
-          account.note ?? 'Custom Stash',
-        );
+        iconData = Icons.more_horiz_rounded;
+        subtitle = account.note ?? 'Custom Stash';
+        break;
       case 'cash':
       default:
-        return (
-          Icons.account_balance_wallet_rounded,
-          const Color(0xFFEE4818),
-          const Color(0xFFFCDED5),
-          account.note ?? 'Everyday Spending',
-        );
+        iconData = Icons.account_balance_wallet_rounded;
+        subtitle = account.note ?? 'Everyday Spending';
+        break;
     }
+
+    return (iconData, accentColor, bgOverlay, subtitle);
   }
 
   @override

@@ -7,6 +7,7 @@ import '../../providers/budget_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/add_edit_budget_modal.dart';
+import '../../widgets/category_icon.dart';
 import '../../widgets/weasly_app_header.dart';
 
 class BudgetsScreen extends ConsumerWidget {
@@ -199,17 +200,16 @@ class BudgetsScreen extends ConsumerWidget {
       budget.categoryName,
       budget.categoryColorHex,
     );
-    final iconData = DefaultCategories.getIcon(budget.categoryIcon);
     final status = item.status;
     final isOverBudget = status == BudgetStatus.overBudget;
     final isNearingLimit = status == BudgetStatus.nearingLimit;
 
-    // Status colors from Figma redesign specs
+    // Status colors: warning/error for alerts, category color for normal progress
     final statusColor = isOverBudget
-        ? const Color(0xFFF6722F)
+        ? AppColors.stateError
         : isNearingLimit
-            ? const Color(0xFFF48423)
-            : const Color(0xFFEE4818);
+            ? const Color(0xFFE65100)
+            : categoryColor;
 
     final borderColor = isOverBudget ? const Color(0xFFFFDAD6) : const Color(0xFFE8E1D8);
 
@@ -245,7 +245,16 @@ class BudgetsScreen extends ConsumerWidget {
                       color: categoryColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(iconData, color: categoryColor, size: 20),
+                    child: Center(
+                      child: CategoryIcon(
+                        categoryName: budget.categoryName,
+                        iconName: budget.categoryIcon,
+                        color: categoryColor,
+                        size: 20,
+                        containerSize: 40,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Text(

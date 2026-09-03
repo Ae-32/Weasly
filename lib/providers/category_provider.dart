@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/category_model.dart';
 import '../services/category_service.dart';
+import '../utils/default_categories.dart';
 import 'auth_provider.dart';
 
 /// Provider exposing the CategoryService instance.
@@ -22,16 +23,20 @@ final categoriesStreamProvider = StreamProvider<List<CategoryModel>>((ref) {
   // Auto-seed default categories if empty
   service.seedDefaultCategoriesIfEmpty(userId);
 
-  return service.getCategoriesStream(userId);
+  return service.getCategoriesStream(userId).map((list) {
+    return DefaultCategories.sortCategoriesWithOtherLast(list);
+  });
 });
 
 /// Filtered provider containing categories available for Expense transactions.
 final expenseCategoriesProvider = Provider<List<CategoryModel>>((ref) {
   final categoriesAsync = ref.watch(categoriesStreamProvider);
   return categoriesAsync.when(
-    data: (categories) => categories
-        .where((c) => c.type == CategoryType.expense || c.type == CategoryType.both)
-        .toList(),
+    data: (categories) => DefaultCategories.sortCategoriesWithOtherLast(
+      categories
+          .where((c) => c.type == CategoryType.expense || c.type == CategoryType.both)
+          .toList(),
+    ),
     loading: () => [],
     error: (err, stack) => [],
   );
@@ -41,9 +46,11 @@ final expenseCategoriesProvider = Provider<List<CategoryModel>>((ref) {
 final incomeCategoriesProvider = Provider<List<CategoryModel>>((ref) {
   final categoriesAsync = ref.watch(categoriesStreamProvider);
   return categoriesAsync.when(
-    data: (categories) => categories
-        .where((c) => c.type == CategoryType.income || c.type == CategoryType.both)
-        .toList(),
+    data: (categories) => DefaultCategories.sortCategoriesWithOtherLast(
+      categories
+          .where((c) => c.type == CategoryType.income || c.type == CategoryType.both)
+          .toList(),
+    ),
     loading: () => [],
     error: (err, stack) => [],
   );

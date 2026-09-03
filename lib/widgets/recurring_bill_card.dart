@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../models/recurring_bill_model.dart';
 import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
+import 'category_icon.dart';
 
 /// Card widget for displaying a recurring bill, matching AccountCard visual tokens.
 class RecurringBillCard extends StatelessWidget {
@@ -23,7 +24,6 @@ class RecurringBillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final categoryColor = DefaultCategories.getColor(bill.categoryColorHex);
-    final categoryIcon = DefaultCategories.getIcon(bill.categoryIcon);
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -78,10 +78,15 @@ class RecurringBillCard extends StatelessWidget {
               color: categoryColor.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              categoryIcon,
-              color: categoryColor,
-              size: 22,
+            child: Center(
+              child: CategoryIcon(
+                categoryName: bill.categoryName,
+                iconName: bill.categoryIcon,
+                color: categoryColor,
+                size: 22,
+                containerSize: 44,
+                borderRadius: BorderRadius.circular(22),
+              ),
             ),
           ),
           const SizedBox(width: 14),

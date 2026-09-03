@@ -8,8 +8,12 @@ import 'package:intl/intl.dart';
 
 import '../../models/account_model.dart';
 import '../../providers/account_provider.dart';
-import '../../providers/dashboard_provider.dart';
+import '../../providers/chart_style_provider.dart';
+import '../../providers/payday_provider.dart';
 import '../../utils/app_colors.dart';
+
+
+import '../../utils/default_categories.dart';
 import '../../widgets/account_card.dart';
 import '../../widgets/payday_countdown_card.dart';
 import '../../widgets/percentage_speech_bubble.dart';
@@ -205,7 +209,7 @@ class AccountsScreen extends ConsumerWidget {
             children: [
               // Top Balance & Donut Chart & Overlapping Mascot
               SizedBox(
-                height: 210,
+                height: 230,
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -239,70 +243,29 @@ class AccountsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Across ${accounts.length} ${accounts.length == 1 ? 'Category' : 'Categories'}',
+                            'Across ${accounts.length} ${accounts.length == 1 ? 'Stash' : 'Stashes'}',
                             style: GoogleFonts.quicksand(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: const Color(0xFF9A9998),
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 10),
 
-                          // Donut Chart with Dynamic Segment Callout Badges
-                          SizedBox(
-                            width: 140,
-                            height: 110,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 88,
-                                  height: 88,
-                                  child: PieChart(
-                                    PieChartData(
-                                      sectionsSpace: 2,
-                                      centerSpaceRadius: 26,
-                                      startDegreeOffset: -90,
-                                      sections: positiveAccounts.isEmpty
-                                          ? [
-                                              PieChartSectionData(
-                                                color: AppColors.accentPrimaryLight,
-                                                value: 1,
-                                                title: '',
-                                                radius: 14,
-                                              ),
-                                            ]
-                                          : List.generate(positiveAccounts.length, (index) {
-                                              final acc = positiveAccounts[index];
-                                              final colors = [
-                                                const Color(0xFFEE4818),
-                                                const Color(0xFFF59715),
-                                                const Color(0xFFE05F03),
-                                                const Color(0xFFF48423),
-                                              ];
-                                              return PieChartSectionData(
-                                                color: colors[index % colors.length],
-                                                value: acc.balance,
-                                                title: '',
-                                                radius: 14,
-                                              );
-                                            }),
-                                    ),
-                                  ),
-                                ),
-
-                                // Dynamic Clockwise Slice-Anchored Percentage Badges
-                                ..._buildAccountPercentageBubbles(positiveAccounts, sumPositive),
-                              ],
-                            ),
+                          // Donut Chart with Dynamic Interactive Slices (Matching Spending Category Chart)
+                          _StashDonutChart(
+                            positiveAccounts: positiveAccounts,
+                            sumPositive: sumPositive,
+                            getAccountColor: _getAccountColor,
                           ),
                         ],
                       ),
                     ),
 
+
                     // Mascot Illustration on Right Side (Flipped horizontally to face left towards the text)
                     Positioned(
-                      right: -14,
+                      right: -40,
                       top: -20,
                       width: 260,
                       height: 260,
@@ -367,37 +330,76 @@ class AccountsScreen extends ConsumerWidget {
     );
   }
 
-  /// Dynamic Clockwise Slice-Anchored Percentage Badges for Accounts Pie Chart
-  List<Widget> _buildAccountPercentageBubbles(
-    List<AccountModel> positiveAccounts,
-    double sumPositive,
-  ) {
-    if (sumPositive <= 0 || positiveAccounts.isEmpty) return [];
+  Color _getAccountColor(AccountModel account) {
+    if (account.colorHex != null && account.colorHex!.isNotEmpty) {
+      return DefaultCategories.getColor(account.colorHex!);
+    }
+    switch (account.type.toLowerCase()) {
+      case 'gcash':
+      case 'e-wallet':
+      case 'ewallet':
+      case 'digital':
+      case 'digital_stash':
+        return const Color(0xFFE08B03);
+      case 'bank':
+      case 'bank_wallet':
+        return const Color(0xFFF48423);
+      case 'savings':
+        return const Color(0xFFE05F03);
+      case 'credit':
+        return AppColors.stateError;
+      case 'other':
+        return const Color(0xFF8A7F73);
+      case 'cash':
+      default:
+        return const Color(0xFFEE4818);
+    }
+  }
+
+}
+
+/// Interactive Donut Chart for Stashes with slice pop-out or floating speech bubbles based on user setting
+class _StashDonutChart extends ConsumerStatefulWidget {
+  final List<AccountModel> positiveAccounts;
+  final double sumPositive;
+  final Color Function(AccountModel) getAccountColor;
+
+  const _StashDonutChart({
+    required this.positiveAccounts,
+    required this.sumPositive,
+    required this.getAccountColor,
+  });
+
+  @override
+  ConsumerState<_StashDonutChart> createState() => _StashDonutChartState();
+}
+
+class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
+  int _touchedIndex = 0;
+
+  List<Widget> _buildAccountPercentageBubbles() {
+    if (widget.sumPositive <= 0 || widget.positiveAccounts.isEmpty) return [];
 
     final widgets = <Widget>[];
     double currentAngle = -90.0; // fl_chart startDegreeOffset (top center)
+    double? lastTop;
+    double? lastLeft;
 
-    final colors = [
-      const Color(0xFFEE4818),
-      const Color(0xFFF59715),
-      const Color(0xFFE05F03),
-      const Color(0xFFF48423),
-    ];
-
-    for (int i = 0; i < math.min(positiveAccounts.length, 3); i++) {
-      final acc = positiveAccounts[i];
-      final fraction = acc.balance / sumPositive;
+    for (int i = 0; i < widget.positiveAccounts.length; i++) {
+      final acc = widget.positiveAccounts[i];
+      final fraction = acc.balance / widget.sumPositive;
       final pct = (fraction * 100).round();
       final angleSpan = fraction * 360.0;
       final midAngle = currentAngle + (angleSpan / 2.0);
       currentAngle += angleSpan;
 
-      if (pct < 1) continue;
+      final minThreshold = widget.positiveAccounts.length > 4 ? 3 : 2;
+      if (pct < minThreshold) continue;
 
       final rad = midAngle * (math.pi / 180.0);
       const centerX = 70.0;
-      const centerY = 55.0;
-      const radius = 46.0;
+      const centerY = 70.0;
+      const radius = 58.0;
 
       final targetX = centerX + radius * math.cos(rad);
       final targetY = centerY + radius * math.sin(rad);
@@ -407,20 +409,41 @@ class AccountsScreen extends ConsumerWidget {
       double top;
 
       if (normAngle >= 270 || normAngle < 0) {
-        left = targetX - 4;
-        top = targetY - 20;
+        left = targetX;
+        top = targetY - 18;
       } else if (normAngle >= 0 && normAngle < 90) {
-        left = targetX - 4;
-        top = targetY - 4;
+        left = targetX;
+        top = targetY;
       } else if (normAngle >= 90 && normAngle < 180) {
-        left = targetX - 28;
-        top = targetY - 4;
+        left = targetX - 32;
+        top = targetY;
       } else {
-        left = targetX - 28;
-        top = targetY - 20;
+        left = targetX - 32;
+        top = targetY - 18;
       }
 
-      final color = colors[i % colors.length];
+      // De-collision adjustment for consecutive badges
+      if (lastTop != null && lastLeft != null) {
+        final vDiff = (top - lastTop).abs();
+        final hDiff = (left - lastLeft).abs();
+
+        if (vDiff < 18.0 && hDiff < 30.0) {
+          if (left < 70.0) {
+            top = math.min(top, lastTop - 18.0);
+            left = math.max(2.0, left - 4.0);
+          } else {
+            top = math.max(top, lastTop + 18.0);
+          }
+        }
+      }
+
+      if (left < 2.0) left = 2.0;
+      if (top < 2.0) top = 2.0;
+
+      lastTop = top;
+      lastLeft = left;
+
+      final color = widget.getAccountColor(acc);
 
       widgets.add(
         Positioned(
@@ -436,6 +459,107 @@ class AccountsScreen extends ConsumerWidget {
     }
 
     return widgets;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pieChartStyle = ref.watch(pieChartStyleProvider);
+    final isInteractive = pieChartStyle == PieChartStyle.interactive;
+
+    final activeAcc = (widget.positiveAccounts.isNotEmpty &&
+            _touchedIndex >= 0 &&
+            _touchedIndex < widget.positiveAccounts.length)
+        ? widget.positiveAccounts[_touchedIndex]
+        : null;
+
+    final activePct = (activeAcc != null && widget.sumPositive > 0)
+        ? ((activeAcc.balance / widget.sumPositive) * 100).round()
+        : 0;
+
+    return SizedBox(
+      width: 140,
+      height: 140,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          PieChart(
+            PieChartData(
+              pieTouchData: PieTouchData(
+                touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                  if (!event.isInterestedForInteractions ||
+                      pieTouchResponse == null ||
+                      pieTouchResponse.touchedSection == null) {
+                    return;
+                  }
+                  final idx = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                  if (idx >= 0 && idx < widget.positiveAccounts.length) {
+                    setState(() {
+                      _touchedIndex = idx;
+                    });
+                  }
+                },
+              ),
+              sectionsSpace: 3,
+              centerSpaceRadius: isInteractive ? 38 : 34,
+              startDegreeOffset: -90,
+              sections: widget.positiveAccounts.isEmpty
+                  ? [
+                      PieChartSectionData(
+                        color: AppColors.accentPrimaryLight,
+                        value: 1,
+                        title: '',
+                        radius: 15,
+                      ),
+                    ]
+                  : List.generate(widget.positiveAccounts.length, (index) {
+                      final acc = widget.positiveAccounts[index];
+                      final isTouched = isInteractive && (index == _touchedIndex);
+                      return PieChartSectionData(
+                        color: widget.getAccountColor(acc),
+                        value: acc.balance,
+                        title: '',
+                        radius: isTouched ? 20 : 15,
+                      );
+                    }),
+            ),
+          ),
+
+          // Center Interactive Stash Focus Indicator (When Interactive Mode Enabled)
+          if (isInteractive && activeAcc != null)
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 52),
+                  child: Text(
+                    activeAcc.name,
+                    style: GoogleFonts.quicksand(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textMuted,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Text(
+                  '$activePct%',
+                  style: GoogleFonts.quicksand(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+
+          // Dynamic Clockwise Slice-Anchored Speech Bubbles (When Bubble Mode Enabled)
+          if (!isInteractive) ..._buildAccountPercentageBubbles(),
+        ],
+      ),
+    );
   }
 }
 
@@ -478,6 +602,23 @@ class _AccountFormBottomSheetState extends ConsumerState<_AccountFormBottomSheet
   late TextEditingController _balanceController;
   late TextEditingController _noteController;
   String _selectedType = AccountModel.typeCash;
+  String _selectedColorHex = '8A7F73';
+  bool _isDropdownOpen = false;
+
+  static const List<String> _stashColorOptions = [
+    '8A7F73', // Neutral Grey (Default)
+    '2B506E', // Navy Blue
+    '7C4DFF', // Deep Violet
+    '00838F', // Teal Green
+    '2E7D32', // Forest Green
+    '1565C0', // Royal Blue
+    'C20429', // Crimson Red
+    'FB7140', // Coral Orange
+    'F7C500', // Golden Yellow
+    '623A97', // Rich Purple
+    '05A789', // Emerald
+    '009AC6', // Sky Blue
+  ];
 
   static const List<_AccountTypeOption> _availableTypes = [
     _AccountTypeOption(
@@ -526,6 +667,9 @@ class _AccountFormBottomSheetState extends ConsumerState<_AccountFormBottomSheet
     if (acc != null) {
       _selectedType = acc.type;
       _customNameController = TextEditingController(text: acc.name);
+      if (acc.colorHex != null && acc.colorHex!.isNotEmpty) {
+        _selectedColorHex = acc.colorHex!;
+      }
     } else {
       _customNameController = TextEditingController();
       // Select the first non-duplicate account type option
@@ -571,6 +715,7 @@ class _AccountFormBottomSheetState extends ConsumerState<_AccountFormBottomSheet
       type: _selectedType,
       balance: balanceVal,
       note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
+      colorHex: _selectedType == AccountModel.typeOther ? _selectedColorHex : null,
       createdAt: widget.accountToEdit?.createdAt ?? DateTime.now(),
     );
 
@@ -645,118 +790,201 @@ class _AccountFormBottomSheetState extends ConsumerState<_AccountFormBottomSheet
                 const SizedBox(height: 16),
               ],
 
-              // Account Type Selector Grid (Cards)
+              // Account Type Selector Custom Dropdown (Expands downwards)
               Text(
                 'Select Stash Type',
                 style: GoogleFonts.quicksand(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _availableTypes.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 2.3,
-                ),
-                itemBuilder: (context, index) {
-                  final option = _availableTypes[index];
-                  final isSelected = _selectedType == option.key;
-                  final isDuplicate = AccountModel.isDuplicateType(
-                    option.key,
-                    widget.existingAccounts,
-                    excludeAccountId: widget.accountToEdit?.id,
+              const SizedBox(height: 6),
+              Builder(
+                builder: (context) {
+                  final selectedOption = _availableTypes.firstWhere(
+                    (o) => o.key == _selectedType,
+                    orElse: () => _availableTypes.first,
                   );
 
-                  return GestureDetector(
-                    onTap: isDuplicate
-                        ? null
-                        : () {
-                            setState(() {
-                              _selectedType = option.key;
-                            });
-                          },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isDuplicate
-                            ? const Color(0xFFF4F1ED)
-                            : (isSelected ? option.bgOverlay : AppColors.bgSurface),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDuplicate
-                              ? const Color(0xFFE8E1D8)
-                              : (isSelected ? option.color : AppColors.borderDefault),
-                          width: isSelected && !isDuplicate ? 2 : 1,
+                  return Column(
+                    children: [
+                      // Trigger Button
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isDropdownOpen = !_isDropdownOpen;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.bgSurface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _isDropdownOpen ? AppColors.accentPrimary : AppColors.borderDefault,
+                              width: _isDropdownOpen ? 1.5 : 1.0,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: selectedOption.bgOverlay,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  selectedOption.icon,
+                                  size: 16,
+                                  color: selectedOption.color,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  selectedOption.label,
+                                  style: GoogleFonts.quicksand(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                _isDropdownOpen
+                                    ? Icons.keyboard_arrow_up_rounded
+                                    : Icons.keyboard_arrow_down_rounded,
+                                color: AppColors.textMuted,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: isDuplicate
-                                  ? const Color(0xFFE5DFD7)
-                                  : (isSelected ? option.color : option.bgOverlay),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              option.icon,
-                              size: 18,
-                              color: isDuplicate
-                                  ? AppColors.textMuted
-                                  : (isSelected ? Colors.white : option.color),
-                            ),
+
+                      // Downward Dropdown Options Panel
+                      if (_isDropdownOpen) ...[
+                        const SizedBox(height: 6),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.bgSurface,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.borderDefault),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color.fromRGBO(43, 36, 32, 0.08),
+                                blurRadius: 12,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  option.label,
-                                  style: GoogleFonts.quicksand(
-                                    fontSize: 13,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                    color: isDuplicate
-                                        ? AppColors.textMuted
-                                        : (isSelected ? option.color : AppColors.textPrimary),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                          child: Column(
+                            children: _availableTypes.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final option = entry.value;
+                              final isSelected = _selectedType == option.key;
+                              final isDuplicate = AccountModel.isDuplicateType(
+                                option.key,
+                                widget.existingAccounts,
+                                excludeAccountId: widget.accountToEdit?.id,
+                              );
+                              final isLast = index == _availableTypes.length - 1;
+
+                              return InkWell(
+                                onTap: isDuplicate
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          _selectedType = option.key;
+                                          _isDropdownOpen = false;
+                                        });
+                                      },
+                                borderRadius: BorderRadius.vertical(
+                                  top: index == 0 ? const Radius.circular(14) : Radius.zero,
+                                  bottom: isLast ? const Radius.circular(14) : Radius.zero,
                                 ),
-                                const SizedBox(height: 1),
-                                Text(
-                                  isDuplicate ? 'Already added' : option.subtitle,
-                                  style: GoogleFonts.quicksand(
-                                    fontSize: 10,
-                                    fontWeight: isDuplicate ? FontWeight.w700 : FontWeight.w400,
-                                    color: isDuplicate ? AppColors.stateError : AppColors.textMuted,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                      color: isSelected ? option.bgOverlay.withAlpha(50) : Colors.transparent,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 32,
+                                            height: 32,
+                                            decoration: BoxDecoration(
+                                              color: isDuplicate
+                                                  ? const Color(0xFFE5DFD7)
+                                                  : (isSelected ? option.color : option.bgOverlay),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(
+                                              option.icon,
+                                              size: 18,
+                                              color: isDuplicate
+                                                  ? AppColors.textMuted
+                                                  : (isSelected ? Colors.white : option.color),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  option.label,
+                                                  style: GoogleFonts.quicksand(
+                                                    fontSize: 13,
+                                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                                    color: isDuplicate
+                                                        ? AppColors.textMuted
+                                                        : (isSelected ? option.color : AppColors.textPrimary),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 1),
+                                                Text(
+                                                  isDuplicate ? 'Already added' : option.subtitle,
+                                                  style: GoogleFonts.quicksand(
+                                                    fontSize: 10,
+                                                    fontWeight: isDuplicate ? FontWeight.w700 : FontWeight.w400,
+                                                    color: isDuplicate ? AppColors.stateError : AppColors.textMuted,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          if (isSelected && !isDuplicate)
+                                            Icon(
+                                              Icons.check_rounded,
+                                              size: 18,
+                                              color: option.color,
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (!isLast)
+                                      const Divider(
+                                        height: 1,
+                                        thickness: 1,
+                                        color: AppColors.bgBase,
+                                      ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              );
+                            }).toList(),
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      ],
+                    ],
                   );
                 },
               ),
               const SizedBox(height: 16),
 
-              // Custom Name Input Field (Shown specifically when 'Other' is selected)
+              // Custom Name Input & Color Selector (Shown specifically when 'Other' is selected)
               if (_selectedType == AccountModel.typeOther) ...[
                 Text(
                   'Stash Name',
@@ -781,6 +1009,63 @@ class _AccountFormBottomSheetState extends ConsumerState<_AccountFormBottomSheet
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+
+                // Color Selection Palette
+                Text(
+                  'Stash Color',
+                  style: GoogleFonts.quicksand(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: _stashColorOptions.map((hex) {
+                    final color = DefaultCategories.getColor(hex);
+                    final isSelected = _selectedColorHex.toLowerCase() == hex.toLowerCase();
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedColorHex = hex;
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected ? AppColors.textPrimary : Colors.transparent,
+                            width: isSelected ? 3.0 : 0.0,
+                          ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: color.withValues(alpha: 0.4),
+                                    blurRadius: 6,
+                                    spreadRadius: 1,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: isSelected
+                            ? const Icon(
+                                Icons.check_rounded,
+                                size: 18,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
+                    );
+                  }).toList(),
                 ),
                 const SizedBox(height: 16),
               ],

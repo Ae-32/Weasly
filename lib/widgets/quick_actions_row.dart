@@ -69,11 +69,7 @@ class QuickActionsRow extends ConsumerWidget {
       _QuickActionItem(
         label: 'Bills',
         icon: Icons.calendar_month_rounded,
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const RecurringBillsScreen()),
-          );
-        },
+        onTap: () => _showComingSoonSnackBar(context, 'Bills'),
       ),
       _QuickActionItem(
         label: 'More',

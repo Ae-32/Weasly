@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/default_categories.dart';
 
 enum CategoryType {
   expense,
@@ -61,7 +62,7 @@ class CategoryModel {
 
     return CategoryModel(
       id: docId.isNotEmpty ? docId : (map['id'] ?? ''),
-      name: map['name'] ?? '',
+      name: DefaultCategories.sanitizeCategoryName(map['name'] ?? ''),
       iconName: map['iconName'] ?? 'category',
       colorHex: map['colorHex'] ?? '#8E4E00',
       type: CategoryType.fromString(map['type'] ?? 'expense'),

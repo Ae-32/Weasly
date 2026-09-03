@@ -10,6 +10,7 @@ import '../providers/category_provider.dart';
 import '../providers/recurring_bill_provider.dart';
 import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
+import 'category_icon.dart';
 
 /// Modal bottom sheet for adding or editing a recurring bill.
 class AddEditRecurringBillModal extends ConsumerStatefulWidget {
@@ -268,13 +269,19 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
                 initialValue: _selectedCategory,
                 decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
                 items: uniqueCategories.map((cat) {
-                  final icon = DefaultCategories.getIcon(cat.iconName);
                   final color = DefaultCategories.getColor(cat.colorHex);
                   return DropdownMenuItem(
                     value: cat,
                     child: Row(
                       children: [
-                        Icon(icon, size: 18, color: color),
+                        CategoryIcon(
+                          categoryName: cat.name,
+                          iconName: cat.iconName,
+                          color: color,
+                          size: 18,
+                          containerSize: 28,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                         const SizedBox(width: 10),
                         Text(cat.name),
                       ],

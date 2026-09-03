@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/default_categories.dart';
 
 enum TransactionType {
   expense,
@@ -92,7 +93,7 @@ class TransactionModel {
       type: TransactionType.fromString(map['type'] ?? 'expense'),
       amount: (map['amount'] as num?)?.toDouble() ?? 0.0,
       categoryId: map['categoryId'] ?? '',
-      categoryName: map['categoryName'] ?? 'Uncategorized',
+      categoryName: DefaultCategories.sanitizeCategoryName(map['categoryName'] ?? 'Uncategorized'),
       categoryIcon: map['categoryIcon'] ?? 'category',
       categoryColorHex: map['categoryColorHex'] ?? '#8E4E00',
       accountId: map['accountId'] ?? '',

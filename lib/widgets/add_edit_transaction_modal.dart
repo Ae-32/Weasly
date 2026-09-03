@@ -11,6 +11,7 @@ import '../providers/transaction_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
+import 'category_icon.dart';
 import 'insufficient_balance_modal.dart';
 
 class AddEditTransactionModal extends ConsumerStatefulWidget {
@@ -444,13 +445,14 @@ class _AddEditTransactionModalState
                       }
                     }).toList();
 
-                    final uniqueFilteredCats = <CategoryModel>[];
+                    final rawUniqueFilteredCats = <CategoryModel>[];
                     final seenCatIds = <String>{};
                     for (final c in filteredCats) {
                       if (seenCatIds.add(c.id)) {
-                        uniqueFilteredCats.add(c);
+                        rawUniqueFilteredCats.add(c);
                       }
                     }
+                    final uniqueFilteredCats = DefaultCategories.sortCategoriesWithOtherLast(rawUniqueFilteredCats);
 
                     if (_selectedCategory != null && !uniqueFilteredCats.contains(_selectedCategory)) {
                       _selectedCategory = null;
@@ -481,7 +483,6 @@ class _AddEditTransactionModalState
                           icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
                           items: uniqueFilteredCats.map((cat) {
                             final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
-                            final icon = DefaultCategories.getIcon(cat.iconName);
                             return DropdownMenuItem<CategoryModel>(
                               value: cat,
                               child: Row(
@@ -493,7 +494,16 @@ class _AddEditTransactionModalState
                                       color: color.withValues(alpha: 0.15),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: Icon(icon, size: 18, color: color),
+                                    child: Center(
+                                       child: CategoryIcon(
+                                         categoryName: cat.name,
+                                         iconName: cat.iconName,
+                                         color: color,
+                                         size: 18,
+                                         containerSize: 32,
+                                         borderRadius: BorderRadius.circular(8),
+                                       ),
+                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
@@ -858,7 +868,7 @@ class _AddEditTransactionModalState
       decoration: BoxDecoration(
         color: AppColors.errorContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.stateError.withOpacity(0.4), width: 1.5),
+        border: Border.all(color: AppColors.stateError.withValues(alpha: 0.4), width: 1.5),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -866,7 +876,7 @@ class _AddEditTransactionModalState
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: AppColors.stateError.withOpacity(0.12),
+              color: AppColors.stateError.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -895,7 +905,7 @@ class _AddEditTransactionModalState
                   style: GoogleFonts.quicksand(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.onErrorContainer.withOpacity(0.9),
+                    color: AppColors.onErrorContainer.withValues(alpha: 0.9),
                     height: 1.35,
                   ),
                 ),

@@ -66,15 +66,16 @@ class CategoryService {
         }
         await batch.commit();
       } else {
-        // Check for and clean up duplicate category documents in Firestore
+        // Check existing categories and clean up duplicate documents in Firestore
+        final existingIds = snapshot.docs.map((d) => d.id).toSet();
         final seenKeys = <String, DocumentSnapshot>{};
         final docsToDelete = <DocumentSnapshot>[];
 
         for (final doc in snapshot.docs) {
           final data = doc.data();
           final name = (data['name'] as String? ?? '').trim().toLowerCase();
-          final type = (data['type'] as String? ?? 'expense').trim().toLowerCase();
-          final key = '${name}_$type';
+          final typeStr = (data['type'] as String? ?? 'expense').trim().toLowerCase();
+          final key = '${name}_$typeStr';
 
           if (seenKeys.containsKey(key)) {
             // Keep the canonical document with fixed ID if available, otherwise delete duplicate
@@ -91,11 +92,28 @@ class CategoryService {
           }
         }
 
-        if (docsToDelete.isNotEmpty) {
-          debugPrint("Cleaning up ${docsToDelete.length} duplicate category documents for user: $userId");
+        // Identify any missing default categories (e.g., new income categories) for existing users
+        final missingDefaultCategories = <CategoryModel>[];
+        for (final defaultCat in DefaultCategories.defaultList) {
+          final key = '${defaultCat.name.trim().toLowerCase()}_${defaultCat.type.name}';
+          final hasId = existingIds.contains(defaultCat.id);
+          final hasKey = seenKeys.containsKey(key);
+          if (!hasId && !hasKey) {
+            missingDefaultCategories.add(defaultCat);
+          }
+        }
+
+        if (docsToDelete.isNotEmpty || missingDefaultCategories.isNotEmpty) {
+          debugPrint(
+            "Category sync for user $userId: adding ${missingDefaultCategories.length} missing default categories, deleting ${docsToDelete.length} duplicates.",
+          );
           final batch = _firestore.batch();
           for (final d in docsToDelete) {
             batch.delete(d.reference);
+          }
+          for (final missing in missingDefaultCategories) {
+            final docRef = _categoriesRef(userId).doc(missing.id);
+            batch.set(docRef, missing.toMap());
           }
           await batch.commit();
         }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/default_categories.dart';
 
 enum BillFrequency {
   weekly,
@@ -105,7 +106,7 @@ class RecurringBillModel {
       frequency: BillFrequency.fromString(map['frequency'] ?? 'monthly'),
       nextDueDate: parsedDueDate,
       categoryId: map['categoryId'] ?? '',
-      categoryName: map['categoryName'] ?? 'Bills & Utilities',
+      categoryName: DefaultCategories.sanitizeCategoryName(map['categoryName'] ?? 'Bills & Utilities'),
       categoryIcon: map['categoryIcon'] ?? 'receipt_long',
       categoryColorHex: map['categoryColorHex'] ?? '#8E4E00',
       accountId: map['accountId'] ?? '',

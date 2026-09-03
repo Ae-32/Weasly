@@ -161,12 +161,17 @@ class BudgetController extends StateNotifier<BudgetState> {
   Future<bool> addBudget(BudgetModel budget) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
+      final existingBudgets = _ref.read(budgetsStreamProvider).value ?? [];
+      if (BudgetModel.isDuplicateCategory(budget.categoryId, budget.categoryName, existingBudgets)) {
+        throw BudgetException('A budget for "${budget.categoryName}" already exists. Please edit the existing budget instead.');
+      }
       final userId = _getUserId();
       await _service.addBudget(userId, budget);
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      final msg = e is BudgetException ? e.message : e.toString();
+      state = state.copyWith(isLoading: false, errorMessage: msg);
       return false;
     }
   }
@@ -174,12 +179,17 @@ class BudgetController extends StateNotifier<BudgetState> {
   Future<bool> updateBudget(BudgetModel budget) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
+      final existingBudgets = _ref.read(budgetsStreamProvider).value ?? [];
+      if (BudgetModel.isDuplicateCategory(budget.categoryId, budget.categoryName, existingBudgets, excludeBudgetId: budget.id)) {
+        throw BudgetException('A budget for "${budget.categoryName}" already exists. Please edit the existing budget instead.');
+      }
       final userId = _getUserId();
       await _service.updateBudget(userId, budget);
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      final msg = e is BudgetException ? e.message : e.toString();
+      state = state.copyWith(isLoading: false, errorMessage: msg);
       return false;
     }
   }

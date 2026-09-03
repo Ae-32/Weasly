@@ -4,6 +4,7 @@ import '../models/category_model.dart';
 import '../providers/category_provider.dart';
 import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
+import 'category_icon.dart';
 
 class AddEditCategoryModal extends ConsumerStatefulWidget {
   final CategoryModel? categoryToEdit;
@@ -170,9 +171,16 @@ class _AddEditCategoryModalState extends ConsumerState<AddEditCategoryModal> {
                 decoration: InputDecoration(
                   labelText: 'Category Name',
                   hintText: 'e.g. Groceries, Gym, Coffee',
-                  prefixIcon: Icon(
-                    DefaultCategories.getIcon(_selectedIconName),
-                    color: DefaultCategories.getColor(_selectedColorHex),
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: CategoryIcon(
+                      categoryName: _nameController.text,
+                      iconName: _selectedIconName,
+                      color: DefaultCategories.getColor(_selectedColorHex),
+                      size: 20,
+                      containerSize: 24,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),

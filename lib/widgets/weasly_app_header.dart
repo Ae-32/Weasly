@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../providers/auth_provider.dart';
-import '../screens/auth/logout_confirmation_modal.dart';
-import '../screens/auth/logout_success_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../utils/app_colors.dart';
 
@@ -32,19 +29,6 @@ class WeaslyAppHeader extends ConsumerWidget {
     this.inlineTitle = false,
     this.showBrandName = true,
   });
-
-  Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
-    final confirmed = await LogoutConfirmationModal.show(context);
-    if (confirmed == true && context.mounted) {
-      await ref.read(authControllerProvider.notifier).signOut();
-      if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LogoutSuccessScreen()),
-          (route) => false,
-        );
-      }
-    }
-  }
 
   void _showComingSoonSnackBar(BuildContext context, String featureName) {
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -155,7 +139,7 @@ class WeaslyAppHeader extends ConsumerWidget {
                 const SizedBox(width: 12),
               ],
 
-              // Action Buttons Row (Notification, Settings, Profile/Logout)
+              // Action Buttons Row (Notifications, Settings)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -170,15 +154,11 @@ class WeaslyAppHeader extends ConsumerWidget {
                       MaterialPageRoute(builder: (_) => const SettingsScreen()),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  _buildHeaderIconButton(
-                    icon: Icons.person_rounded,
-                    onTap: () => _handleLogout(context, ref),
-                  ),
                 ],
               ),
             ],
           ),
+
 
           // Separate Title & Subtitle Below Top Row (only if provided)
           if (!inlineTitle && title != null && title!.isNotEmpty) ...[

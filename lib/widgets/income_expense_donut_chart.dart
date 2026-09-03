@@ -1,15 +1,17 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import '../providers/chart_style_provider.dart';
 import '../providers/dashboard_provider.dart';
 import '../utils/app_colors.dart';
 import 'percentage_speech_bubble.dart';
 
 /// Circular / Donut chart displaying the ratio of Income vs. Expense for the selected period
 /// strictly styled per Figma CSS export.
-class IncomeExpenseDonutChart extends StatelessWidget {
+class IncomeExpenseDonutChart extends ConsumerStatefulWidget {
   final PeriodSummary summary;
   final DashboardPeriod period;
   final Widget? periodToggle;
@@ -22,9 +24,18 @@ class IncomeExpenseDonutChart extends StatelessWidget {
   });
 
   @override
+  ConsumerState<IncomeExpenseDonutChart> createState() => _IncomeExpenseDonutChartState();
+}
+
+class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChart> {
+  int _touchedIndex = -1;
+
+  @override
   Widget build(BuildContext context) {
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
-    final hasData = summary.totalFlow > 0;
+    final hasData = widget.summary.totalFlow > 0;
+    final pieChartStyle = ref.watch(pieChartStyleProvider);
+    final isInteractive = pieChartStyle == PieChartStyle.interactive;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -55,8 +66,8 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                   letterSpacing: 0.5,
                 ),
               ),
-              if (periodToggle != null) ...[
-                periodToggle!,
+              if (widget.periodToggle != null) ...[
+                widget.periodToggle!,
               ],
             ],
           ),
@@ -84,70 +95,131 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                 Row(
                   children: [
                     // Donut Chart with Center Label & Floating Percentage Speech Bubble Callouts
-                    SizedBox(
-                      width: 140,
-                      height: 140,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.center,
-                        children: [
-                          PieChart(
-                            PieChartData(
-                              sectionsSpace: 2,
-                              centerSpaceRadius: 34,
-                              startDegreeOffset: -90,
-                              sections: [
-                                PieChartSectionData(
+                    Padding(
+                      padding: const EdgeInsets.only(left: 14, top: 12, bottom: 6),
+                      child: SizedBox(
+                        width: 140,
+                        height: 140,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.center,
+                          children: [
+                            PieChart(
+                              PieChartData(
+                                pieTouchData: PieTouchData(
+                                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                                    if (!event.isInterestedForInteractions ||
+                                        pieTouchResponse == null ||
+                                        pieTouchResponse.touchedSection == null) {
+                                      return;
+                                    }
+                                    final idx = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                                    setState(() {
+                                      _touchedIndex = idx;
+                                    });
+                                  },
+                                ),
+                                sectionsSpace: 3,
+                                centerSpaceRadius: 38,
+                                startDegreeOffset: -90,
+                                sections: [
+                                  PieChartSectionData(
+                                    color: AppColors.accentPrimary,
+                                    value: widget.summary.totalIncome > 0 ? widget.summary.totalIncome : 1.0,
+                                    showTitle: false,
+                                    radius: (isInteractive && _touchedIndex == 0) ? 20 : 15,
+                                  ),
+                                  PieChartSectionData(
+                                    color: const Color(0xFFE8B381),
+                                    value: widget.summary.totalExpense > 0 ? widget.summary.totalExpense : 0.1,
+                                    showTitle: false,
+                                    radius: (isInteractive && _touchedIndex == 1) ? 20 : 15,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isInteractive && _touchedIndex == 0)
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Income',
+                                    style: GoogleFonts.quicksand(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${widget.summary.incomePercentage.round()}%',
+                                    style: GoogleFonts.quicksand(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.accentPrimary,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else if (isInteractive && _touchedIndex == 1)
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Expenses',
+                                    style: GoogleFonts.quicksand(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${widget.summary.expensePercentage.round()}%',
+                                    style: GoogleFonts.quicksand(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFFE8B381),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else
+                              Text(
+                                widget.period.label,
+                                style: GoogleFonts.quicksand(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
                                   color: AppColors.accentPrimary,
-                                  value: summary.totalIncome > 0 ? summary.totalIncome : 1.0,
-                                  showTitle: false,
-                                  radius: 14,
                                 ),
-                                PieChartSectionData(
-                                  color: const Color(0xFFE8B381),
-                                  value: summary.totalExpense > 0 ? summary.totalExpense : 0.1,
-                                  showTitle: false,
-                                  radius: 14,
+                              ),
+
+                            // Floating Expense % Badge (When Bubble Style is Selected)
+                            if (!isInteractive && widget.summary.totalExpense > 0)
+                              Positioned(
+                                left: 0,
+                                top: 4,
+                                child: PercentageSpeechBubble(
+                                  text: '${widget.summary.expensePercentage.round()}%',
+                                  backgroundColor: const Color(0xFFFCE9D6),
+                                  textColor: const Color(0xFFC25814),
                                 ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            period.label,
-                            style: GoogleFonts.quicksand(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.accentPrimary,
-                            ),
-                          ),
-
-                          // Floating Expense % Badge (Left - matching light peach expense slice)
-                          if (summary.totalExpense > 0)
-                            Positioned(
-                              left: -4,
-                              top: -2,
-                              child: PercentageSpeechBubble(
-                                text: '${summary.expensePercentage.round()}%',
-                                backgroundColor: const Color(0xFFFCE9D6),
-                                textColor: const Color(0xFFC25814),
                               ),
-                            ),
 
-                          // Floating Income % Badge (Right - matching dark orange income slice)
-                          if (summary.totalIncome > 0)
-                            Positioned(
-                              right: -4,
-                              top: -2,
-                              child: PercentageSpeechBubble(
-                                text: '${summary.incomePercentage.round()}%',
-                                backgroundColor: AppColors.accentPrimary,
-                                textColor: Colors.white,
+                            // Floating Income % Badge (When Bubble Style is Selected)
+                            if (!isInteractive && widget.summary.totalIncome > 0)
+                              Positioned(
+                                right: 0,
+                                top: 4,
+                                child: PercentageSpeechBubble(
+                                  text: '${widget.summary.incomePercentage.round()}%',
+                                  backgroundColor: AppColors.accentPrimary,
+                                  textColor: Colors.white,
+                                ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 32),
 
                     // Income & Expense Breakdown Rows
                     Expanded(
@@ -160,10 +232,8 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                             iconColor: AppColors.accentPrimary,
                             isUp: true,
                             label: 'INCOME',
-                            amountText: currencyFormatter.format(summary.totalIncome),
+                            amountText: currencyFormatter.format(widget.summary.totalIncome),
                             amountColor: AppColors.accentPrimary,
-                            pctText: '${summary.incomePercentage.toStringAsFixed(0)}%',
-                            pctColor: AppColors.accentPrimary,
                           ),
                           const SizedBox(height: 12),
                           const Divider(height: 1, thickness: 0.5, color: AppColors.borderDefault),
@@ -174,10 +244,8 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                             iconColor: const Color(0xFFE8B381),
                             isUp: false,
                             label: 'EXPENSES',
-                            amountText: currencyFormatter.format(summary.totalExpense),
+                            amountText: currencyFormatter.format(widget.summary.totalExpense),
                             amountColor: const Color(0xFFE8B381),
-                            pctText: '${summary.expensePercentage.toStringAsFixed(0)}%',
-                            pctColor: const Color(0xFFE8B381),
                           ),
                         ],
                       ),
@@ -210,8 +278,6 @@ class IncomeExpenseDonutChart extends StatelessWidget {
     required String label,
     required String amountText,
     required Color amountColor,
-    required String pctText,
-    required Color pctColor,
   }) {
     return Row(
       children: [
@@ -252,14 +318,6 @@ class IncomeExpenseDonutChart extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-        Text(
-          pctText,
-          style: GoogleFonts.quicksand(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: pctColor,
           ),
         ),
       ],

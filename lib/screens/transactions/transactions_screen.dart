@@ -6,8 +6,8 @@ import '../../models/transaction_model.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/transaction_provider.dart';
 import '../../utils/app_colors.dart';
-import '../../utils/default_categories.dart';
 import '../../widgets/add_edit_transaction_modal.dart';
+import '../../widgets/category_icon.dart';
 import '../../widgets/weasly_app_header.dart';
 
 class TransactionsScreen extends ConsumerStatefulWidget {
@@ -419,7 +419,6 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     TransactionModel tx,
     NumberFormat currencyFormatter,
   ) {
-    final iconData = DefaultCategories.getIcon(tx.categoryIcon);
     final isIncome = tx.type == TransactionType.income;
     final timeStr = DateFormat('h:mm a').format(tx.date);
 
@@ -460,7 +459,16 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                           color: const Color(0xFFEFD8C2),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(iconData, color: AppColors.accentPrimary, size: 20),
+                        child: Center(
+                          child: CategoryIcon(
+                            categoryName: tx.categoryName,
+                            iconName: tx.categoryIcon,
+                            color: AppColors.accentPrimary,
+                            size: 20,
+                            containerSize: 48,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 14),
 

@@ -5,6 +5,7 @@ import '../../providers/category_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/add_edit_category_modal.dart';
+import '../../widgets/category_icon.dart';
 
 class CategoriesScreen extends ConsumerStatefulWidget {
   const CategoriesScreen({super.key});
@@ -140,12 +141,16 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
       ),
       body: categoriesAsync.when(
         data: (categories) {
-          final expenseList = categories
-              .where((c) => c.type == CategoryType.expense || c.type == CategoryType.both)
-              .toList();
-          final incomeList = categories
-              .where((c) => c.type == CategoryType.income || c.type == CategoryType.both)
-              .toList();
+          final expenseList = DefaultCategories.sortCategoriesWithOtherLast(
+            categories
+                .where((c) => c.type == CategoryType.expense || c.type == CategoryType.both)
+                .toList(),
+          );
+          final incomeList = DefaultCategories.sortCategoriesWithOtherLast(
+            categories
+                .where((c) => c.type == CategoryType.income || c.type == CategoryType.both)
+                .toList(),
+          );
 
           return TabBarView(
             controller: _tabController,
@@ -199,7 +204,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
       itemBuilder: (context, index) {
         final category = categories[index];
         final color = DefaultCategories.getColor(category.colorHex);
-        final iconData = DefaultCategories.getIcon(category.iconName);
 
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
@@ -221,10 +225,15 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
                     color: color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(
-                    iconData,
-                    color: color,
-                    size: 24,
+                  child: Center(
+                    child: CategoryIcon(
+                      categoryName: category.name,
+                      iconName: category.iconName,
+                      color: color,
+                      size: 24,
+                      containerSize: 48,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 14),

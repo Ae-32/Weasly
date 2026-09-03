@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-import '../providers/dashboard_provider.dart';
+import '../providers/payday_provider.dart';
+import '../screens/settings/payday_setup_modal.dart';
 import '../utils/app_colors.dart';
-import 'add_edit_recurring_bill_modal.dart';
 
-/// Card showing a prominent countdown to the user's next expected income / payday,
-/// featuring a large overlapping Weasly_Dashboard_PayCheck.png mascot.
+/// Refactored Card showing the user's manual Payday Setup countdown,
+/// friendly empty state, or expired custom payday reminder.
+/// Features a prominent overlapping Weasly_Dashboard_PayCheck.png mascot.
 class PaydayCountdownCard extends StatelessWidget {
   final PaydayInfo? paydayInfo;
 
@@ -21,47 +22,200 @@ class PaydayCountdownCard extends StatelessWidget {
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final dateFormatter = DateFormat('MMM. dd');
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    // Case 1: Unconfigured Payday Setup (Empty State)
+    if (paydayInfo == null) {
+      return Container(
+        margin: const EdgeInsets.only(top: 25, bottom: 10),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Card Container
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.only(left: 110, right: 16, top: 12, bottom: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: const LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    Color(0xFFF9F6F1),
+                    Color(0xFFEFD8C2),
+                  ],
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromRGBO(43, 36, 32, 0.04),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'DAYS UNTIL PAYDAY',
+                          style: GoogleFonts.quicksand(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFA2A2A2),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Set up your payday to see a countdown here',
+                          style: GoogleFonts.quicksand(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accentPrimary,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      minimumSize: const Size(0, 32),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () => PaydaySetupModal.show(context),
+                    child: Text(
+                      'Set Up',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-    // If no custom income rule exists, project standard 15th/end-of-month payday
-    final DateTime targetDate;
-    final int daysRemaining;
-    final double? amount;
-    final bool isProjectedDefault;
-
-    if (paydayInfo != null && paydayInfo!.daysRemaining > 0) {
-      targetDate = paydayInfo!.expectedDate;
-      daysRemaining = paydayInfo!.daysRemaining;
-      amount = paydayInfo!.expectedAmount;
-      isProjectedDefault = false;
-    } else {
-      if (now.day < 15) {
-        targetDate = DateTime(now.year, now.month, 15);
-      } else if (now.day == 15) {
-        final nextMonth = DateTime(now.year, now.month + 1, 1);
-        targetDate = nextMonth.subtract(const Duration(days: 1));
-      } else {
-        final lastDay = DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1));
-        if (now.day >= lastDay.day) {
-          targetDate = DateTime(now.year, now.month + 1, 15);
-        } else {
-          targetDate = lastDay;
-        }
-      }
-      daysRemaining = targetDate.difference(today).inDays;
-      amount = paydayInfo?.expectedAmount ?? 5000.0; // Default matching Figma spec
-      isProjectedDefault = paydayInfo == null;
+            // Large Mascot Illustration Overlapping Left
+            Positioned(
+              left: -12,
+              top: -36,
+              width: 139,
+              height: 138,
+              child: Image.asset(
+                'assets/images/Weasly_Dashboard_PayCheck.png',
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
-    final daysText = daysRemaining == 1
-        ? '1 DAY'
-        : '$daysRemaining DAYS';
+    final info = paydayInfo!;
+
+    // Case 2: Custom Payday Expired State
+    if (info.isCustomExpired) {
+      return Container(
+        margin: const EdgeInsets.only(top: 25, bottom: 10),
+        child: GestureDetector(
+          onTap: () => PaydaySetupModal.show(context),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(left: 110, right: 16, top: 12, bottom: 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Color(0xFFFFF4EC),
+                      Color(0xFFFBE4D2),
+                    ],
+                  ),
+                  border: Border.all(color: AppColors.accentPrimary.withValues(alpha: 0.4)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'CUSTOM PAYDAY PASSED',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.stateWarning,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Tap to update your next payday date',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.edit_calendar_rounded, color: AppColors.accentPrimary, size: 20),
+                  ],
+                ),
+              ),
+
+              Positioned(
+                left: -12,
+                top: -36,
+                width: 139,
+                height: 138,
+                child: Image.asset(
+                  'assets/images/Weasly_Dashboard_PayCheck.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Case 3: Active Countdown State
+    final daysRemaining = info.daysRemaining;
+    final daysText = daysRemaining == 0
+        ? 'TODAY!'
+        : (daysRemaining == 1 ? '1 DAY' : '$daysRemaining DAYS');
 
     return Container(
       margin: const EdgeInsets.only(top: 25, bottom: 10),
       child: GestureDetector(
-        onTap: isProjectedDefault ? () => AddEditRecurringBillModal.show(context) : null,
+        onTap: () => PaydaySetupModal.show(context),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -71,7 +225,7 @@ class PaydayCountdownCard extends StatelessWidget {
               height: 64,
               padding: const EdgeInsets.only(left: 120, right: 16),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(16),
                 gradient: const LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
@@ -124,9 +278,7 @@ class PaydayCountdownCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        amount != null && amount > 0
-                            ? currencyFormatter.format(amount)
-                            : (isProjectedDefault ? 'Set Up' : currencyFormatter.format(0)),
+                        currencyFormatter.format(info.expectedAmount),
                         style: GoogleFonts.quicksand(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -135,7 +287,7 @@ class PaydayCountdownCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        dateFormatter.format(targetDate).toUpperCase(),
+                        dateFormatter.format(info.nextPaydayDate).toUpperCase(),
                         style: GoogleFonts.quicksand(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
