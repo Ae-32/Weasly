@@ -209,7 +209,7 @@ class AccountsScreen extends ConsumerWidget {
             children: [
               // Top Balance & Donut Chart & Overlapping Mascot
               SizedBox(
-                height: 230,
+                height: 260,
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -382,8 +382,7 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
 
     final widgets = <Widget>[];
     double currentAngle = -90.0; // fl_chart startDegreeOffset (top center)
-    double? lastTop;
-    double? lastLeft;
+    final placedRects = <Rect>[];
 
     for (int i = 0; i < widget.positiveAccounts.length; i++) {
       final acc = widget.positiveAccounts[i];
@@ -393,55 +392,64 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
       final midAngle = currentAngle + (angleSpan / 2.0);
       currentAngle += angleSpan;
 
-      final minThreshold = widget.positiveAccounts.length > 4 ? 3 : 2;
+      final minThreshold = widget.positiveAccounts.length > 4 ? 5 : 2;
       if (pct < minThreshold) continue;
 
       final rad = midAngle * (math.pi / 180.0);
-      const centerX = 70.0;
-      const centerY = 70.0;
-      const radius = 58.0;
+      const centerX = 95.0;
+      const centerY = 95.0;
 
-      final targetX = centerX + radius * math.cos(rad);
-      final targetY = centerY + radius * math.sin(rad);
+      final estimatedWidth = (pct >= 100) ? 36.0 : (pct >= 10 ? 30.0 : 24.0);
+      const estimatedHeight = 18.0;
+      final halfW = estimatedWidth / 2.0;
+      const halfH = 9.0;
 
-      final normAngle = (midAngle % 360.0 + 360.0) % 360.0;
-      double left;
-      double top;
+      // Corner-aware radial offset ensuring minimum 16px clearance from outer ring edge (radius 54) to closest bubble edge/corner
+      final cosA = math.cos(rad).abs();
+      final sinA = math.sin(rad).abs();
+      final cornerProjection = halfW * cosA + halfH * sinA;
+      final offsetRadius = 54.0 + 16.0 + cornerProjection;
 
-      if (normAngle >= 270 || normAngle < 0) {
-        left = targetX;
-        top = targetY - 18;
-      } else if (normAngle >= 0 && normAngle < 90) {
-        left = targetX;
-        top = targetY;
-      } else if (normAngle >= 90 && normAngle < 180) {
-        left = targetX - 32;
-        top = targetY;
-      } else {
-        left = targetX - 32;
-        top = targetY - 18;
-      }
+      final bubbleCenterX = centerX + offsetRadius * math.cos(rad);
+      final bubbleCenterY = centerY + offsetRadius * math.sin(rad);
 
-      // De-collision adjustment for consecutive badges
-      if (lastTop != null && lastLeft != null) {
-        final vDiff = (top - lastTop).abs();
-        final hDiff = (left - lastLeft).abs();
+      double left = bubbleCenterX - halfW;
+      double top = bubbleCenterY - halfH;
 
-        if (vDiff < 18.0 && hDiff < 30.0) {
-          if (left < 70.0) {
-            top = math.min(top, lastTop - 18.0);
-            left = math.max(2.0, left - 4.0);
-          } else {
-            top = math.max(top, lastTop + 18.0);
+      // Multi-pass collision resolution checking all previously placed speech bubbles
+      Rect currentRect = Rect.fromLTWH(left, top, estimatedWidth, estimatedHeight);
+      int attempts = 0;
+
+      while (attempts < 8) {
+        bool overlaps = false;
+        for (final existing in placedRects) {
+          if (existing.inflate(3.0).overlaps(currentRect)) {
+            overlaps = true;
+            break;
           }
         }
+
+        if (!overlaps) break;
+
+        if (left < centerX) {
+          // Left side of chart: shift upwards & outwards left
+          top -= 6.0;
+          left -= 3.0;
+        } else {
+          // Right side of chart: shift downwards & outwards right
+          top += 6.0;
+          left += 3.0;
+        }
+
+        currentRect = Rect.fromLTWH(left, top, estimatedWidth, estimatedHeight);
+        attempts++;
       }
 
-      if (left < 2.0) left = 2.0;
-      if (top < 2.0) top = 2.0;
+      // Strict boundary clamping within 190x190 Stack bounds
+      left = currentRect.left.clamp(2.0, 190.0 - estimatedWidth - 2.0);
+      top = currentRect.top.clamp(2.0, 190.0 - estimatedHeight - 2.0);
 
-      lastTop = top;
-      lastLeft = left;
+      placedRects.add(Rect.fromLTWH(left, top, estimatedWidth, estimatedHeight));
 
       final color = widget.getAccountColor(acc);
 
@@ -477,8 +485,8 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
         : 0;
 
     return SizedBox(
-      width: 140,
-      height: 140,
+      width: 190,
+      height: 190,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
@@ -501,7 +509,7 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
                 },
               ),
               sectionsSpace: 3,
-              centerSpaceRadius: isInteractive ? 38 : 34,
+              centerSpaceRadius: 40,
               startDegreeOffset: -90,
               sections: widget.positiveAccounts.isEmpty
                   ? [
@@ -509,7 +517,7 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
                         color: AppColors.accentPrimaryLight,
                         value: 1,
                         title: '',
-                        radius: 15,
+                        radius: 14,
                       ),
                     ]
                   : List.generate(widget.positiveAccounts.length, (index) {
@@ -519,14 +527,23 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
                         color: widget.getAccountColor(acc),
                         value: acc.balance,
                         title: '',
-                        radius: isTouched ? 20 : 15,
+                        radius: isTouched ? 18 : 14,
                       );
                     }),
             ),
           ),
 
-          // Center Interactive Stash Focus Indicator (When Interactive Mode Enabled)
-          if (isInteractive && activeAcc != null)
+          // Center Label (Default 'Stashes' label when not touched)
+          if (!isInteractive || activeAcc == null)
+            Text(
+              'Stashes',
+              style: GoogleFonts.quicksand(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AppColors.accentPrimary,
+              ),
+            )
+          else
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -555,7 +572,7 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
               ],
             ),
 
-          // Dynamic Clockwise Slice-Anchored Speech Bubbles (When Bubble Mode Enabled)
+          // Floating Percentage Speech Bubbles Anchored Outside Slices
           if (!isInteractive) ..._buildAccountPercentageBubbles(),
         ],
       ),
