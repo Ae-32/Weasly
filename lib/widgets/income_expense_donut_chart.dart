@@ -4,10 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-import '../providers/chart_style_provider.dart';
 import '../providers/dashboard_provider.dart';
 import '../utils/app_colors.dart';
-import 'percentage_speech_bubble.dart';
 
 /// Circular / Donut chart displaying the ratio of Income vs. Expense for the selected period
 /// strictly styled per Figma CSS export.
@@ -34,8 +32,6 @@ class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChar
   Widget build(BuildContext context) {
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final hasData = widget.summary.totalFlow > 0;
-    final pieChartStyle = ref.watch(pieChartStyleProvider);
-    final isInteractive = pieChartStyle == PieChartStyle.interactive;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -94,7 +90,7 @@ class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChar
               children: [
                 Row(
                   children: [
-                    // Donut Chart with Center Label & Floating Percentage Speech Bubble Callouts
+                    // Donut Chart with Center Label
                     Padding(
                       padding: const EdgeInsets.only(left: 14, top: 12, bottom: 6),
                       child: SizedBox(
@@ -127,18 +123,18 @@ class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChar
                                     color: AppColors.accentPrimary,
                                     value: widget.summary.totalIncome > 0 ? widget.summary.totalIncome : 1.0,
                                     showTitle: false,
-                                    radius: (isInteractive && _touchedIndex == 0) ? 20 : 15,
+                                    radius: (_touchedIndex == 0) ? 20 : 15,
                                   ),
                                   PieChartSectionData(
                                     color: const Color(0xFFE8B381),
                                     value: widget.summary.totalExpense > 0 ? widget.summary.totalExpense : 0.1,
                                     showTitle: false,
-                                    radius: (isInteractive && _touchedIndex == 1) ? 20 : 15,
+                                    radius: (_touchedIndex == 1) ? 20 : 15,
                                   ),
                                 ],
                               ),
                             ),
-                            if (isInteractive && _touchedIndex == 0)
+                            if (_touchedIndex == 0)
                               Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -154,13 +150,14 @@ class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChar
                                     '${widget.summary.incomePercentage.round()}%',
                                     style: GoogleFonts.quicksand(
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w800,
                                       color: AppColors.accentPrimary,
+                                      height: 1.1,
                                     ),
                                   ),
                                 ],
                               )
-                            else if (isInteractive && _touchedIndex == 1)
+                            else if (_touchedIndex == 1)
                               Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -176,8 +173,9 @@ class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChar
                                     '${widget.summary.expensePercentage.round()}%',
                                     style: GoogleFonts.quicksand(
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w800,
                                       color: const Color(0xFFE8B381),
+                                      height: 1.1,
                                     ),
                                   ),
                                 ],
@@ -189,30 +187,6 @@ class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChar
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.accentPrimary,
-                                ),
-                              ),
-
-                            // Floating Expense % Badge (When Bubble Style is Selected)
-                            if (!isInteractive && widget.summary.totalExpense > 0)
-                              Positioned(
-                                left: 0,
-                                top: 4,
-                                child: PercentageSpeechBubble(
-                                  text: '${widget.summary.expensePercentage.round()}%',
-                                  backgroundColor: const Color(0xFFFCE9D6),
-                                  textColor: const Color(0xFFC25814),
-                                ),
-                              ),
-
-                            // Floating Income % Badge (When Bubble Style is Selected)
-                            if (!isInteractive && widget.summary.totalIncome > 0)
-                              Positioned(
-                                right: 0,
-                                top: 4,
-                                child: PercentageSpeechBubble(
-                                  text: '${widget.summary.incomePercentage.round()}%',
-                                  backgroundColor: AppColors.accentPrimary,
-                                  textColor: Colors.white,
                                 ),
                               ),
                           ],

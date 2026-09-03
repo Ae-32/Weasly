@@ -18,124 +18,6 @@ import 'payday_setup_modal.dart';
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
-  void _showPieChartStyleModal(BuildContext context, WidgetRef ref) {
-    final currentStyle = ref.read(pieChartStyleProvider);
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.bgSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Pie Chart Style',
-                style: GoogleFonts.quicksand(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Choose how pie and donut charts display in the app',
-                style: GoogleFonts.quicksand(
-                  fontSize: 13,
-                  color: AppColors.textMuted,
-                ),
-              ),
-              const SizedBox(height: 20),
-              ...PieChartStyle.values.map((style) {
-                final isSelected = style == currentStyle;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: InkWell(
-                    onTap: () {
-                      ref.read(pieChartStyleProvider.notifier).setStyle(style);
-                      Navigator.of(context).pop();
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.accentPrimaryLight.withValues(alpha: 0.2)
-                            : AppColors.bgBase,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isSelected ? AppColors.accentPrimary : AppColors.borderDefault,
-                          width: isSelected ? 1.5 : 1.0,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppColors.accentPrimary
-                                  : AppColors.bgSurface,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              style == PieChartStyle.interactive
-                                  ? Icons.touch_app_rounded
-                                  : Icons.chat_bubble_outline_rounded,
-                              color: isSelected ? Colors.white : AppColors.accentPrimary,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  style.title,
-                                  style: GoogleFonts.quicksand(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  style.description,
-                                  style: GoogleFonts.quicksand(
-                                    fontSize: 11,
-                                    color: AppColors.textMuted,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (isSelected)
-                            const Icon(
-                              Icons.check_circle_rounded,
-                              color: AppColors.accentPrimary,
-                              size: 20,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
     final confirmed = await LogoutConfirmationModal.show(context);
     if (confirmed == true && context.mounted) {
@@ -155,7 +37,6 @@ class SettingsScreen extends ConsumerWidget {
     final isBiometricEnabled = ref.watch(biometricEnabledProvider);
     final isPinSet = ref.watch(isPinSetProvider);
     final paydaySettings = ref.watch(paydaySettingsStreamProvider).value;
-    final pieChartStyle = ref.watch(pieChartStyleProvider);
 
 
     return Scaffold(
@@ -244,70 +125,6 @@ class SettingsScreen extends ConsumerWidget {
                     color: AppColors.textMuted,
                   ),
                   onTap: () => PaydaySetupModal.show(context),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Appearance & Charts Section Header
-              Text(
-                'APPEARANCE & CHARTS',
-                style: GoogleFonts.quicksand(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
-                  letterSpacing: 1.0,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Pie Chart Style Setting Card
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderDefault),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color.fromRGBO(43, 36, 32, 0.04),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.accentPrimaryLight.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.pie_chart_outline_rounded,
-                      color: AppColors.accentPrimary,
-                      size: 22,
-                    ),
-                  ),
-                  title: Text(
-                    'Pie Chart Style',
-                    style: GoogleFonts.quicksand(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  subtitle: Text(
-                    pieChartStyle.title,
-                    style: GoogleFonts.quicksand(
-                      fontSize: 12,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                  trailing: const Icon(
-                    Icons.chevron_right_rounded,
-                    color: AppColors.textMuted,
-                  ),
-                  onTap: () => _showPieChartStyleModal(context, ref),
                 ),
               ),
               const SizedBox(height: 24),
@@ -428,8 +245,8 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   subtitle: Text(
                     isPinSet
-                        ? '4-6 digit PIN active as app lock'
-                        : 'Create a 4-6 digit PIN for device authentication',
+                        ? '6 digit PIN active as app lock'
+                        : 'Create a 6 digit PIN for device authentication',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
                       color: AppColors.textMuted,

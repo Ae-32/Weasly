@@ -10,7 +10,6 @@ import '../../models/transaction_model.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/budget_provider.dart';
-import '../../providers/chart_style_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/home_nav_provider.dart';
 import '../../providers/recurring_bill_provider.dart';
@@ -18,7 +17,6 @@ import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/income_expense_donut_chart.dart';
-import '../../widgets/percentage_speech_bubble.dart';
 import '../../widgets/weasly_app_header.dart';
 import '../recurring_bills/recurring_bills_screen.dart';
 
@@ -568,9 +566,6 @@ class DashboardScreen extends ConsumerWidget {
         ? sortedCategories
         : sortedCategories.take(4).toList();
 
-    final pieChartStyle = ref.watch(pieChartStyleProvider);
-    final isInteractive = pieChartStyle == PieChartStyle.interactive;
-
     final touchedIndex = ref.watch(touchedCategoryIndexProvider);
     final activeIndex = (touchedIndex >= 0 && touchedIndex < sortedCategories.length)
         ? touchedIndex
@@ -593,10 +588,10 @@ class DashboardScreen extends ConsumerWidget {
           Row(
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 22, top: 10, bottom: 10),
+                padding: const EdgeInsets.only(left: 14, top: 10, bottom: 10),
                 child: SizedBox(
-                  width: 190,
-                  height: 190,
+                  width: 140,
+                  height: 140,
                   child: Stack(
                     clipBehavior: Clip.none,
                     alignment: Alignment.center,
@@ -620,7 +615,7 @@ class DashboardScreen extends ConsumerWidget {
                           centerSpaceRadius: 40,
                           startDegreeOffset: -90,
                           sections: List.generate(sortedCategories.length, (index) {
-                            final isTouched = isInteractive && (index == activeIndex);
+                            final isTouched = index == activeIndex;
                             final cat = sortedCategories[index];
                             final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
                             return PieChartSectionData(
@@ -632,8 +627,8 @@ class DashboardScreen extends ConsumerWidget {
                           }),
                         ),
                       ),
-                      // Center Interactive Category Focus Indicator (When Interactive Mode Enabled)
-                      if (isInteractive && focusCat != null)
+                      // Center Interactive Category Focus Indicator
+                      if (focusCat != null)
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -662,15 +657,11 @@ class DashboardScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-
-                      // Dynamic Clockwise Slice-Anchored Speech Bubbles (When Bubble Mode Enabled)
-                      if (!isInteractive)
-                        ..._buildCategoryPercentageBubbles(sortedCategories, totalExpensePeriod),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 24),
+              const SizedBox(width: 40),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1185,102 +1176,7 @@ class _SpeechBubblePointerPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Dynamic Clockwise Slice-Anchored Speech Bubbles for Category Spending Pie Chart
-List<Widget> _buildCategoryPercentageBubbles(
-  List<_CategoryExpenseAggregate> sortedCategories,
-  double totalExpensePeriod,
-) {
-  if (totalExpensePeriod <= 0 || sortedCategories.isEmpty) return [];
 
-  final widgets = <Widget>[];
-  double currentAngle = -90.0; // fl_chart startDegreeOffset (top center)
-  final placedRects = <Rect>[];
-
-  for (int i = 0; i < sortedCategories.length; i++) {
-    final cat = sortedCategories[i];
-    final fraction = cat.total / totalExpensePeriod;
-    final pct = (fraction * 100).round();
-    final angleSpan = fraction * 360.0;
-    final midAngle = currentAngle + (angleSpan / 2.0);
-    currentAngle += angleSpan;
-
-    // Filter out tiny slices < 5% when there are many categories to avoid bubble overlap clutter
-    final minThreshold = sortedCategories.length > 4 ? 5 : 2;
-    if (pct < minThreshold) continue;
-
-    final rad = midAngle * (math.pi / 180.0);
-    const centerX = 95.0;
-    const centerY = 95.0;
-
-    final estimatedWidth = (pct >= 100) ? 36.0 : (pct >= 10 ? 30.0 : 24.0);
-    const estimatedHeight = 18.0;
-    final halfW = estimatedWidth / 2.0;
-    const halfH = 9.0;
-
-    // Corner-aware radial offset ensuring minimum 16px clearance from outer ring edge (radius 54) to closest bubble edge/corner
-    final cosA = math.cos(rad).abs();
-    final sinA = math.sin(rad).abs();
-    final cornerProjection = halfW * cosA + halfH * sinA;
-    final offsetRadius = 54.0 + 16.0 + cornerProjection;
-
-    final bubbleCenterX = centerX + offsetRadius * math.cos(rad);
-    final bubbleCenterY = centerY + offsetRadius * math.sin(rad);
-
-    double left = bubbleCenterX - halfW;
-    double top = bubbleCenterY - halfH;
-
-    // Multi-pass collision resolution checking all previously placed speech bubbles
-    Rect currentRect = Rect.fromLTWH(left, top, estimatedWidth, estimatedHeight);
-    int attempts = 0;
-
-    while (attempts < 8) {
-      bool overlaps = false;
-      for (final existing in placedRects) {
-        if (existing.inflate(3.0).overlaps(currentRect)) {
-          overlaps = true;
-          break;
-        }
-      }
-
-      if (!overlaps) break;
-
-      if (left < centerX) {
-        // Left side of chart: shift upwards & outwards left
-        top -= 6.0;
-        left -= 3.0;
-      } else {
-        // Right side of chart: shift downwards & outwards right
-        top += 6.0;
-        left += 3.0;
-      }
-
-      currentRect = Rect.fromLTWH(left, top, estimatedWidth, estimatedHeight);
-      attempts++;
-    }
-
-    // Strict boundary clamping within 190x190 Stack bounds
-    left = currentRect.left.clamp(2.0, 190.0 - estimatedWidth - 2.0);
-    top = currentRect.top.clamp(2.0, 190.0 - estimatedHeight - 2.0);
-
-    placedRects.add(Rect.fromLTWH(left, top, estimatedWidth, estimatedHeight));
-
-    final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
-
-    widgets.add(
-      Positioned(
-        left: left,
-        top: top,
-        child: PercentageSpeechBubble(
-          text: '$pct%',
-          backgroundColor: color,
-          textColor: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  return widgets;
-}
 
 
 

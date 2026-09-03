@@ -19,12 +19,7 @@ const String _kPieChartStyleKey = 'pie_chart_style';
 class PieChartStyleNotifier extends StateNotifier<PieChartStyle> {
   final SharedPreferences _prefs;
 
-  PieChartStyleNotifier(this._prefs)
-      : super(
-          _prefs.getString(_kPieChartStyleKey) == 'bubble'
-              ? PieChartStyle.bubble
-              : PieChartStyle.interactive,
-        );
+  PieChartStyleNotifier(this._prefs) : super(PieChartStyle.interactive);
 
   /// Sets and persists the user's preferred pie chart visualization style.
   Future<void> setStyle(PieChartStyle style) async {

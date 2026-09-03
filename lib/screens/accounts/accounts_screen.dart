@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 
 import '../../models/account_model.dart';
 import '../../providers/account_provider.dart';
-import '../../providers/chart_style_provider.dart';
 import '../../providers/payday_provider.dart';
 import '../../utils/app_colors.dart';
 
@@ -16,7 +15,6 @@ import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/account_card.dart';
 import '../../widgets/payday_countdown_card.dart';
-import '../../widgets/percentage_speech_bubble.dart';
 import '../../widgets/weasly_app_header.dart';
 
 /// Account & Stashes screen matching exact Figma CSS export & redesign specifications.
@@ -377,103 +375,8 @@ class _StashDonutChart extends ConsumerStatefulWidget {
 class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
   int _touchedIndex = 0;
 
-  List<Widget> _buildAccountPercentageBubbles() {
-    if (widget.sumPositive <= 0 || widget.positiveAccounts.isEmpty) return [];
-
-    final widgets = <Widget>[];
-    double currentAngle = -90.0; // fl_chart startDegreeOffset (top center)
-    final placedRects = <Rect>[];
-
-    for (int i = 0; i < widget.positiveAccounts.length; i++) {
-      final acc = widget.positiveAccounts[i];
-      final fraction = acc.balance / widget.sumPositive;
-      final pct = (fraction * 100).round();
-      final angleSpan = fraction * 360.0;
-      final midAngle = currentAngle + (angleSpan / 2.0);
-      currentAngle += angleSpan;
-
-      final minThreshold = widget.positiveAccounts.length > 4 ? 5 : 2;
-      if (pct < minThreshold) continue;
-
-      final rad = midAngle * (math.pi / 180.0);
-      const centerX = 95.0;
-      const centerY = 95.0;
-
-      final estimatedWidth = (pct >= 100) ? 36.0 : (pct >= 10 ? 30.0 : 24.0);
-      const estimatedHeight = 18.0;
-      final halfW = estimatedWidth / 2.0;
-      const halfH = 9.0;
-
-      // Corner-aware radial offset ensuring minimum 16px clearance from outer ring edge (radius 54) to closest bubble edge/corner
-      final cosA = math.cos(rad).abs();
-      final sinA = math.sin(rad).abs();
-      final cornerProjection = halfW * cosA + halfH * sinA;
-      final offsetRadius = 54.0 + 16.0 + cornerProjection;
-
-      final bubbleCenterX = centerX + offsetRadius * math.cos(rad);
-      final bubbleCenterY = centerY + offsetRadius * math.sin(rad);
-
-      double left = bubbleCenterX - halfW;
-      double top = bubbleCenterY - halfH;
-
-      // Multi-pass collision resolution checking all previously placed speech bubbles
-      Rect currentRect = Rect.fromLTWH(left, top, estimatedWidth, estimatedHeight);
-      int attempts = 0;
-
-      while (attempts < 8) {
-        bool overlaps = false;
-        for (final existing in placedRects) {
-          if (existing.inflate(3.0).overlaps(currentRect)) {
-            overlaps = true;
-            break;
-          }
-        }
-
-        if (!overlaps) break;
-
-        if (left < centerX) {
-          // Left side of chart: shift upwards & outwards left
-          top -= 6.0;
-          left -= 3.0;
-        } else {
-          // Right side of chart: shift downwards & outwards right
-          top += 6.0;
-          left += 3.0;
-        }
-
-        currentRect = Rect.fromLTWH(left, top, estimatedWidth, estimatedHeight);
-        attempts++;
-      }
-
-      // Strict boundary clamping within 190x190 Stack bounds
-      left = currentRect.left.clamp(2.0, 190.0 - estimatedWidth - 2.0);
-      top = currentRect.top.clamp(2.0, 190.0 - estimatedHeight - 2.0);
-
-      placedRects.add(Rect.fromLTWH(left, top, estimatedWidth, estimatedHeight));
-
-      final color = widget.getAccountColor(acc);
-
-      widgets.add(
-        Positioned(
-          left: left,
-          top: top,
-          child: PercentageSpeechBubble(
-            text: '$pct%',
-            backgroundColor: color,
-            textColor: Colors.white,
-          ),
-        ),
-      );
-    }
-
-    return widgets;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final pieChartStyle = ref.watch(pieChartStyleProvider);
-    final isInteractive = pieChartStyle == PieChartStyle.interactive;
-
     final activeAcc = (widget.positiveAccounts.isNotEmpty &&
             _touchedIndex >= 0 &&
             _touchedIndex < widget.positiveAccounts.length)
@@ -484,9 +387,13 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
         ? ((activeAcc.balance / widget.sumPositive) * 100).round()
         : 0;
 
+    final activeColor = activeAcc != null
+        ? widget.getAccountColor(activeAcc)
+        : AppColors.accentPrimary;
+
     return SizedBox(
-      width: 190,
-      height: 190,
+      width: 140,
+      height: 140,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
@@ -522,7 +429,7 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
                     ]
                   : List.generate(widget.positiveAccounts.length, (index) {
                       final acc = widget.positiveAccounts[index];
-                      final isTouched = isInteractive && (index == _touchedIndex);
+                      final isTouched = index == _touchedIndex;
                       return PieChartSectionData(
                         color: widget.getAccountColor(acc),
                         value: acc.balance,
@@ -533,8 +440,8 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
             ),
           ),
 
-          // Center Label (Default 'Stashes' label when not touched)
-          if (!isInteractive || activeAcc == null)
+          // Center Label (Active Account focus indicator or default 'Stashes')
+          if (activeAcc == null)
             Text(
               'Stashes',
               style: GoogleFonts.quicksand(
@@ -565,15 +472,13 @@ class _StashDonutChartState extends ConsumerState<_StashDonutChart> {
                   '$activePct%',
                   style: GoogleFonts.quicksand(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                    color: activeColor,
+                    height: 1.1,
                   ),
                 ),
               ],
             ),
-
-          // Floating Percentage Speech Bubbles Anchored Outside Slices
-          if (!isInteractive) ..._buildAccountPercentageBubbles(),
         ],
       ),
     );
