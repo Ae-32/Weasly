@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/payday_settings_model.dart';
 import '../../providers/account_provider.dart';
+import '../../widgets/stash_icon.dart';
 
 import '../../providers/payday_provider.dart';
 import '../../utils/app_colors.dart';
@@ -312,25 +313,70 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          DropdownButtonFormField<int>(
-                            initialValue: _semiMonthlyDay1,
-
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.borderDefault),
-                              ),
-                            ),
-                            items: List.generate(31, (i) => i + 1)
-                                .map((day) => DropdownMenuItem(
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              return PopupMenuButton<int>(
+                                position: PopupMenuPosition.under,
+                                color: AppColors.bgSurface,
+                                elevation: 4,
+                                shadowColor: Colors.black12,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: const BorderSide(color: AppColors.borderDefault),
+                                ),
+                                constraints: BoxConstraints(
+                                  minWidth: constraints.maxWidth,
+                                  maxWidth: constraints.maxWidth,
+                                  maxHeight: 250,
+                                ),
+                                itemBuilder: (context) {
+                                  return List.generate(31, (i) => i + 1).map((day) {
+                                    final isSelected = day == _semiMonthlyDay1;
+                                    return PopupMenuItem<int>(
                                       value: day,
-                                      child: Text('$day${_getDaySuffix(day)} of month', style: GoogleFonts.quicksand(fontSize: 13)),
-                                    ))
-                                .toList(),
-                            onChanged: (val) {
-                              if (val != null) setState(() => _semiMonthlyDay1 = val);
+                                      height: 40,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              '$day${_getDaySuffix(day)} of month',
+                                              style: GoogleFonts.quicksand(
+                                                fontSize: 13,
+                                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                                color: isSelected ? AppColors.accentPrimary : AppColors.textPrimary,
+                                              ),
+                                            ),
+                                          ),
+                                          if (isSelected)
+                                            const Icon(Icons.check_rounded, size: 16, color: AppColors.accentPrimary),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList();
+                                },
+                                onSelected: (val) {
+                                  setState(() => _semiMonthlyDay1 = val);
+                                },
+                                child: Container(
+                                  height: 48,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: AppColors.borderDefault),
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: AppColors.bgSurface,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        '$_semiMonthlyDay1${_getDaySuffix(_semiMonthlyDay1)} of month',
+                                        style: GoogleFonts.quicksand(fontSize: 13, color: AppColors.textPrimary),
+                                      ),
+                                      const Icon(Icons.expand_more, color: AppColors.textMuted, size: 20),
+                                    ],
+                                  ),
+                                ),
+                              );
                             },
                           ),
                         ],
@@ -350,25 +396,70 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          DropdownButtonFormField<int>(
-                            initialValue: _semiMonthlyDay2,
-
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: AppColors.borderDefault),
-                              ),
-                            ),
-                            items: List.generate(31, (i) => i + 1)
-                                .map((day) => DropdownMenuItem(
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              return PopupMenuButton<int>(
+                                position: PopupMenuPosition.under,
+                                color: AppColors.bgSurface,
+                                elevation: 4,
+                                shadowColor: Colors.black12,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: const BorderSide(color: AppColors.borderDefault),
+                                ),
+                                constraints: BoxConstraints(
+                                  minWidth: constraints.maxWidth,
+                                  maxWidth: constraints.maxWidth,
+                                  maxHeight: 250,
+                                ),
+                                itemBuilder: (context) {
+                                  return List.generate(31, (i) => i + 1).map((day) {
+                                    final isSelected = day == _semiMonthlyDay2;
+                                    return PopupMenuItem<int>(
                                       value: day,
-                                      child: Text('$day${_getDaySuffix(day)} of month', style: GoogleFonts.quicksand(fontSize: 13)),
-                                    ))
-                                .toList(),
-                            onChanged: (val) {
-                              if (val != null) setState(() => _semiMonthlyDay2 = val);
+                                      height: 40,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              '$day${_getDaySuffix(day)} of month',
+                                              style: GoogleFonts.quicksand(
+                                                fontSize: 13,
+                                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                                color: isSelected ? AppColors.accentPrimary : AppColors.textPrimary,
+                                              ),
+                                            ),
+                                          ),
+                                          if (isSelected)
+                                            const Icon(Icons.check_rounded, size: 16, color: AppColors.accentPrimary),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList();
+                                },
+                                onSelected: (val) {
+                                  setState(() => _semiMonthlyDay2 = val);
+                                },
+                                child: Container(
+                                  height: 48,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: AppColors.borderDefault),
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: AppColors.bgSurface,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        '$_semiMonthlyDay2${_getDaySuffix(_semiMonthlyDay2)} of month',
+                                        style: GoogleFonts.quicksand(fontSize: 13, color: AppColors.textPrimary),
+                                      ),
+                                      const Icon(Icons.expand_more, color: AppColors.textMuted, size: 20),
+                                    ],
+                                  ),
+                                ),
+                              );
                             },
                           ),
                         ],
@@ -390,25 +481,70 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    DropdownButtonFormField<int>(
-                      initialValue: _monthlyDay,
-
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppColors.borderDefault),
-                        ),
-                      ),
-                      items: List.generate(31, (i) => i + 1)
-                          .map((day) => DropdownMenuItem(
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        return PopupMenuButton<int>(
+                          position: PopupMenuPosition.under,
+                          color: AppColors.bgSurface,
+                          elevation: 4,
+                          shadowColor: Colors.black12,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: const BorderSide(color: AppColors.borderDefault),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: constraints.maxWidth,
+                            maxWidth: constraints.maxWidth,
+                            maxHeight: 250,
+                          ),
+                          itemBuilder: (context) {
+                            return List.generate(31, (i) => i + 1).map((day) {
+                              final isSelected = day == _monthlyDay;
+                              return PopupMenuItem<int>(
                                 value: day,
-                                child: Text('$day${_getDaySuffix(day)} of every month', style: GoogleFonts.quicksand(fontSize: 13)),
-                              ))
-                          .toList(),
-                      onChanged: (val) {
-                        if (val != null) setState(() => _monthlyDay = val);
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '$day${_getDaySuffix(day)} of every month',
+                                        style: GoogleFonts.quicksand(
+                                          fontSize: 13,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                          color: isSelected ? AppColors.accentPrimary : AppColors.textPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                    if (isSelected)
+                                      const Icon(Icons.check_rounded, size: 16, color: AppColors.accentPrimary),
+                                  ],
+                                ),
+                              );
+                            }).toList();
+                          },
+                          onSelected: (val) {
+                            setState(() => _monthlyDay = val);
+                          },
+                          child: Container(
+                            height: 48,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.borderDefault),
+                              borderRadius: BorderRadius.circular(12),
+                              color: AppColors.bgSurface,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '$_monthlyDay${_getDaySuffix(_monthlyDay)} of every month',
+                                  style: GoogleFonts.quicksand(fontSize: 13, color: AppColors.textPrimary),
+                                ),
+                                const Icon(Icons.expand_more, color: AppColors.textMuted, size: 20),
+                              ],
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -474,12 +610,18 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))],
                 decoration: InputDecoration(
-                  prefixText: '₱ ',
-                  prefixStyle: GoogleFonts.quicksand(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.accentPrimary,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 6),
+                    child: Text(
+                      '₱',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.accentPrimary,
+                      ),
+                    ),
                   ),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
                   hintText: '0.00',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -518,45 +660,115 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
               const SizedBox(height: 8),
               accountsAsync.when(
                 data: (accounts) {
-                  return DropdownButtonFormField<String?>(
-                    initialValue: _selectedAccountId,
+                  final selectedAccount = accounts.where((a) => a.id == _selectedAccountId).firstOrNull;
+                  final displayText = selectedAccount?.name ?? 'None (Unlinked)';
 
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.borderDefault),
-                      ),
-                    ),
-                    items: [
-                      DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text(
-                          'None (Unlinked)',
-                          style: GoogleFonts.quicksand(fontSize: 14, color: AppColors.textMuted),
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      return PopupMenuButton<String?>(
+                        position: PopupMenuPosition.under,
+                        color: AppColors.bgSurface,
+                        elevation: 4,
+                        shadowColor: Colors.black12,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(color: AppColors.borderDefault),
                         ),
-                      ),
-                      ...accounts.map(
-                        (acc) => DropdownMenuItem<String?>(
-                          value: acc.id,
-                          child: Text(
-                            acc.name,
-                            style: GoogleFonts.quicksand(fontSize: 14, fontWeight: FontWeight.w600),
+                        constraints: BoxConstraints(
+                          minWidth: constraints.maxWidth,
+                          maxWidth: constraints.maxWidth,
+                          maxHeight: 250,
+                        ),
+                        itemBuilder: (context) {
+                          return [
+                            PopupMenuItem<String?>(
+                              value: null,
+                              height: 44,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'None (Unlinked)',
+                                      style: GoogleFonts.quicksand(
+                                        fontSize: 14,
+                                        color: AppColors.textMuted,
+                                        fontWeight: _selectedAccountId == null ? FontWeight.bold : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                  if (_selectedAccountId == null)
+                                    const Icon(Icons.check_rounded, size: 16, color: AppColors.accentPrimary),
+                                ],
+                              ),
+                            ),
+                            ...accounts.map(
+                              (acc) {
+                                final isSelected = acc.id == _selectedAccountId;
+                                return PopupMenuItem<String?>(
+                                  value: acc.id,
+                                  child: Row(
+                                    children: [
+                                      StashIcon.fromAccount(acc, size: 22),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          acc.name,
+                                          style: GoogleFonts.quicksand(
+                                            fontSize: 14,
+                                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                            color: isSelected ? AppColors.accentPrimary : AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                      if (isSelected)
+                                        const Icon(Icons.check_rounded, size: 16, color: AppColors.accentPrimary),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ];
+                        },
+                        onSelected: (selectedId) {
+                          setState(() {
+                            _selectedAccountId = selectedId;
+                            if (selectedId != null) {
+                              final match = accounts.firstWhere((a) => a.id == selectedId);
+                              _selectedAccountName = match.name;
+                            } else {
+                              _selectedAccountName = null;
+                            }
+                          });
+                        },
+                        child: Container(
+                          height: 48,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.borderDefault),
+                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.bgSurface,
+                          ),
+                          child: Row(
+                            children: [
+                              if (selectedAccount != null) ...[
+                                StashIcon.fromAccount(selectedAccount, size: 22),
+                                const SizedBox(width: 10),
+                              ],
+                              Expanded(
+                                child: Text(
+                                  displayText,
+                                  style: GoogleFonts.quicksand(
+                                    fontSize: 14,
+                                    color: selectedAccount != null ? AppColors.textPrimary : AppColors.textMuted,
+                                    fontWeight: selectedAccount != null ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                              const Icon(Icons.expand_more, color: AppColors.textMuted, size: 20),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
-                    onChanged: (selectedId) {
-                      setState(() {
-                        _selectedAccountId = selectedId;
-                        if (selectedId != null) {
-                          final match = accounts.firstWhere((a) => a.id == selectedId);
-                          _selectedAccountName = match.name;
-                        } else {
-                          _selectedAccountName = null;
-                        }
-                      });
+                      );
                     },
                   );
                 },

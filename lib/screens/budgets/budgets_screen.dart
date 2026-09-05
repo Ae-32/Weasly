@@ -120,47 +120,43 @@ class BudgetsScreen extends ConsumerWidget {
                           color: const Color(0xFF8A7F73),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       if (budgetsWithSpent.isEmpty)
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(32),
-                          decoration: BoxDecoration(
-                            color: AppColors.bgSurface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFE8E1D8)),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color.fromRGBO(43, 36, 32, 0.04),
-                                blurRadius: 12,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 160, horizontal: 32),
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
-                                Icons.savings_outlined,
-                                size: 56,
-                                color: AppColors.textMuted,
+                              Image.asset(
+                                'assets/images/Weasly_NoTransaction.png',
+                                width: 160,
+                                height: 160,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                  Icons.savings_outlined,
+                                  size: 64,
+                                  color: AppColors.textMuted,
+                                ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 16),
                               Text(
-                                'No budgets set yet',
+                                'No budget created yet.',
                                 style: GoogleFonts.quicksand(
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: const Color(0xFF211A16),
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 8),
                               Text(
-                                'Tap + to set a spending limit for a category.',
+                                'Start setting monthly spending limits to keep your finances on track.',
                                 style: GoogleFonts.quicksand(
                                   fontSize: 14,
                                   color: AppColors.textMuted,
                                 ),
+                                textAlign: TextAlign.center,
                               ),
                             ],
                           ),

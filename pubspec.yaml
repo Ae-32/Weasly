@@ -89,6 +89,7 @@ flutter:
   assets:
     - assets/images/
     - assets/Weasly_Icons/
+    - assets/Weasly_Icons_NoBorder/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

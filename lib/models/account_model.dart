@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AccountModel {
   final String id;
   final String name;
-  final String type; // 'cash', 'gcash', 'bank', 'savings', 'credit'
+  final String type; // 'cash', 'digital', 'bank', 'other'
   final double balance;
   final String? note;
   final String? colorHex;
@@ -76,6 +76,39 @@ class AccountModel {
   static const String nameCash = 'Cash Stash';
   static const String nameDigital = 'Digital Stash';
   static const String nameBank = 'Bank Stash';
+
+  /// Returns custom PNG icon asset path for a stash based on type or name.
+  static String getStashIconAsset(String type, [String? name]) {
+    final cleanType = type.trim().toLowerCase();
+    final cleanName = (name ?? '').trim().toLowerCase();
+
+    if (cleanType == typeDigital ||
+        cleanType == 'digital_stash' ||
+        cleanType == 'ewallet' ||
+        cleanType == 'e-wallet' ||
+        cleanType == 'gcash' ||
+        cleanName.contains('digital') ||
+        cleanName.contains('gcash') ||
+        cleanName.contains('e-wallet')) {
+      return 'assets/Weasly_Icons/Digital_Stash.png';
+    }
+
+    if (cleanType == typeBank ||
+        cleanType == 'bank_wallet' ||
+        cleanType == 'bank_stash' ||
+        cleanName.contains('bank')) {
+      return 'assets/Weasly_Icons/Bank_Stash.png';
+    }
+
+    if (cleanType == typeCash ||
+        cleanType == 'cash_wallet' ||
+        cleanType == 'cash_stash' ||
+        cleanName.contains('cash')) {
+      return 'assets/Weasly_Icons/Cash_Stash.png';
+    }
+
+    return 'assets/Weasly_Icons/Other_Stash.png';
+  }
 
   /// Checks if an existing account list already contains an account of the given fixed type.
   /// Fixed types ('cash', 'digital', 'bank') only allow 1 instance per user.

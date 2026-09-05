@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/account_model.dart';
 import '../utils/app_colors.dart';
+import 'stash_icon.dart';
 
 /// Reusable Stash/Account Row component matching Figma CSS & design-reference specifications.
 class AccountCard extends StatelessWidget {
@@ -32,32 +33,24 @@ class AccountCard extends StatelessWidget {
       bgOverlay = accentColor.withValues(alpha: 0.15);
     } else {
       switch (account.type.toLowerCase()) {
+        case AccountModel.typeDigital:
         case 'gcash':
         case 'e-wallet':
         case 'ewallet':
-        case 'digital':
         case 'digital_stash':
           accentColor = const Color(0xFFE08B03);
           bgOverlay = const Color(0xFFFCE9D6);
           break;
-        case 'bank':
+        case AccountModel.typeBank:
         case 'bank_wallet':
           accentColor = const Color(0xFFF48423);
           bgOverlay = const Color(0xFFFBE4D2);
           break;
-        case 'savings':
-          accentColor = const Color(0xFFE05F03);
-          bgOverlay = const Color(0xFFFBDCC6);
+        case AccountModel.typeOther:
+          accentColor = AppColors.textMuted;
+          bgOverlay = AppColors.iconButtonBg;
           break;
-        case 'credit':
-          accentColor = AppColors.stateError;
-          bgOverlay = const Color(0xFFFFDAD6);
-          break;
-        case 'other':
-          accentColor = const Color(0xFF8A7F73);
-          bgOverlay = const Color(0xFFEDE0D9);
-          break;
-        case 'cash':
+        case AccountModel.typeCash:
         default:
           accentColor = const Color(0xFFEE4818);
           bgOverlay = const Color(0xFFFCDED5);
@@ -68,35 +61,27 @@ class AccountCard extends StatelessWidget {
     IconData iconData;
     String subtitle;
     switch (account.type.toLowerCase()) {
+      case AccountModel.typeDigital:
       case 'gcash':
       case 'e-wallet':
       case 'ewallet':
-      case 'digital':
       case 'digital_stash':
         iconData = Icons.phone_iphone_rounded;
-        subtitle = account.note ?? 'Digital Transaction';
+        subtitle = account.note ?? 'Digital transactions';
         break;
-      case 'bank':
+      case AccountModel.typeBank:
       case 'bank_wallet':
         iconData = Icons.account_balance_rounded;
-        subtitle = account.note ?? 'Saving & Salary';
+        subtitle = account.note ?? 'Savings & salary';
         break;
-      case 'savings':
-        iconData = Icons.savings_rounded;
-        subtitle = account.note ?? 'Long-term Savings';
-        break;
-      case 'credit':
-        iconData = Icons.credit_card_rounded;
-        subtitle = account.note ?? 'Credit Card';
-        break;
-      case 'other':
+      case AccountModel.typeOther:
         iconData = Icons.more_horiz_rounded;
-        subtitle = account.note ?? 'Custom Stash';
+        subtitle = account.note ?? 'Custom stash';
         break;
-      case 'cash':
+      case AccountModel.typeCash:
       default:
         iconData = Icons.account_balance_wallet_rounded;
-        subtitle = account.note ?? 'Everyday Spending';
+        subtitle = account.note ?? 'Everyday spending';
         break;
     }
 
@@ -109,6 +94,8 @@ class AccountCard extends StatelessWidget {
     final (iconData, accentColor, bgOverlay, defaultSubtitle) = _getAccountStyle();
     final pct = totalBalance > 0 ? (account.balance / totalBalance).clamp(0.0, 1.0) : 0.0;
 
+    final Widget iconWidget = StashIcon.fromAccount(account, size: 34);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -116,15 +103,7 @@ class AccountCard extends StatelessWidget {
           Row(
             children: [
               // Icon Badge Box
-              Container(
-                width: 32,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: bgOverlay,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Icon(iconData, size: 16, color: accentColor),
-              ),
+              iconWidget,
               const SizedBox(width: 10),
 
               // Title & Subtitle

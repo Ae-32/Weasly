@@ -11,6 +11,7 @@ import '../providers/recurring_bill_provider.dart';
 import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
 import 'category_icon.dart';
+import 'stash_icon.dart';
 
 /// Modal bottom sheet for adding or editing a recurring bill.
 class AddEditRecurringBillModal extends ConsumerStatefulWidget {
@@ -265,31 +266,112 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
               // Category Selector
               const Text('Category', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
               const SizedBox(height: 6),
-              DropdownButtonFormField<CategoryModel>(
-                initialValue: _selectedCategory,
-                decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-                items: uniqueCategories.map((cat) {
-                  final color = DefaultCategories.getColor(cat.colorHex);
-                  return DropdownMenuItem(
-                    value: cat,
-                    child: Row(
-                      children: [
-                        CategoryIcon(
-                          categoryName: cat.name,
-                          iconName: cat.iconName,
-                          color: color,
-                          size: 18,
-                          containerSize: 28,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(cat.name),
-                      ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return PopupMenuButton<CategoryModel>(
+                    position: PopupMenuPosition.under,
+                    color: AppColors.bgSurface,
+                    elevation: 4,
+                    shadowColor: Colors.black12,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(color: AppColors.borderDefault),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: constraints.maxWidth,
+                      maxWidth: constraints.maxWidth,
+                      maxHeight: 280,
+                    ),
+                    itemBuilder: (context) {
+                      return uniqueCategories.map((cat) {
+                        final color = DefaultCategories.getColor(cat.colorHex);
+                        final isSelected = cat.id == _selectedCategory?.id;
+                        return PopupMenuItem<CategoryModel>(
+                          value: cat,
+                          height: 48,
+                          child: Row(
+                            children: [
+                              CategoryIcon(
+                                categoryName: cat.name,
+                                iconName: cat.iconName,
+                                color: color,
+                                size: 18,
+                                containerSize: 28,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  cat.name,
+                                  style: TextStyle(
+                                    fontFamily: 'Quicksand',
+                                    fontSize: 14,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    color: isSelected ? AppColors.primary : AppColors.onSurface,
+                                  ),
+                                ),
+                              ),
+                              if (isSelected)
+                                const Icon(Icons.check_rounded, size: 18, color: AppColors.primary),
+                            ],
+                          ),
+                        );
+                      }).toList();
+                    },
+                    onSelected: (cat) => setState(() => _selectedCategory = cat),
+                    child: Container(
+                      height: 52,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.borderDefault),
+                        borderRadius: BorderRadius.circular(16),
+                        color: AppColors.bgSurface,
+                      ),
+                      child: Row(
+                        children: [
+                          if (_selectedCategory != null) ...[
+                            Builder(
+                              builder: (context) {
+                                final color = DefaultCategories.getColor(_selectedCategory!.colorHex);
+                                return CategoryIcon(
+                                  categoryName: _selectedCategory!.name,
+                                  iconName: _selectedCategory!.iconName,
+                                  color: color,
+                                  size: 18,
+                                  containerSize: 28,
+                                  borderRadius: BorderRadius.circular(6),
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                _selectedCategory!.name,
+                                style: const TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  fontSize: 14,
+                                  color: AppColors.onSurface,
+                                ),
+                              ),
+                            ),
+                          ] else ...[
+                            const Expanded(
+                              child: Text(
+                                'Select category',
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  fontSize: 14,
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                            ),
+                          ],
+                          const Icon(Icons.expand_more, color: AppColors.textMuted),
+                        ],
+                      ),
                     ),
                   );
-                }).toList(),
-                onChanged: (val) => setState(() => _selectedCategory = val),
-                validator: (val) => val == null ? 'Please select a category' : null,
+                },
               ),
               const SizedBox(height: 16),
 
@@ -321,23 +403,92 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
                     }
                   }
 
-                  return DropdownButtonFormField<AccountModel>(
-                    initialValue: _selectedAccount,
-                    decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-                    items: uniqueAccounts.map((acc) {
-                      return DropdownMenuItem(
-                        value: acc,
-                        child: Row(
-                          children: [
-                            const Icon(Icons.account_balance_wallet_rounded, size: 18, color: AppColors.accentPrimary),
-                            const SizedBox(width: 10),
-                            Text('${acc.name} (₱${acc.balance.toStringAsFixed(2)})'),
-                          ],
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      return PopupMenuButton<AccountModel>(
+                        position: PopupMenuPosition.under,
+                        color: AppColors.bgSurface,
+                        elevation: 4,
+                        shadowColor: Colors.black12,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(color: AppColors.borderDefault),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: constraints.maxWidth,
+                          maxWidth: constraints.maxWidth,
+                          maxHeight: 260,
+                        ),
+                        itemBuilder: (context) {
+                          return uniqueAccounts.map((acc) {
+                            final isSelected = acc.id == _selectedAccount?.id;
+                            return PopupMenuItem<AccountModel>(
+                              value: acc,
+                              height: 48,
+                              child: Row(
+                                children: [
+                                  StashIcon.fromAccount(acc, size: 24),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      '${acc.name} (₱${acc.balance.toStringAsFixed(2)})',
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        color: isSelected ? AppColors.primary : AppColors.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    const Icon(Icons.check_rounded, size: 18, color: AppColors.primary),
+                                ],
+                              ),
+                            );
+                          }).toList();
+                        },
+                        onSelected: (val) => setState(() => _selectedAccount = val),
+                        child: Container(
+                          height: 52,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.borderDefault),
+                            borderRadius: BorderRadius.circular(16),
+                            color: AppColors.bgSurface,
+                          ),
+                          child: Row(
+                            children: [
+                              if (_selectedAccount != null) ...[
+                                StashIcon.fromAccount(_selectedAccount!, size: 24),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    '${_selectedAccount!.name} (₱${_selectedAccount!.balance.toStringAsFixed(2)})',
+                                    style: const TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      fontSize: 14,
+                                      color: AppColors.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ] else ...[
+                                const Expanded(
+                                  child: Text(
+                                    'Select account',
+                                    style: TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      fontSize: 14,
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              const Icon(Icons.expand_more, color: AppColors.textMuted),
+                            ],
+                          ),
                         ),
                       );
-                    }).toList(),
-                    onChanged: (val) => setState(() => _selectedAccount = val),
-                    validator: (val) => val == null ? 'Please select an account' : null,
+                    },
                   );
                 },
                 loading: () => const LinearProgressIndicator(),

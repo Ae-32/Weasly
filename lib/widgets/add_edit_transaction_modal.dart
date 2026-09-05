@@ -13,6 +13,7 @@ import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
 import 'category_icon.dart';
 import 'insufficient_balance_modal.dart';
+import 'stash_icon.dart';
 
 class AddEditTransactionModal extends ConsumerStatefulWidget {
   final TransactionModel? transactionToEdit;
@@ -470,61 +471,139 @@ class _AddEditTransactionModalState
                       }
                     }
 
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.borderDefault),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<CategoryModel>(
-                          value: _selectedCategory,
-                          isExpanded: true,
-                          icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
-                          items: uniqueFilteredCats.map((cat) {
-                            final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
-                            return DropdownMenuItem<CategoryModel>(
-                              value: cat,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: color.withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(8),
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        return PopupMenuButton<CategoryModel>(
+                          position: PopupMenuPosition.under,
+                          color: AppColors.bgSurface,
+                          elevation: 4,
+                          shadowColor: Colors.black12,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: const BorderSide(color: AppColors.borderDefault),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: constraints.maxWidth,
+                            maxWidth: constraints.maxWidth,
+                            maxHeight: 280,
+                          ),
+                          itemBuilder: (context) {
+                            return uniqueFilteredCats.map((cat) {
+                              final color = DefaultCategories.getCategoryColorByName(cat.name, cat.colorHex);
+                              final isSelected = cat.id == _selectedCategory?.id;
+                              return PopupMenuItem<CategoryModel>(
+                                value: cat,
+                                height: 48,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        color: color.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Center(
+                                        child: CategoryIcon(
+                                          categoryName: cat.name,
+                                          iconName: cat.iconName,
+                                          color: color,
+                                          size: 18,
+                                          containerSize: 32,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
                                     ),
-                                    child: Center(
-                                       child: CategoryIcon(
-                                         categoryName: cat.name,
-                                         iconName: cat.iconName,
-                                         color: color,
-                                         size: 18,
-                                         containerSize: 32,
-                                         borderRadius: BorderRadius.circular(8),
-                                       ),
-                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    cat.name,
-                                    style: const TextStyle(
-                                      fontFamily: 'Quicksand',
-                                      fontSize: 15,
-                                      color: AppColors.onSurface,
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        cat.name,
+                                        style: TextStyle(
+                                          fontFamily: 'Quicksand',
+                                          fontSize: 15,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                          color: isSelected ? AppColors.primary : AppColors.onSurface,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (cat) {
+                                    if (isSelected)
+                                      const Icon(Icons.check_rounded, size: 18, color: AppColors.primary),
+                                  ],
+                                ),
+                              );
+                            }).toList();
+                          },
+                          onSelected: (cat) {
                             setState(() {
                               _selectedCategory = cat;
                             });
                           },
-                        ),
-                      ),
+                          child: Container(
+                            height: 52,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.borderDefault),
+                              borderRadius: BorderRadius.circular(16),
+                              color: AppColors.bgSurface,
+                            ),
+                            child: Row(
+                              children: [
+                                if (_selectedCategory != null) ...[
+                                  Builder(
+                                    builder: (context) {
+                                      final color = DefaultCategories.getCategoryColorByName(
+                                        _selectedCategory!.name,
+                                        _selectedCategory!.colorHex,
+                                      );
+                                      return Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                          color: color.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Center(
+                                          child: CategoryIcon(
+                                            categoryName: _selectedCategory!.name,
+                                            iconName: _selectedCategory!.iconName,
+                                            color: color,
+                                            size: 18,
+                                            containerSize: 32,
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      _selectedCategory!.name,
+                                      style: const TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 15,
+                                        color: AppColors.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                ] else ...[
+                                  const Expanded(
+                                    child: Text(
+                                      'Select category',
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 15,
+                                        color: AppColors.textMuted,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                const Icon(Icons.expand_more, color: AppColors.textMuted),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                   loading: () => const LinearProgressIndicator(),
@@ -755,34 +834,83 @@ class _AddEditTransactionModalState
     required AccountModel? selected,
     required ValueChanged<AccountModel?> onChanged,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.borderDefault),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<AccountModel>(
-          value: selected,
-          isExpanded: true,
-          icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
-          items: accounts.map((acc) {
-            return DropdownMenuItem<AccountModel>(
-              value: acc,
-              child: Text(
-                acc.name,
-                style: const TextStyle(
-                  fontFamily: 'Quicksand',
-                  fontSize: 14,
-                  color: AppColors.onSurface,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return PopupMenuButton<AccountModel>(
+          position: PopupMenuPosition.under,
+          color: AppColors.bgSurface,
+          elevation: 4,
+          shadowColor: Colors.black12,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: AppColors.borderDefault),
+          ),
+          constraints: BoxConstraints(
+            minWidth: constraints.maxWidth,
+            maxWidth: constraints.maxWidth,
+            maxHeight: 260,
+          ),
+          itemBuilder: (context) {
+            return accounts.map((acc) {
+              final isSelected = acc.id == selected?.id;
+              return PopupMenuItem<AccountModel>(
+                value: acc,
+                height: 44,
+                child: Row(
+                  children: [
+                    StashIcon.fromAccount(acc, size: 24),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        acc.name,
+                        style: TextStyle(
+                          fontFamily: 'Quicksand',
+                          fontSize: 14,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? AppColors.primary : AppColors.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isSelected)
+                      const Icon(Icons.check_rounded, size: 18, color: AppColors.primary),
+                  ],
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            );
-          }).toList(),
-          onChanged: onChanged,
-        ),
-      ),
+              );
+            }).toList();
+          },
+          onSelected: onChanged,
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.borderDefault),
+              borderRadius: BorderRadius.circular(16),
+              color: AppColors.bgSurface,
+            ),
+            child: Row(
+              children: [
+                if (selected != null) ...[
+                  StashIcon.fromAccount(selected, size: 24),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: Text(
+                    selected?.name ?? 'Select account',
+                    style: TextStyle(
+                      fontFamily: 'Quicksand',
+                      fontSize: 14,
+                      color: selected != null ? AppColors.onSurface : AppColors.textMuted,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Icon(Icons.expand_more, color: AppColors.textMuted),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

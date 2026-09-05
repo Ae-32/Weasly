@@ -1,24 +1,21 @@
-import 'dart:math' as math;
+import 'dart:async';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
-import '../../models/recurring_bill_model.dart';
 import '../../models/transaction_model.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/budget_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/home_nav_provider.dart';
-import '../../providers/recurring_bill_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/income_expense_donut_chart.dart';
 import '../../widgets/weasly_app_header.dart';
-import '../recurring_bills/recurring_bills_screen.dart';
 
 /// Full live Dashboard screen matching exact Figma CSS export & redesign-v2 specifications
 /// with large overlapping mascot illustrations that break container boundaries.
@@ -42,14 +39,11 @@ class DashboardScreen extends ConsumerWidget {
     final accountsAsync = ref.watch(accountsStreamProvider);
     final totalBalance = ref.watch(totalBalanceProvider);
     final accountsCount = accountsAsync.value?.length ?? 0;
-    final recurringBillsAsync = ref.watch(recurringBillsStreamProvider);
-    final budgetsWithSpent = ref.watch(budgetsWithSpentProvider);
 
     // Dashboard Redesign Providers
     final activePeriod = ref.watch(dashboardPeriodProvider);
     final periodTransactions = ref.watch(periodTransactionsProvider);
     final periodSummary = ref.watch(periodSummaryProvider);
-    final mascotInsight = ref.watch(mascotInsightProvider);
 
     final user = authState.value;
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
@@ -59,12 +53,6 @@ class DashboardScreen extends ConsumerWidget {
     final dateHeader = DateFormat('EEEE - MMMM d, yyyy').format(now).toUpperCase();
     final greetingPrefix = _getGreetingPrefix();
     final userName = user?.displayName ?? user?.email?.split('@').first ?? 'Ae';
-
-    // Warning / Over budget alerts
-    final warningBudgets = budgetsWithSpent
-        .where((b) => b.status == BudgetStatus.nearingLimit || b.status == BudgetStatus.overBudget)
-        .take(2)
-        .toList();
 
     return Scaffold(
       backgroundColor: AppColors.bgBase,
@@ -86,9 +74,7 @@ class DashboardScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Mascot Insight Speech Bubble (Overlapping Band Stack)
-                    _buildMascotSpeechBubbleBanner(
-                      mascotInsight: mascotInsight,
-                    ),
+                    const _MascotSpeechBubbleBanner(),
 
                     // Content Canvas Container
                     Padding(
@@ -120,12 +106,6 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
 
-                          // Budget Alerts (Hidden if no budgets in warning/over state)
-                          if (warningBudgets.isNotEmpty) ...[
-                            _buildBudgetAlertsSection(context, ref, warningBudgets, currencyFormatter),
-                            const SizedBox(height: 16),
-                          ],
-
                           // 6. Recent Transactions List
                           _buildRecentTransactionsSection(
                             context,
@@ -150,103 +130,6 @@ class DashboardScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  /// Orange Background Accent Band + Mascot Insight Bubble Stack (Figma Spec)
-  Widget _buildMascotSpeechBubbleBanner({
-    required String mascotInsight,
-  }) {
-    return SizedBox(
-      height: 135,
-      child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Orange Background Band (Rectangle 1)
-              Positioned(
-                left: 0,
-                right: 0,
-                top: 80,
-                height: 60,
-                child: Container(
-                  color: AppColors.accentPrimary,
-                ),
-              ),
-
-              // Pointer Tail for Speech Bubble
-              Positioned(
-                left: 106,
-                top: 40,
-                child: CustomPaint(
-                  size: const Size(12, 18),
-                  painter: _SpeechBubblePointerPainter(),
-                ),
-              ),
-
-              // Speech Bubble Container (Union / Rectangle 2)
-              Positioned(
-                left: 116,
-                right: 20,
-                top: 10,
-                height: 93,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgSurface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFC25814), width: 1),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color.fromRGBO(43, 36, 32, 0.06),
-                        blurRadius: 10,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Weasly',
-                        style: GoogleFonts.quicksand(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.accentPrimary,
-                          letterSpacing: -0.64,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Expanded(
-                        child: Text(
-                          mascotInsight,
-                          style: GoogleFonts.quicksand(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textPrimary,
-                            height: 1.3,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Mascot Illustration on Left - Overlapping Band & Speech Bubble & Extending Below!
-              Positioned(
-                left: -4,
-                top: 0,
-                width: 145,
-                height: 146,
-                child: Image.asset(
-                  'assets/images/Weasly_Dashboard_Welcome.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ],
-          ),
-        );
   }
 
   /// Total Balance Summary Card (Overlapping Mascot Top-Right Corner)
@@ -379,103 +262,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  /// Budget Alerts Warning Highlight Section
-  Widget _buildBudgetAlertsSection(
-    BuildContext context,
-    WidgetRef ref,
-    List<BudgetWithSpent> warningBudgets,
-    NumberFormat currencyFormatter,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Budget Alerts',
-              style: GoogleFonts.quicksand(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                ref.read(homeNavIndexProvider.notifier).state = 2; // Switch to Budgets tab
-              },
-              child: Text(
-                'View Budgets',
-                style: GoogleFonts.quicksand(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.accentPrimary,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...warningBudgets.map((item) {
-          final isOver = item.status == BudgetStatus.overBudget;
-          final statusColor = item.status.color;
 
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: statusColor.withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  isOver ? Icons.warning_amber_rounded : Icons.info_outline_rounded,
-                  color: statusColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            item.budget.categoryName,
-                            style: GoogleFonts.quicksand(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            item.status.label,
-                            style: GoogleFonts.quicksand(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: statusColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${currencyFormatter.format(item.spentAmount)} spent of ${currencyFormatter.format(item.budget.amount)}',
-                        style: GoogleFonts.quicksand(fontSize: 11, color: AppColors.textMuted),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
 
   Widget _buildPeriodBadgePill(DashboardPeriod activePeriod) {
     String label;
@@ -927,151 +714,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  /// Section - Upcoming Bills Preview
-  Widget _buildRecurringBillsSection(
-    BuildContext context,
-    WidgetRef ref,
-    AsyncValue<List<RecurringBillModel>> billsAsync,
-    NumberFormat currencyFormatter,
-  ) {
-    return _buildCardWrapper(
-      title: 'Upcoming Bills',
-      actionText: 'View All',
-      onAction: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const RecurringBillsScreen()),
-        );
-      },
-      child: billsAsync.when(
-        data: (bills) {
-          if (bills.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Center(
-                child: Text(
-                  'No recurring bills added.',
-                  style: GoogleFonts.quicksand(fontSize: 14, color: AppColors.textMuted),
-                ),
-              ),
-            );
-          }
 
-          final sortedBills = List<RecurringBillModel>.from(bills)
-            ..sort((a, b) => a.nextDueDate.compareTo(b.nextDueDate));
-          final upcomingList = sortedBills.take(3).toList();
-          final dateFormatter = DateFormat('MMM dd');
-
-          return Column(
-            children: upcomingList.map((bill) {
-              final daysLeft = bill.daysUntilDue;
-
-              final Color badgeColor;
-              final String urgencyText;
-
-              if (bill.isOverdue) {
-                badgeColor = AppColors.stateError;
-                urgencyText = 'Overdue';
-              } else if (daysLeft == 0) {
-                badgeColor = AppColors.stateWarning;
-                urgencyText = 'Due Today';
-              } else if (daysLeft <= 3) {
-                badgeColor = AppColors.stateWarning;
-                urgencyText = 'Due in $daysLeft ${daysLeft == 1 ? "day" : "days"}';
-              } else {
-                badgeColor = AppColors.accentPrimary;
-                urgencyText = 'Due ${dateFormatter.format(bill.nextDueDate)}';
-              }
-
-              final iconColor = DefaultCategories.getCategoryColorByName(bill.categoryName, bill.categoryColorHex);
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: iconColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: CategoryIcon(
-                          categoryName: bill.categoryName,
-                          iconName: bill.categoryIcon,
-                          size: 18,
-                          containerSize: 36,
-                          borderRadius: BorderRadius.circular(10),
-                          color: iconColor,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            bill.name,
-                            style: GoogleFonts.quicksand(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: badgeColor.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  urgencyText,
-                                  style: GoogleFonts.quicksand(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: badgeColor,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                bill.frequency.displayName,
-                                style: GoogleFonts.quicksand(fontSize: 11, color: AppColors.textMuted),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      currencyFormatter.format(bill.amount),
-                      style: GoogleFonts.quicksand(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          );
-        },
-        loading: () => const Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Center(child: CircularProgressIndicator()),
-        ),
-        error: (err, _) => Text(
-          'Error loading bills: $err',
-          style: GoogleFonts.quicksand(color: AppColors.stateError),
-        ),
-      ),
-    );
-  }
 
   /// Reusable Card Wrapper Widget
   Widget _buildCardWrapper({
@@ -1128,6 +771,194 @@ class DashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           child,
+        ],
+      ),
+    );
+  }
+}
+
+/// Orange Background Accent Band + Mascot Insight Bubble Stack (Figma Spec) with Cycling Insights & Budget Alerts
+class _MascotSpeechBubbleBanner extends ConsumerStatefulWidget {
+  const _MascotSpeechBubbleBanner();
+
+  @override
+  ConsumerState<_MascotSpeechBubbleBanner> createState() => _MascotSpeechBubbleBannerState();
+}
+
+class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBanner> {
+  int _currentIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 12), (_) {
+      final messages = ref.read(mascotInsightMessagesProvider);
+      if (messages.length > 1 && mounted) {
+        setState(() {
+          _currentIndex = (_currentIndex + 1) % messages.length;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final messages = ref.watch(mascotInsightMessagesProvider);
+
+    if (_currentIndex >= messages.length) {
+      _currentIndex = 0;
+    }
+
+    final currentMessage = messages.isNotEmpty ? messages[_currentIndex] : '';
+
+    return SizedBox(
+      height: 135,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Orange Background Band (Rectangle 1)
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 80,
+            height: 60,
+            child: Container(
+              color: AppColors.accentPrimary,
+            ),
+          ),
+
+          // Pointer Tail for Speech Bubble
+          Positioned(
+            left: 106,
+            top: 40,
+            child: CustomPaint(
+              size: const Size(12, 18),
+              painter: _SpeechBubblePointerPainter(),
+            ),
+          ),
+
+          // Speech Bubble Container (Union / Rectangle 2)
+          Positioned(
+            left: 116,
+            right: 20,
+            top: 10,
+            height: 93,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.bgSurface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFC25814), width: 1),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color.fromRGBO(43, 36, 32, 0.06),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Weasly',
+                        style: GoogleFonts.quicksand(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.accentPrimary,
+                          letterSpacing: -0.64,
+                        ),
+                      ),
+                      if (messages.length > 1)
+                        Row(
+                          children: List.generate(messages.length, (index) {
+                            final isActive = index == _currentIndex;
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              margin: const EdgeInsets.only(left: 3),
+                              width: isActive ? 12 : 5,
+                              height: 2,
+                              decoration: BoxDecoration(
+                                color: isActive
+                                    ? AppColors.accentPrimary
+                                    : AppColors.accentPrimary.withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(99),
+                              ),
+                            );
+                          }),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 400),
+                      layoutBuilder: (currentChild, previousChildren) {
+                        return Stack(
+                          alignment: Alignment.topLeft,
+                          children: <Widget>[
+                            ...previousChildren,
+                            if (currentChild != null) currentChild,
+                          ],
+                        );
+                      },
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0.0, 0.15),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Text(
+                        currentMessage,
+                        key: ValueKey<String>(currentMessage),
+                        style: GoogleFonts.quicksand(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                          height: 1.3,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Mascot Illustration on Left - Overlapping Band & Speech Bubble & Extending Below!
+          Positioned(
+            left: -4,
+            top: 0,
+            width: 145,
+            height: 146,
+            child: Image.asset(
+              'assets/images/Weasly_Dashboard_Welcome.png',
+              fit: BoxFit.contain,
+            ),
+          ),
         ],
       ),
     );

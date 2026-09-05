@@ -8,22 +8,22 @@ void main() {
     final existingAccounts = [
       AccountModel(
         id: 'acc_1',
-        name: 'Cash Wallet',
-        type: 'cash',
+        name: AccountModel.nameCash,
+        type: AccountModel.typeCash,
         balance: 1000.0,
         createdAt: now,
       ),
       AccountModel(
         id: 'acc_2',
-        name: 'GCash',
-        type: 'gcash',
+        name: AccountModel.nameDigital,
+        type: AccountModel.typeDigital,
         balance: 5000.0,
         createdAt: now,
       ),
       AccountModel(
         id: 'acc_3',
         name: 'Crypto Wallet',
-        type: 'other',
+        type: AccountModel.typeOther,
         balance: 10000.0,
         createdAt: now,
       ),
@@ -36,11 +36,11 @@ void main() {
       );
       expect(
         AccountModel.isDuplicateType(AccountModel.typeDigital, existingAccounts),
-        isTrue, // GCash is a legacy digital stash equivalent
+        isTrue,
       );
       expect(
         AccountModel.isDuplicateType(AccountModel.typeBank, existingAccounts),
-        isFalse, // No bank wallet in existing list
+        isFalse, // No bank stash in existing list
       );
       expect(
         AccountModel.isDuplicateType(AccountModel.typeOther, existingAccounts),
@@ -62,21 +62,44 @@ void main() {
     test('AccountModel copyWith and toMap/fromMap function correctly', () {
       final acc = AccountModel(
         id: 'acc_test',
-        name: 'E-Wallet',
-        type: 'ewallet',
+        name: AccountModel.nameDigital,
+        type: AccountModel.typeDigital,
         balance: 2500.0,
-        note: 'Primary digital wallet',
+        note: 'Primary digital stash',
         createdAt: now,
       );
 
       final map = acc.toMap();
-      expect(map['name'], 'E-Wallet');
-      expect(map['type'], 'ewallet');
+      expect(map['name'], AccountModel.nameDigital);
+      expect(map['type'], AccountModel.typeDigital);
       expect(map['balance'], 2500.0);
 
       final copy = acc.copyWith(balance: 3000.0);
       expect(copy.id, 'acc_test');
       expect(copy.balance, 3000.0);
+    });
+
+    test('getStashIconAsset returns correct PNG asset paths for stash types', () {
+      expect(
+        AccountModel.getStashIconAsset(AccountModel.typeCash),
+        'assets/Weasly_Icons/Cash_Stash.png',
+      );
+      expect(
+        AccountModel.getStashIconAsset(AccountModel.typeDigital),
+        'assets/Weasly_Icons/Digital_Stash.png',
+      );
+      expect(
+        AccountModel.getStashIconAsset(AccountModel.typeBank),
+        'assets/Weasly_Icons/Bank_Stash.png',
+      );
+      expect(
+        AccountModel.getStashIconAsset(AccountModel.typeOther),
+        'assets/Weasly_Icons/Other_Stash.png',
+      );
+      expect(
+        AccountModel.getStashIconAsset('custom_crypto', 'My Crypto Stash'),
+        'assets/Weasly_Icons/Other_Stash.png',
+      );
     });
   });
 }

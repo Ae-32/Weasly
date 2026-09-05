@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/home_nav_provider.dart';
-import '../screens/recurring_bills/recurring_bills_screen.dart';
 import '../utils/app_colors.dart';
 
 /// Quick Action Item definition

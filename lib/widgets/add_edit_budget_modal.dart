@@ -294,26 +294,88 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
                     }
                   }
 
-                  return Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.borderDefault),
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      return PopupMenuButton<CategoryModel>(
+                        position: PopupMenuPosition.under,
+                        color: AppColors.bgSurface,
+                        elevation: 4,
+                        shadowColor: Colors.black12,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(color: AppColors.borderDefault),
                         ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<CategoryModel>(
-                            value: _selectedCategory,
-                            isExpanded: true,
-                            icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
-                            items: uniqueExpenseCategories.map((cat) {
-                              final color = DefaultCategories.getColor(cat.colorHex);
-                              return DropdownMenuItem<CategoryModel>(
-                                value: cat,
-                                child: Row(
-                                  children: [
-                                    Container(
+                        constraints: BoxConstraints(
+                          minWidth: constraints.maxWidth,
+                          maxWidth: constraints.maxWidth,
+                          maxHeight: 280,
+                        ),
+                        itemBuilder: (context) {
+                          return uniqueExpenseCategories.map((cat) {
+                            final color = DefaultCategories.getColor(cat.colorHex);
+                            final isSelected = cat.id == _selectedCategory?.id;
+                            return PopupMenuItem<CategoryModel>(
+                              value: cat,
+                              height: 48,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      color: color.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Center(
+                                      child: CategoryIcon(
+                                        categoryName: cat.name,
+                                        iconName: cat.iconName,
+                                        color: color,
+                                        size: 18,
+                                        containerSize: 32,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      cat.name,
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 15,
+                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        color: isSelected ? AppColors.primary : AppColors.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    const Icon(Icons.check_rounded, size: 18, color: AppColors.primary),
+                                ],
+                              ),
+                            );
+                          }).toList();
+                        },
+                        onSelected: (cat) {
+                          setState(() {
+                            _selectedCategory = cat;
+                          });
+                        },
+                        child: Container(
+                          height: 52,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.borderDefault),
+                            borderRadius: BorderRadius.circular(16),
+                            color: AppColors.bgSurface,
+                          ),
+                          child: Row(
+                            children: [
+                              if (_selectedCategory != null) ...[
+                                Builder(
+                                  builder: (context) {
+                                    final color = DefaultCategories.getColor(_selectedCategory!.colorHex);
+                                    return Container(
                                       width: 32,
                                       height: 32,
                                       decoration: BoxDecoration(
@@ -322,37 +384,46 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
                                       ),
                                       child: Center(
                                         child: CategoryIcon(
-                                          categoryName: cat.name,
-                                          iconName: cat.iconName,
+                                          categoryName: _selectedCategory!.name,
+                                          iconName: _selectedCategory!.iconName,
                                           color: color,
                                           size: 18,
                                           containerSize: 32,
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      cat.name,
-                                      style: const TextStyle(
-                                        fontFamily: 'Quicksand',
-                                        fontSize: 15,
-                                        color: AppColors.onSurface,
-                                      ),
-                                    ),
-                                  ],
+                                    );
+                                  },
                                 ),
-                              );
-                            }).toList(),
-                            onChanged: (cat) {
-                              setState(() {
-                                _selectedCategory = cat;
-                              });
-                            },
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    _selectedCategory!.name,
+                                    style: const TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      fontSize: 15,
+                                      color: AppColors.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ] else ...[
+                                const Expanded(
+                                  child: Text(
+                                    'Select category',
+                                    style: TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      fontSize: 15,
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              const Icon(Icons.expand_more, color: AppColors.textMuted),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   );
                 },
                 loading: () => const LinearProgressIndicator(),
@@ -385,13 +456,19 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
                   color: AppColors.onSurface,
                 ),
                 decoration: InputDecoration(
-                  prefixText: '₱ ',
-                  prefixStyle: const TextStyle(
-                    fontFamily: 'Quicksand',
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textMuted,
+                  prefixIcon: const Padding(
+                    padding: EdgeInsets.only(left: 16, right: 6),
+                    child: Text(
+                      '₱',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.onSurface,
+                      ),
+                    ),
                   ),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
                   hintText: '0.00',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),

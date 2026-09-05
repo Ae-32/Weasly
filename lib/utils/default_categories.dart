@@ -58,7 +58,7 @@ class DefaultCategories {
       id: 'salary',
       name: 'Salary',
       iconName: 'payments',
-      colorHex: '#4E8C6E',
+      colorHex: '#FB7140',
       type: CategoryType.income,
       isDefault: true,
     ),
@@ -66,7 +66,7 @@ class DefaultCategories {
       id: 'business_freelance',
       name: 'Business/Freelance',
       iconName: 'work',
-      colorHex: '#00838F',
+      colorHex: '#E06E03',
       type: CategoryType.income,
       isDefault: true,
     ),
@@ -74,7 +74,7 @@ class DefaultCategories {
       id: 'investment',
       name: 'Investment',
       iconName: 'trending_up',
-      colorHex: '#4AD98F',
+      colorHex: '#F7941D',
       type: CategoryType.income,
       isDefault: true,
     ),
@@ -82,7 +82,7 @@ class DefaultCategories {
       id: 'allowance_gifts',
       name: 'Allowance/Gifts',
       iconName: 'card_giftcard',
-      colorHex: '#26A69A',
+      colorHex: '#D9531E',
       type: CategoryType.income,
       isDefault: true,
     ),
@@ -90,7 +90,7 @@ class DefaultCategories {
       id: 'other_income',
       name: 'Other Income',
       iconName: 'savings',
-      colorHex: '#6FAE8C',
+      colorHex: '#F07D32',
       type: CategoryType.income,
       isDefault: true,
     ),
@@ -108,16 +108,16 @@ class DefaultCategories {
     'Other': '#808080',
     'Housing': '#2B506E',
     'Education': '#7C4DFF',
-    'Salary': '#4E8C6E',
-    'Business/Freelance': '#00838F',
-    'Investment': '#4AD98F',
-    'Allowance/Gifts': '#26A69A',
-    'Other Income': '#6FAE8C',
+    'Salary': '#FB7140',
+    'Business/Freelance': '#E06E03',
+    'Investment': '#F7941D',
+    'Allowance/Gifts': '#D9531E',
+    'Other Income': '#F07D32',
   };
 
   /// Curated color choices matching brand tokens for category chips.
   static const List<String> categoryColorChoices = [
-    '#FB7140', // Foods & Drinks
+    '#FB7140', // Foods & Drinks / Salary
     '#F7C500', // Bills & Utilities
     '#009AC6', // Transportation
     '#05A789', // Shopping
@@ -126,11 +126,10 @@ class DefaultCategories {
     '#808080', // Other
     '#2B506E', // Housing
     '#7C4DFF', // Education
-    '#4E8C6E', // Salary
-    '#00838F', // Business/Freelance
-    '#4AD98F', // Investment
-    '#26A69A', // Allowance/Gifts
-    '#6FAE8C', // Other Income
+    '#E06E03', // Business/Freelance
+    '#F7941D', // Investment
+    '#D9531E', // Allowance/Gifts
+    '#F07D32', // Other Income
   ];
 
   /// Selectable icon choices for user-defined custom categories.
@@ -166,6 +165,16 @@ class DefaultCategories {
     final nameClean = categoryName.trim().toLowerCase();
     final iconClean = (iconName ?? '').trim().toLowerCase();
 
+    if (nameClean.contains('starting balance') ||
+        iconClean.contains('starting_balance') ||
+        iconClean == 'account_balance_wallet') {
+      return 'assets/Weasly_Icons/Icon_StartingBalance.png';
+    }
+    if (nameClean.contains('transfer') ||
+        iconClean.contains('transfer') ||
+        iconClean == 'swap_horiz') {
+      return 'assets/Weasly_Icons/Icon_Transfer.png';
+    }
     if (nameClean.contains('bill') ||
         nameClean.contains('utility') ||
         iconClean == 'receipt_long') {

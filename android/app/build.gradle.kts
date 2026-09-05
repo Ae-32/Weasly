@@ -35,9 +35,6 @@ android {
         }
     }
 
-    aaptOptions {
-        noCompress += listOf("")
-    }
 }
 
 kotlin {

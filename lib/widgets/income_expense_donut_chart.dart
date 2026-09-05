@@ -226,18 +226,6 @@ class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChar
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'View Details',
-                    style: GoogleFonts.quicksand(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.accentPrimary,
-                    ),
-                  ),
-                ),
               ],
             ),
         ],

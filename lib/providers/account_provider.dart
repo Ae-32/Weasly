@@ -17,8 +17,8 @@ final accountsStreamProvider = StreamProvider<List<AccountModel>>((ref) {
 
   final accountService = ref.watch(accountServiceProvider);
 
-  // Auto-seed default accounts for first-time users
-  accountService.seedDefaultAccountsIfEmpty(user.uid);
+  // Clear any leftover 0-balance auto-seeded default stashes if user has 0 transactions
+  accountService.clearZeroBalanceDefaultAccounts(user.uid);
 
   return accountService.getAccountsStream(user.uid);
 });
@@ -101,6 +101,21 @@ class AccountController extends StateNotifier<AccountState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       await _service.deleteAccount(uid, accountId);
+      state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> clearZeroBalanceAccounts() async {
+    final uid = _currentUserId;
+    if (uid == null) return false;
+
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await _service.clearZeroBalanceDefaultAccounts(uid);
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {

@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../models/transaction_model.dart';
+import 'budget_provider.dart';
 import 'transaction_provider.dart';
-
 
 /// Enum representing the active period filter on the Dashboard.
 enum DashboardPeriod {
@@ -112,11 +113,13 @@ final periodSummaryProvider = Provider<PeriodSummary>((ref) {
   );
 });
 
-/// Computed provider generating data-driven mascot insights from actual user transactions.
-final mascotInsightProvider = Provider<String>((ref) {
+/// Computed provider generating data-driven mascot insights and active budget alert messages.
+final mascotInsightMessagesProvider = Provider<List<String>>((ref) {
   final transactionsAsync = ref.watch(transactionsStreamProvider);
+  final budgetsWithSpent = ref.watch(budgetsWithSpentProvider);
 
-  return transactionsAsync.when(
+  // 1. Calculate general spending insight string
+  final String spendingInsight = transactionsAsync.when(
     data: (transactions) {
       final now = DateTime.now();
 
@@ -163,5 +166,32 @@ final mascotInsightProvider = Provider<String>((ref) {
     loading: () => "Log a few transactions and I'll start sharing insights!",
     error: (err, stack) => "Log a few transactions and I'll start sharing insights!",
   );
+
+  final List<String> messages = [spendingInsight];
+
+  // 2. Collect any active budget alerts
+  for (final item in budgetsWithSpent) {
+    if (item.status == BudgetStatus.overBudget) {
+      final overAmount = item.spentAmount - item.budget.amount;
+      final overFormatted = NumberFormat.currency(
+        symbol: '₱',
+        decimalDigits: overAmount % 1 == 0 ? 0 : 2,
+      ).format(overAmount);
+
+      messages.add("You've gone over your ${item.budget.categoryName} budget by $overFormatted.");
+    } else if (item.status == BudgetStatus.nearingLimit) {
+      final pctStr = item.spentPercentage.toStringAsFixed(0);
+
+      messages.add("Your ${item.budget.categoryName} budget is at $pctStr% — getting close to the limit!");
+    }
+  }
+
+  return messages;
+});
+
+/// Legacy single string mascot insight provider (returns first message).
+final mascotInsightProvider = Provider<String>((ref) {
+  final messages = ref.watch(mascotInsightMessagesProvider);
+  return messages.isNotEmpty ? messages.first : "Log a few transactions and I'll start sharing insights!";
 });
 

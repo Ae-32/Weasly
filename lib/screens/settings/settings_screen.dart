@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/biometric_provider.dart';
-import '../../providers/chart_style_provider.dart';
 import '../../providers/payday_provider.dart';
 import '../../providers/pin_provider.dart';
 import '../../utils/app_colors.dart';

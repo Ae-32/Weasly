@@ -27,7 +27,7 @@ class AccountService {
   }
 
   /// Adds a new account document to Firestore under users/{userId}/accounts.
-  /// Enforces duplicate prevention for fixed account types (Cash Wallet, E-Wallet, Bank Wallet).
+  /// Enforces duplicate prevention for fixed account types (Cash Stash, Digital Stash, Bank Stash).
   /// If the new account has a non-zero starting balance, automatically logs a "Starting Balance" transaction.
   Future<void> addAccount(String userId, AccountModel account) async {
     // Validate duplicate fixed account type before creating
@@ -64,7 +64,7 @@ class AccountService {
         'categoryId': 'starting_balance',
         'categoryName': 'Starting Balance',
         'categoryIcon': 'account_balance_wallet',
-        'categoryColorHex': '#2B694E',
+        'categoryColorHex': '#4E8C6E',
         'accountId': accountId,
         'accountName': account.name,
         'toAccountId': null,
@@ -99,7 +99,27 @@ class AccountService {
     await _userAccountsRef(userId).doc(accountId).delete();
   }
 
-  /// Seeds default accounts (Cash, GCash, Bank) if a user has no accounts yet.
+  /// Clears 0-balance default stashes from Firestore for the user.
+  Future<void> clearZeroBalanceDefaultAccounts(String userId) async {
+    final snapshot = await _userAccountsRef(userId).get();
+    if (snapshot.docs.isEmpty) return;
+
+    final batch = _firestore.batch();
+    int deleteCount = 0;
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final balance = (data['balance'] as num?)?.toDouble() ?? 0.0;
+      if (balance == 0.0) {
+        batch.delete(doc.reference);
+        deleteCount++;
+      }
+    }
+    if (deleteCount > 0) {
+      await batch.commit();
+    }
+  }
+
+  /// Seeds default accounts (Cash Stash, Digital Stash, Bank Stash) if a user has no accounts yet.
   Future<void> seedDefaultAccountsIfEmpty(String userId) async {
     final snapshot = await _userAccountsRef(userId).limit(1).get();
     if (snapshot.docs.isEmpty) {
@@ -107,8 +127,8 @@ class AccountService {
       final defaultAccounts = [
         AccountModel(
           id: '',
-          name: 'Cash Wallet',
-          type: 'cash',
+          name: AccountModel.nameCash,
+          type: AccountModel.typeCash,
           balance: 0.0,
           note: 'Everyday spending',
           colorHex: 'c5942c', // Tertiary amber
@@ -116,8 +136,8 @@ class AccountService {
         ),
         AccountModel(
           id: '',
-          name: 'GCash',
-          type: 'gcash',
+          name: AccountModel.nameDigital,
+          type: AccountModel.typeDigital,
           balance: 0.0,
           note: 'Digital transactions',
           colorHex: 'd98a3d', // Primary amber
@@ -125,10 +145,10 @@ class AccountService {
         ),
         AccountModel(
           id: '',
-          name: 'Main Bank',
-          type: 'bank',
+          name: AccountModel.nameBank,
+          type: AccountModel.typeBank,
           balance: 0.0,
-          note: 'Savings & Salary',
+          note: 'Savings & salary',
           colorHex: '2b694e', // Secondary green
           createdAt: now.add(const Duration(milliseconds: 2)),
         ),

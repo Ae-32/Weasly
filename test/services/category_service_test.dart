@@ -69,6 +69,14 @@ void main() {
         DefaultCategories.getCustomIconAsset('Bus', 'directions_bus'),
         equals('assets/Weasly_Icons/Icon_Transportation.png'),
       );
+      expect(
+        DefaultCategories.getCustomIconAsset('Starting Balance', 'account_balance_wallet'),
+        equals('assets/Weasly_Icons/Icon_StartingBalance.png'),
+      );
+      expect(
+        DefaultCategories.getCustomIconAsset('Transfer', 'swap_horiz'),
+        equals('assets/Weasly_Icons/Icon_Transfer.png'),
+      );
     });
   });
 }

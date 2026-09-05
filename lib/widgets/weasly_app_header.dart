@@ -122,17 +122,7 @@ class WeaslyAppHeader extends ConsumerWidget {
                         const SizedBox(height: 2),
                       ],
                       if (title != null)
-                        Text(
-                          title!,
-                          style: GoogleFonts.quicksand(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xFF211A16),
-                            letterSpacing: -0.64,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        _buildFormattedTitleWidget(title!, 16),
                     ],
                   ),
                 ),
@@ -163,15 +153,7 @@ class WeaslyAppHeader extends ConsumerWidget {
           // Separate Title & Subtitle Below Top Row (only if provided)
           if (!inlineTitle && title != null && title!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            Text(
-              title!,
-              style: GoogleFonts.quicksand(
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF211A16),
-                letterSpacing: -0.5,
-              ),
-            ),
+            _buildFormattedTitleWidget(title!, 26),
             if (subtitle != null) ...[
               const SizedBox(height: 4),
               Text(
@@ -212,6 +194,54 @@ class WeaslyAppHeader extends ConsumerWidget {
           color: AppColors.accentPrimary,
         ),
       ),
+    );
+  }
+
+  /// Renders title with bold font weight (w700) specifically for the user name portion when greeting (e.g. "Good afternoon, Ae!").
+  Widget _buildFormattedTitleWidget(String text, double fontSize) {
+    final commaIndex = text.indexOf(', ');
+    if (commaIndex != -1) {
+      final prefix = text.substring(0, commaIndex + 2); // e.g. "Good afternoon, "
+      final userName = text.substring(commaIndex + 2);   // e.g. "Ae!"
+
+      return Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: prefix,
+              style: GoogleFonts.quicksand(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF211A16),
+                letterSpacing: -0.64,
+              ),
+            ),
+            TextSpan(
+              text: userName,
+              style: GoogleFonts.quicksand(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w700, // Bold user name
+                color: const Color(0xFF211A16),
+                letterSpacing: -0.64,
+              ),
+            ),
+          ],
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return Text(
+      text,
+      style: GoogleFonts.quicksand(
+        fontSize: fontSize,
+        fontWeight: fontSize > 20 ? FontWeight.w700 : FontWeight.w500,
+        color: const Color(0xFF211A16),
+        letterSpacing: -0.64,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

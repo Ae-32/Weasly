@@ -140,276 +140,271 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             const WeaslyAppHeader(),
             const SizedBox(height: 8),
 
-            // 2. Scrollable Content Area
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 1. Scrollable Page Title & Subtitle Section
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Transactions',
-                            style: GoogleFonts.quicksand(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF211A16),
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Review your recent activity',
-                            style: GoogleFonts.quicksand(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF8A7F73),
-                            ),
-                          ),
-                        ],
-                      ),
+            // 2. Fixed Page Title & Subtitle Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Transactions',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF211A16),
+                      letterSpacing: -0.5,
                     ),
-                    const SizedBox(height: 8),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Review your recent activity',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFF8A7F73),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
 
-                    // 2. Search & Filter Bar Section
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  children: [
-                    // Search Bar Input
-                    Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE8E1D8), width: 1),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color.fromRGBO(43, 36, 32, 0.04),
-                            blurRadius: 12,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
+            // 3. Fixed Search & Filter Bar Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                children: [
+                  // Search Bar Input
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE8E1D8), width: 1),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color.fromRGBO(43, 36, 32, 0.04),
+                          blurRadius: 12,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (val) {
+                        ref.read(transactionSearchQueryProvider.notifier).state = val;
+                      },
+                      style: GoogleFonts.quicksand(
+                        fontSize: 16,
+                        color: const Color(0xFF211A16),
                       ),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (val) {
-                          ref.read(transactionSearchQueryProvider.notifier).state = val;
-                        },
-                        style: GoogleFonts.quicksand(
+                      decoration: InputDecoration(
+                        hintText: 'Search transactions...',
+                        hintStyle: GoogleFonts.quicksand(
                           fontSize: 16,
-                          color: const Color(0xFF211A16),
+                          color: const Color(0xFF8A7F73),
                         ),
-                        decoration: InputDecoration(
-                          hintText: 'Search transactions...',
-                          hintStyle: GoogleFonts.quicksand(
-                            fontSize: 16,
-                            color: const Color(0xFF8A7F73),
-                          ),
-                          prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF8A7F73), size: 20),
-                          suffixIcon: _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear_rounded, color: Color(0xFF8A7F73), size: 20),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    ref.read(transactionSearchQueryProvider.notifier).state = '';
-                                  },
-                                )
-                              : const Icon(Icons.tune_rounded, color: Color(0xFF8A7F73), size: 20),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
+                        prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF8A7F73), size: 20),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, color: Color(0xFF8A7F73), size: 20),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  ref.read(transactionSearchQueryProvider.notifier).state = '';
+                                },
+                              )
+                            : const Icon(Icons.tune_rounded, color: Color(0xFF8A7F73), size: 20),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Filter Chips Bar (Horizontal Scroll)
-                    categoriesAsync.when(
-                      data: (categories) {
-                        return SizedBox(
-                          height: 34,
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            physics: const BouncingScrollPhysics(),
-                            children: [
-                              // All Filter Button
-                              GestureDetector(
-                                onTap: () {
-                                  ref.read(transactionCategoryFilterProvider.notifier).state = null;
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: selectedCategoryFilter == null
-                                        ? const Color(0xFFD98A3D)
-                                        : const Color(0xFFEDE0D9),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      if (selectedCategoryFilter == null) ...[
-                                        const Icon(Icons.check_rounded, size: 14, color: Color(0xFF512A00)),
-                                        const SizedBox(width: 4),
-                                      ],
-                                      Text(
-                                        'All',
-                                        style: GoogleFonts.quicksand(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 0.6,
-                                          color: selectedCategoryFilter == null
-                                              ? const Color(0xFF512A00)
-                                              : const Color(0xFF534438),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                  // Filter Chips Bar (Horizontal Scroll)
+                  categoriesAsync.when(
+                    data: (categories) {
+                      return SizedBox(
+                        height: 34,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          children: [
+                            // All Filter Button
+                            GestureDetector(
+                              onTap: () {
+                                ref.read(transactionCategoryFilterProvider.notifier).state = null;
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: selectedCategoryFilter == null
+                                      ? const Color(0xFFD98A3D)
+                                      : const Color(0xFFEDE0D9),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-
-                              // Dynamic Category Chips
-                              ...categories.map((cat) {
-                                final isSelected = selectedCategoryFilter == cat.id;
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      ref.read(transactionCategoryFilterProvider.notifier).state =
-                                          isSelected ? null : cat.id;
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? const Color(0xFFD98A3D)
-                                            : const Color(0xFFEDE0D9),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          if (isSelected) ...[
-                                            const Icon(Icons.check_rounded, size: 14, color: Color(0xFF512A00)),
-                                            const SizedBox(width: 4),
-                                          ],
-                                          Text(
-                                            cat.name,
-                                            style: GoogleFonts.quicksand(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              letterSpacing: 0.6,
-                                              color: isSelected
-                                                  ? const Color(0xFF512A00)
-                                                  : const Color(0xFF534438),
-                                            ),
-                                          ),
-                                        ],
+                                child: Row(
+                                  children: [
+                                    if (selectedCategoryFilter == null) ...[
+                                      const Icon(Icons.check_rounded, size: 14, color: Color(0xFF512A00)),
+                                      const SizedBox(width: 4),
+                                    ],
+                                    Text(
+                                      'All',
+                                      style: GoogleFonts.quicksand(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.6,
+                                        color: selectedCategoryFilter == null
+                                            ? const Color(0xFF512A00)
+                                            : const Color(0xFF534438),
                                       ),
                                     ),
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        );
-                      },
-                      loading: () => const SizedBox.shrink(),
-                      error: (err, stack) => const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
 
-              // 3. Transactions List Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: filteredTransactions.isEmpty
-                    ? Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(32),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/Weasly_NoTransaction.png',
-                              width: 160,
-                              height: 160,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) => const Icon(
-                                Icons.receipt_long_outlined,
-                                size: 64,
-                                color: AppColors.textMuted,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No transactions yet.',
-                              style: GoogleFonts.quicksand(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF211A16),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Start stashing your activity by logging your first expense or income.',
-                              style: GoogleFonts.quicksand(
-                                fontSize: 14,
-                                color: AppColors.textMuted,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+                            // Dynamic Category Chips
+                            ...categories.map((cat) {
+                              final isSelected = selectedCategoryFilter == cat.id;
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    ref.read(transactionCategoryFilterProvider.notifier).state =
+                                        isSelected ? null : cat.id;
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? const Color(0xFFD98A3D)
+                                          : const Color(0xFFEDE0D9),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        if (isSelected) ...[
+                                          const Icon(Icons.check_rounded, size: 14, color: Color(0xFF512A00)),
+                                          const SizedBox(width: 4),
+                                        ],
+                                        Text(
+                                          cat.name,
+                                          style: GoogleFonts.quicksand(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.6,
+                                            color: isSelected
+                                                ? const Color(0xFF512A00)
+                                                : const Color(0xFF534438),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
                           ],
                         ),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ...groupedMap.keys.map((dateLabel) {
-                            final dateTxs = groupedMap[dateLabel]!;
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Date Group Header
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 4, top: 12, bottom: 8),
-                                  child: Text(
-                                    dateLabel.toUpperCase(),
-                                    style: GoogleFonts.quicksand(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF8A7F73),
-                                      letterSpacing: 0.6,
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (err, stack) => const SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 4. Scrollable Transactions List Section
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: filteredTransactions.isEmpty
+                      ? Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/Weasly_NoTransaction.png',
+                                width: 160,
+                                height: 160,
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                  Icons.receipt_long_outlined,
+                                  size: 64,
+                                  color: AppColors.textMuted,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No transactions yet.',
+                                style: GoogleFonts.quicksand(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF211A16),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Start stashing your activity by logging your first expense or income.',
+                                style: GoogleFonts.quicksand(
+                                  fontSize: 14,
+                                  color: AppColors.textMuted,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ...groupedMap.keys.map((dateLabel) {
+                              final dateTxs = groupedMap[dateLabel]!;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Date Group Header
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 4, top: 12, bottom: 8),
+                                    child: Text(
+                                      dateLabel.toUpperCase(),
+                                      style: GoogleFonts.quicksand(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF8A7F73),
+                                        letterSpacing: 0.6,
+                                      ),
                                     ),
                                   ),
-                                ),
 
-                                // Date Group Items
-                                ...dateTxs.map((tx) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12.0),
-                                    child: _buildTransactionCard(context, tx, currencyFormatter),
-                                  );
-                                }),
-                              ],
-                            );
-                          }),
-                        ],
-                      ),
+                                  // Date Group Items
+                                  ...dateTxs.map((tx) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 12.0),
+                                      child: _buildTransactionCard(context, tx, currencyFormatter),
+                                    );
+                                  }),
+                                ],
+                              );
+                            }),
+                            const SizedBox(height: 80),
+                          ],
+                        ),
+                ),
               ),
-              const SizedBox(height: 80),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    ],
-  ),
-),
 );
   }
 

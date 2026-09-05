@@ -16,7 +16,7 @@ void main() {
         categoryIcon: 'movie',
         categoryColorHex: '#8E4E00',
         accountId: 'acc1',
-        accountName: 'Cash',
+        accountName: 'Cash Stash',
       );
 
       final nextDate = bill.calculateNextDueDate();
@@ -36,7 +36,7 @@ void main() {
         categoryIcon: 'receipt_long',
         categoryColorHex: '#D64545',
         accountId: 'acc2',
-        accountName: 'GCash',
+        accountName: 'Digital Stash',
       );
 
       final nextDate = bill.calculateNextDueDate();
@@ -56,7 +56,7 @@ void main() {
         categoryIcon: 'receipt_long',
         categoryColorHex: '#D64545',
         accountId: 'acc3',
-        accountName: 'Main Bank',
+        accountName: 'Bank Stash',
       );
 
       final nextDate = bill.calculateNextDueDate();
@@ -74,8 +74,8 @@ void main() {
         categoryName: 'Entertainment',
         categoryIcon: 'movie',
         categoryColorHex: '#7B5800',
-        accountId: 'acc_gcash',
-        accountName: 'GCash',
+        accountId: 'acc_digital',
+        accountName: 'Digital Stash',
         reminderDaysBefore: 3,
         isReminderEnabled: true,
       );

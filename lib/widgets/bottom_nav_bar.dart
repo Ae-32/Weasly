@@ -32,7 +32,7 @@ class BottomNavBar extends StatelessWidget {
         unselectedIcon: Icons.account_balance_wallet_outlined,
       ),
       const _NavItemData(
-        label: 'Accounts',
+        label: 'Account',
         selectedIcon: Icons.account_box_rounded,
         unselectedIcon: Icons.account_box_outlined,
       ),
