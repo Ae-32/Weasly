@@ -100,7 +100,7 @@ class _PinLockScreenState extends ConsumerState<PinLockScreen> {
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.stateError,
+              backgroundColor: AppColors.accentPrimary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

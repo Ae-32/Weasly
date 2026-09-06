@@ -6,6 +6,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/add_edit_category_modal.dart';
 import '../../widgets/category_icon.dart';
+import '../../widgets/success_banner.dart';
 
 class CategoriesScreen extends ConsumerStatefulWidget {
   const CategoriesScreen({super.key});
@@ -30,9 +31,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
     super.dispose();
   }
 
-  void _confirmDelete(BuildContext context, CategoryModel category) {
+  void _confirmDelete(BuildContext parentContext, CategoryModel category) {
     if (category.isDefault) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(parentContext).showSnackBar(
         const SnackBar(
           content: Text(
             'Default categories cannot be deleted to protect your transaction history.',
@@ -45,7 +46,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
     }
 
     showDialog(
-      context: context,
+      context: parentContext,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
@@ -62,28 +63,32 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
             child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentPrimary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               final success = await ref
                   .read(categoryControllerProvider.notifier)
                   .deleteCategory(category);
-              if (context.mounted && !success) {
-                final err = ref.read(categoryControllerProvider).errorMessage;
-                if (err != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(err, style: const TextStyle(fontFamily: 'Quicksand')),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
+              if (parentContext.mounted) {
+                if (success) {
+                  SuccessBanner.show(parentContext, 'Category deleted!');
+                } else {
+                  final err = ref.read(categoryControllerProvider).errorMessage;
+                  if (err != null) {
+                    ScaffoldMessenger.of(parentContext).showSnackBar(
+                      SnackBar(
+                        content: Text(err, style: const TextStyle(fontFamily: 'Quicksand')),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
                 }
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
             child: const Text('Delete'),
           ),
         ],

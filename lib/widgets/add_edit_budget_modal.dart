@@ -9,6 +9,7 @@ import '../providers/category_provider.dart';
 import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
 import 'category_icon.dart';
+import 'success_banner.dart';
 
 class AddEditBudgetModal extends ConsumerStatefulWidget {
   final BudgetModel? budgetToEdit;
@@ -169,6 +170,10 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
         : await controller.addBudget(model);
 
     if (mounted && success) {
+      SuccessBanner.show(
+        context,
+        isEditing ? 'Budget updated!' : 'Budget set!',
+      );
       Navigator.of(context).pop();
     }
   }

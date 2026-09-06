@@ -5,6 +5,7 @@ import '../providers/category_provider.dart';
 import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
 import 'category_icon.dart';
+import 'success_banner.dart';
 
 class AddEditCategoryModal extends ConsumerStatefulWidget {
   final CategoryModel? categoryToEdit;
@@ -79,6 +80,10 @@ class _AddEditCategoryModalState extends ConsumerState<AddEditCategoryModal> {
     }
 
     if (mounted && success) {
+      SuccessBanner.show(
+        context,
+        isEditing ? 'Category updated!' : 'Category added!',
+      );
       Navigator.of(context).pop();
     }
   }

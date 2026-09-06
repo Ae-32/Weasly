@@ -8,6 +8,7 @@ import 'providers/pin_provider.dart';
 import 'screens/auth/biometric_lock_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/pin_lock_screen.dart';
+import 'screens/auth/verify_email_screen.dart';
 import 'screens/home_shell_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'services/firebase_service.dart';
@@ -56,6 +57,14 @@ class WeaslyApp extends ConsumerWidget {
           debugPrint('=================================');
 
           if (user != null) {
+            final authService = ref.watch(authServiceProvider);
+            final isVerified = authService.isEmailVerified(user);
+            debugPrint('isEmailVerified: $isVerified');
+
+            if (!isVerified) {
+              debugPrint('ROUTING -> VerifyEmailScreen');
+              return const VerifyEmailScreen();
+            }
             if (isBiometricEnabled && !isBiometricUnlocked) {
               debugPrint('ROUTING -> BiometricLockScreen');
               return const BiometricLockScreen();

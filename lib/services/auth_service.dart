@@ -40,7 +40,7 @@ class AuthService {
   }) async {
     try {
       final credential = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password: password,
       );
 
@@ -64,9 +64,10 @@ class AuthService {
     required String password,
     String? fullName,
   }) async {
+    final normalizedEmail = email.trim().toLowerCase();
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
+        email: normalizedEmail,
         password: password,
       );
 
@@ -81,7 +82,7 @@ class AuthService {
 
       final userModel = UserModel(
         id: user.uid,
-        email: user.email ?? email.trim(),
+        email: user.email ?? normalizedEmail,
         displayName: fullName?.trim() ?? user.displayName,
         photoUrl: user.photoURL,
       );
@@ -92,6 +93,13 @@ class AuthService {
         SetOptions(merge: true),
       );
 
+      // Automatically send Firebase email verification link
+      try {
+        await user.sendEmailVerification();
+      } catch (_) {
+        // Handled silently so account creation still succeeds
+      }
+
       return userModel;
     } on FirebaseAuthException catch (e) {
       throw AuthException(_mapFirebaseAuthError(e));
@@ -99,6 +107,44 @@ class AuthService {
       if (e is AuthException) rethrow;
       throw AuthException("An unexpected error occurred during registration: ${e.toString()}");
     }
+  }
+
+  /// Sends a Firebase email verification link to the currently signed-in user.
+  Future<void> sendEmailVerification() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw const AuthException("No active user session found.");
+      }
+      if (!isEmailVerified(user)) {
+        await user.sendEmailVerification();
+      }
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(_mapFirebaseAuthError(e));
+    } catch (e) {
+      if (e is AuthException) rethrow;
+      throw AuthException("Failed to send verification email: ${e.toString()}");
+    }
+  }
+
+  /// Reloads the current user's profile from Firebase Auth and returns their email verification status.
+  Future<bool> checkEmailVerified() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return false;
+      await user.reload();
+      return isEmailVerified(_auth.currentUser);
+    } catch (_) {
+      return isEmailVerified(_auth.currentUser);
+    }
+  }
+
+  /// Helper method determining if the given user has a verified email or signed in with Google.
+  bool isEmailVerified(User? user) {
+    if (user == null) return false;
+    if (user.emailVerified) return true;
+    final isGoogle = user.providerData.any((provider) => provider.providerId == 'google.com');
+    return isGoogle;
   }
 
   /// Authenticates a user using Google Sign-In and Firebase Authentication.

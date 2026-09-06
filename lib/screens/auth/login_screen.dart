@@ -34,7 +34,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           password: _passwordController.text,
         );
 
-    if (!success && mounted) {
+    if (success && mounted) {
+      while (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    } else if (!success && mounted) {
       final errorMessage = ref.read(authControllerProvider).errorMessage;
       if (errorMessage != null) {
         _showErrorSnackBar(errorMessage);
@@ -46,7 +50,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
     final success = await ref.read(authControllerProvider.notifier).signInWithGoogle();
 
-    if (!success && mounted) {
+    if (success && mounted) {
+      while (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    } else if (!success && mounted) {
       final errorMessage = ref.read(authControllerProvider).errorMessage;
       if (errorMessage != null) {
         _showErrorSnackBar(errorMessage);

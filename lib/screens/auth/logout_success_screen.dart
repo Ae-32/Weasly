@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
-import 'login_screen.dart';
 
 /// Screen displayed after successful sign out, using Weasly_Logout_Success.png (waving mascot).
 class LogoutSuccessScreen extends StatelessWidget {
@@ -53,10 +52,9 @@ class LogoutSuccessScreen extends StatelessWidget {
                   height: 52,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                        (route) => false,
-                      );
+                      while (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accentPrimary,

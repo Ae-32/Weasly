@@ -8,14 +8,15 @@ import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/add_edit_budget_modal.dart';
 import '../../widgets/category_icon.dart';
+import '../../widgets/success_banner.dart';
 import '../../widgets/weasly_app_header.dart';
 
 class BudgetsScreen extends ConsumerWidget {
   const BudgetsScreen({super.key});
 
-  void _confirmDelete(BuildContext context, WidgetRef ref, BudgetModel budget) {
+  void _confirmDelete(BuildContext parentContext, WidgetRef ref, BudgetModel budget) {
     showDialog(
-      context: context,
+      context: parentContext,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
@@ -37,20 +38,24 @@ class BudgetsScreen extends ConsumerWidget {
               final success = await ref
                   .read(budgetControllerProvider.notifier)
                   .deleteBudget(budget.id);
-              if (context.mounted && !success) {
-                final err = ref.read(budgetControllerProvider).errorMessage;
-                if (err != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(err, style: GoogleFonts.quicksand()),
-                      backgroundColor: AppColors.stateError,
-                    ),
-                  );
+              if (parentContext.mounted) {
+                if (success) {
+                  SuccessBanner.show(parentContext, 'Budget deleted!');
+                } else {
+                  final err = ref.read(budgetControllerProvider).errorMessage;
+                  if (err != null) {
+                    ScaffoldMessenger.of(parentContext).showSnackBar(
+                      SnackBar(
+                        content: Text(err, style: GoogleFonts.quicksand()),
+                        backgroundColor: AppColors.stateError,
+                      ),
+                    );
+                  }
                 }
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.stateError,
+              backgroundColor: AppColors.accentPrimary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),

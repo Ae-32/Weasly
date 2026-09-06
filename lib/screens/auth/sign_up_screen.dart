@@ -37,8 +37,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         );
 
     if (success && mounted) {
-      // Return to main flow which auto-navigates to Dashboard via authStateProvider
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      while (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
     } else if (mounted) {
       final errorMessage = ref.read(authControllerProvider).errorMessage;
       if (errorMessage != null) {
@@ -52,7 +53,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final success = await ref.read(authControllerProvider.notifier).signInWithGoogle();
 
     if (success && mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      while (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
     } else if (mounted) {
       final errorMessage = ref.read(authControllerProvider).errorMessage;
       if (errorMessage != null) {
@@ -167,7 +170,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         children: [
                           // Full Name Field
                           const Text(
-                            'Full Name',
+                            'User Name',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,

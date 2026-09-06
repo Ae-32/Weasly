@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../providers/pin_provider.dart';
 import '../../utils/app_colors.dart';
+import '../../widgets/success_banner.dart';
 
 enum PinSetupMode { setup, change, remove }
 
@@ -119,7 +120,10 @@ class _PinSetupModalState extends ConsumerState<PinSetupModal> {
           });
         } else {
           await pinNotifier.setupPin(_enteredPin);
-          if (mounted) Navigator.of(context).pop(true);
+          if (mounted) {
+            SuccessBanner.show(context, 'PIN set up successfully!');
+            Navigator.of(context).pop(true);
+          }
         }
       }
     }
@@ -156,7 +160,10 @@ class _PinSetupModalState extends ConsumerState<PinSetupModal> {
           });
         } else {
           await pinNotifier.setupPin(_enteredPin);
-          if (mounted) Navigator.of(context).pop(true);
+          if (mounted) {
+            SuccessBanner.show(context, 'PIN updated!');
+            Navigator.of(context).pop(true);
+          }
         }
       }
     }
@@ -170,7 +177,10 @@ class _PinSetupModalState extends ConsumerState<PinSetupModal> {
         });
       } else {
         await pinNotifier.removePin();
-        if (mounted) Navigator.of(context).pop(true);
+        if (mounted) {
+          SuccessBanner.show(context, 'PIN removed!');
+          Navigator.of(context).pop(true);
+        }
       }
     }
   }

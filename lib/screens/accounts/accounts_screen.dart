@@ -14,6 +14,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/account_card.dart';
 import '../../widgets/payday_countdown_card.dart';
+import '../../widgets/success_banner.dart';
 import '../../widgets/weasly_app_header.dart';
 
 /// Account & Stashes screen matching exact Figma CSS export & redesign specifications.
@@ -36,10 +37,10 @@ class AccountsScreen extends ConsumerWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref, AccountModel account) {
+  void _confirmDelete(BuildContext parentContext, WidgetRef ref, AccountModel account) {
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: parentContext,
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text('Delete Stash', style: GoogleFonts.quicksand(fontWeight: FontWeight.bold)),
         content: Text(
@@ -48,23 +49,18 @@ class AccountsScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text('Cancel', style: GoogleFonts.quicksand(color: AppColors.textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.stateError,
+              backgroundColor: AppColors.accentPrimary,
             ),
             onPressed: () async {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               final success = await ref.read(accountControllerProvider.notifier).deleteAccount(account.id);
-              if (success && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Deleted "${account.name}"'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+              if (success && parentContext.mounted) {
+                SuccessBanner.show(parentContext, 'Stash deleted!');
               }
             },
             child: Text('Delete', style: GoogleFonts.quicksand(color: Colors.white)),
@@ -145,12 +141,7 @@ class AccountsScreen extends ConsumerWidget {
                                 onTap: () async {
                                   await ref.read(accountControllerProvider.notifier).clearZeroBalanceAccounts();
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Cleared empty stashes!'),
-                                        behavior: SnackBarBehavior.floating,
-                                      ),
-                                    );
+                                    SuccessBanner.show(context, 'Cleared empty stashes!');
                                   }
                                 },
                                 child: Row(
@@ -726,6 +717,10 @@ class _AccountFormBottomSheetState extends ConsumerState<_AccountFormBottomSheet
         : await notifier.addAccount(newAccount);
 
     if (success && mounted) {
+      SuccessBanner.show(
+        context,
+        isEdit ? 'Stash updated!' : 'Stash added!',
+      );
       Navigator.of(context).pop();
     }
   }

@@ -7,6 +7,7 @@ import '../../services/notification_service.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/add_edit_recurring_bill_modal.dart';
 import '../../widgets/recurring_bill_card.dart';
+import '../../widgets/success_banner.dart';
 
 /// Full screen overview for managing recurring bills and subscriptions.
 class RecurringBillsScreen extends ConsumerStatefulWidget {
@@ -36,41 +37,42 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
     final granted = await NotificationService().requestPermissions();
     if (mounted) {
       setState(() => _hasPermission = granted);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            granted ? 'Notification reminders enabled!' : 'Notification permission was declined.',
+      if (granted) {
+        SuccessBanner.show(context, 'Notification reminders enabled!');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Notification permission was declined.'),
+            behavior: SnackBarBehavior.floating,
           ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+        );
+      }
     }
   }
 
-  void _confirmDelete(BuildContext context, RecurringBillModel bill) {
+  void _confirmDelete(BuildContext parentContext, RecurringBillModel bill) {
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: parentContext,
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Delete Recurring Bill'),
         content: Text('Are you sure you want to delete "${bill.name}"? Scheduled reminders for this bill will also be removed.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Cancel', style: TextStyle(color: AppColors.textMuted)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.stateError),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentPrimary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () async {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               final success = await ref.read(recurringBillControllerProvider.notifier).deleteBill(bill.id);
-              if (success && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Deleted "${bill.name}"'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+              if (success && parentContext.mounted) {
+                SuccessBanner.show(parentContext, 'Bill deleted!');
               }
             },
             child: const Text('Delete'),
@@ -83,14 +85,7 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
   void _markPaid(RecurringBillModel bill) async {
     final success = await ref.read(recurringBillControllerProvider.notifier).markPaidAndAdvance(bill);
     if (success && mounted) {
-      final nextDateStr = DateFormat('MMM d, yyyy').format(bill.calculateNextDueDate());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Advanced "${bill.name}" to next due date ($nextDateStr). Log your payment in Transactions!'),
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 4),
-        ),
-      );
+      SuccessBanner.show(context, 'Bill marked as paid!');
     }
   }
 

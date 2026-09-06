@@ -14,6 +14,7 @@ import '../utils/default_categories.dart';
 import 'category_icon.dart';
 import 'insufficient_balance_modal.dart';
 import 'stash_icon.dart';
+import 'success_banner.dart';
 
 class AddEditTransactionModal extends ConsumerStatefulWidget {
   final TransactionModel? transactionToEdit;
@@ -204,6 +205,10 @@ class _AddEditTransactionModalState
 
     if (mounted) {
       if (success) {
+        SuccessBanner.show(
+          context,
+          isEditing ? 'Transaction updated!' : 'Transaction added!',
+        );
         Navigator.of(context).pop();
       } else {
         final err = ref.read(transactionControllerProvider).errorMessage;

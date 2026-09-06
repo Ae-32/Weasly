@@ -111,6 +111,42 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  /// Sends a Firebase email verification link to the current user. Returns true on success.
+  Future<bool> sendEmailVerification() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await _authService.sendEmailVerification();
+      state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      return false;
+    }
+  }
+
+  /// Reloads current user's profile and returns true if email is verified.
+  /// If verified, invalidates authStateProvider to refresh application routing.
+  Future<bool> checkEmailVerified() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final isVerified = await _authService.checkEmailVerified();
+      state = state.copyWith(isLoading: false);
+      if (isVerified && _ref != null) {
+        _ref.invalidate(authStateProvider);
+      }
+      return isVerified;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+      return false;
+    }
+  }
+
   /// Signs out the current user.
   Future<void> signOut() async {
     state = state.copyWith(isLoading: true, clearError: true);

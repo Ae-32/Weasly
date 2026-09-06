@@ -42,7 +42,7 @@ class LogoutConfirmationModal extends StatelessWidget {
             errorBuilder: (context, error, stackTrace) => const Icon(
               Icons.sentiment_dissatisfied_rounded,
               size: 80,
-              color: AppColors.stateError,
+              color: AppColors.accentPrimary,
             ),
           ),
           const SizedBox(height: 20),
@@ -91,7 +91,7 @@ class LogoutConfirmationModal extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(true),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.stateError,
+                    backgroundColor: AppColors.accentPrimary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     elevation: 0,

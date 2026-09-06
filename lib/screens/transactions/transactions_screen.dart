@@ -8,6 +8,7 @@ import '../../providers/transaction_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/add_edit_transaction_modal.dart';
 import '../../widgets/category_icon.dart';
+import '../../widgets/success_banner.dart';
 import '../../widgets/weasly_app_header.dart';
 
 class TransactionsScreen extends ConsumerStatefulWidget {
@@ -26,9 +27,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     super.dispose();
   }
 
-  void _confirmDelete(BuildContext context, TransactionModel tx) {
+  void _confirmDelete(BuildContext parentContext, TransactionModel tx) {
     showDialog(
-      context: context,
+      context: parentContext,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
@@ -50,20 +51,24 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
               final success = await ref
                   .read(transactionControllerProvider.notifier)
                   .deleteTransaction(tx);
-              if (context.mounted && !success) {
-                final err = ref.read(transactionControllerProvider).errorMessage;
-                if (err != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(err, style: GoogleFonts.quicksand()),
-                      backgroundColor: AppColors.stateError,
-                    ),
-                  );
+              if (parentContext.mounted) {
+                if (success) {
+                  SuccessBanner.show(parentContext, 'Transaction deleted!');
+                } else {
+                  final err = ref.read(transactionControllerProvider).errorMessage;
+                  if (err != null) {
+                    ScaffoldMessenger.of(parentContext).showSnackBar(
+                      SnackBar(
+                        content: Text(err, style: GoogleFonts.quicksand()),
+                        backgroundColor: AppColors.stateError,
+                      ),
+                    );
+                  }
                 }
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.stateError,
+              backgroundColor: AppColors.accentPrimary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),

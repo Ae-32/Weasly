@@ -12,6 +12,7 @@ import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
 import 'category_icon.dart';
 import 'stash_icon.dart';
+import 'success_banner.dart';
 
 /// Modal bottom sheet for adding or editing a recurring bill.
 class AddEditRecurringBillModal extends ConsumerStatefulWidget {
@@ -151,13 +152,11 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
         : await notifier.addBill(newBill);
 
     if (success && mounted) {
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isEdit ? 'Bill updated' : 'Recurring bill saved'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      SuccessBanner.show(
+        context,
+        isEdit ? 'Bill updated!' : 'Bill added!',
       );
+      Navigator.of(context).pop();
     }
   }
 

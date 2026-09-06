@@ -10,6 +10,7 @@ import '../../widgets/stash_icon.dart';
 
 import '../../providers/payday_provider.dart';
 import '../../utils/app_colors.dart';
+import '../../widgets/success_banner.dart';
 
 /// Modal bottom sheet allowing the user to configure or edit their Payday Setup.
 class PaydaySetupModal extends ConsumerStatefulWidget {
@@ -130,17 +131,8 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
     final success = await ref.read(paydayControllerProvider.notifier).saveSettings(newSettings);
 
     if (success && mounted) {
+      SuccessBanner.show(context, 'Payday settings saved!');
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Payday setup saved successfully!',
-            style: GoogleFonts.quicksand(fontWeight: FontWeight.w600),
-          ),
-          backgroundColor: AppColors.stateSuccess,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
     }
   }
 
@@ -160,7 +152,11 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
             child: Text('Cancel', style: GoogleFonts.quicksand(color: AppColors.textMuted)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.stateError),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentPrimary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text('Reset', style: GoogleFonts.quicksand(color: Colors.white)),
           ),
@@ -171,13 +167,8 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
     if (confirmed == true && mounted) {
       final success = await ref.read(paydayControllerProvider.notifier).clearSettings();
       if (success && mounted) {
+        SuccessBanner.show(context, 'Payday setup reset!');
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Payday setup cleared.', style: GoogleFonts.quicksand()),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
       }
     }
   }

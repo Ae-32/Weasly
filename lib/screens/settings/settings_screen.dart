@@ -7,6 +7,7 @@ import '../../providers/biometric_provider.dart';
 import '../../providers/payday_provider.dart';
 import '../../providers/pin_provider.dart';
 import '../../utils/app_colors.dart';
+import '../../widgets/success_banner.dart';
 import '../auth/logout_confirmation_modal.dart';
 import '../auth/logout_success_screen.dart';
 import '../auth/pin_setup_modal.dart';
@@ -22,9 +23,8 @@ class SettingsScreen extends ConsumerWidget {
     if (confirmed == true && context.mounted) {
       await ref.read(authControllerProvider.notifier).signOut();
       if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
+        Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const LogoutSuccessScreen()),
-          (route) => false,
         );
       }
     }
@@ -161,16 +161,23 @@ class SettingsScreen extends ConsumerWidget {
                     final (success, errorMsg) = await ref
                         .read(biometricEnabledProvider.notifier)
                         .setBiometricEnabled(val);
-                    if (!success && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            errorMsg ?? 'Biometrics not available on this device.',
-                            style: GoogleFonts.quicksand(),
+                    if (context.mounted) {
+                      if (success) {
+                        SuccessBanner.show(
+                          context,
+                          val ? 'Biometric login enabled!' : 'Biometric login disabled!',
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              errorMsg ?? 'Biometrics not available on this device.',
+                              style: GoogleFonts.quicksand(),
+                            ),
+                            backgroundColor: AppColors.stateError,
                           ),
-                          backgroundColor: AppColors.stateError,
-                        ),
-                      );
+                        );
+                      }
                     }
                   },
                   activeThumbColor: AppColors.accentPrimary,
@@ -367,12 +374,11 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
 
-              // Log Out Setting Card (Styled distinctly in error/red color)
+              // Log Out Setting Card (Styled in orange palette)
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.bgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.stateError.withValues(alpha: 0.3)),
                   boxShadow: const [
                     BoxShadow(
                       color: Color.fromRGBO(43, 36, 32, 0.04),
@@ -386,12 +392,12 @@ class SettingsScreen extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.stateError.withValues(alpha: 0.1),
+                      color: AppColors.accentPrimary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.logout_rounded,
-                      color: AppColors.stateError,
+                      color: AppColors.accentPrimary,
                       size: 22,
                     ),
                   ),
@@ -400,7 +406,7 @@ class SettingsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.stateError,
+                      color: AppColors.accentPrimary,
                     ),
                   ),
                   subtitle: Text(
@@ -412,7 +418,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   trailing: const Icon(
                     Icons.chevron_right_rounded,
-                    color: AppColors.stateError,
+                    color: AppColors.accentPrimary,
                   ),
                   onTap: () => _handleLogout(context, ref),
                 ),
