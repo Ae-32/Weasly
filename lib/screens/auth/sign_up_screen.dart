@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_colors.dart';
+import '../../widgets/app_toast.dart';
 
 /// Sign Up Screen matching design-reference/sign_up/code.html design tokens and layout.
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -48,34 +49,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     }
   }
 
-  Future<void> _handleGoogleSignUp() async {
-    FocusScope.of(context).unfocus();
-    final success = await ref.read(authControllerProvider.notifier).signInWithGoogle();
-
-    if (success && mounted) {
-      while (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
-    } else if (mounted) {
-      final errorMessage = ref.read(authControllerProvider).errorMessage;
-      if (errorMessage != null) {
-        _showErrorSnackBar(errorMessage);
-      }
-    }
-  }
-
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: AppColors.stateError,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+    AppToast.showError(context, message);
   }
 
   @override
@@ -301,62 +276,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                     ),
                             ),
                           ),
-                          const SizedBox(height: 16),
 
-                          // Divider
-                          const Row(
-                            children: [
-                              Expanded(child: Divider(color: AppColors.borderDefault)),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16),
-                                child: Text(
-                                  'OR',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textMuted,
-                                  ),
-                                ),
-                              ),
-                              Expanded(child: Divider(color: AppColors.borderDefault)),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Google Sign Up Button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                backgroundColor: AppColors.bgBase,
-                                side: const BorderSide(color: AppColors.borderDefault),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onPressed: authState.isLoading ? null : _handleGoogleSignUp,
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.g_mobiledata_rounded, size: 28, color: AppColors.textPrimary),
-                                  SizedBox(width: 6),
-                                  Flexible(
-                                    child: Text(
-                                      'Sign Up with Google',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),

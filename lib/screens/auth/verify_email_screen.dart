@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/success_banner.dart';
+import '../../widgets/app_toast.dart';
+
 
 /// Screen displayed when a signed-in user has not verified their email address yet.
 class VerifyEmailScreen extends ConsumerStatefulWidget {
@@ -54,15 +56,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
       SuccessBanner.show(context, 'Email verified! Welcome to Weasly.');
     } else {
       final errorMessage = ref.read(authControllerProvider).errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            errorMessage ?? 'Email not verified yet. Please check your inbox and click the link.',
-          ),
-          backgroundColor: AppColors.stateError,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
+      AppToast.showError(
+        context,
+        errorMessage ?? 'Email not verified yet. Please check your inbox and click the link.',
       );
     }
   }
@@ -80,13 +76,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
       SuccessBanner.show(context, 'Verification email sent! Please check your inbox.');
     } else {
       final errorMessage = ref.read(authControllerProvider).errorMessage;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage ?? 'Failed to send email. Please try again.'),
-          backgroundColor: AppColors.stateError,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
+      AppToast.showError(
+        context,
+        errorMessage ?? 'Failed to send email. Please try again.',
       );
     }
   }

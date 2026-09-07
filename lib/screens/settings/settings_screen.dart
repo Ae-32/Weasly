@@ -8,6 +8,7 @@ import '../../providers/payday_provider.dart';
 import '../../providers/pin_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/success_banner.dart';
+import '../../widgets/app_toast.dart';
 import '../auth/logout_confirmation_modal.dart';
 import '../auth/logout_success_screen.dart';
 import '../auth/pin_setup_modal.dart';
@@ -168,14 +169,9 @@ class SettingsScreen extends ConsumerWidget {
                           val ? 'Biometric login enabled!' : 'Biometric login disabled!',
                         );
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              errorMsg ?? 'Biometrics not available on this device.',
-                              style: GoogleFonts.quicksand(),
-                            ),
-                            backgroundColor: AppColors.stateError,
-                          ),
+                        AppToast.showError(
+                          context,
+                          errorMsg ?? 'Biometrics not available on this device.',
                         );
                       }
                     }

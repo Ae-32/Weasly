@@ -10,6 +10,7 @@ import '../../widgets/add_edit_budget_modal.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/success_banner.dart';
 import '../../widgets/weasly_app_header.dart';
+import '../../widgets/app_toast.dart';
 
 class BudgetsScreen extends ConsumerWidget {
   const BudgetsScreen({super.key});
@@ -44,12 +45,7 @@ class BudgetsScreen extends ConsumerWidget {
                 } else {
                   final err = ref.read(budgetControllerProvider).errorMessage;
                   if (err != null) {
-                    ScaffoldMessenger.of(parentContext).showSnackBar(
-                      SnackBar(
-                        content: Text(err, style: GoogleFonts.quicksand()),
-                        backgroundColor: AppColors.stateError,
-                      ),
-                    );
+                    AppToast.showError(parentContext, err);
                   }
                 }
               }

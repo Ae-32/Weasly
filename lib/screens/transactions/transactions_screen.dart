@@ -10,6 +10,7 @@ import '../../widgets/add_edit_transaction_modal.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/success_banner.dart';
 import '../../widgets/weasly_app_header.dart';
+import '../../widgets/app_toast.dart';
 
 class TransactionsScreen extends ConsumerStatefulWidget {
   const TransactionsScreen({super.key});
@@ -57,12 +58,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                 } else {
                   final err = ref.read(transactionControllerProvider).errorMessage;
                   if (err != null) {
-                    ScaffoldMessenger.of(parentContext).showSnackBar(
-                      SnackBar(
-                        content: Text(err, style: GoogleFonts.quicksand()),
-                        backgroundColor: AppColors.stateError,
-                      ),
-                    );
+                    AppToast.showError(parentContext, err);
                   }
                 }
               }

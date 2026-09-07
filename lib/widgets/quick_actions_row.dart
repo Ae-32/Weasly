@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/home_nav_provider.dart';
 import '../utils/app_colors.dart';
+import 'app_toast.dart';
 
 /// Quick Action Item definition
 class _QuickActionItem {
@@ -22,21 +23,10 @@ class QuickActionsRow extends ConsumerWidget {
   const QuickActionsRow({super.key});
 
   void _showComingSoonSnackBar(BuildContext context, String featureName) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.info_outline_rounded, color: Colors.white, size: 20),
-            const SizedBox(width: 10),
-            Text('$featureName is coming soon!'),
-          ],
-        ),
-        backgroundColor: AppColors.accentPrimary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 2),
-      ),
+    AppToast.showInfo(
+      context,
+      '$featureName feature coming soon!',
+      title: 'Coming Soon',
     );
   }
 

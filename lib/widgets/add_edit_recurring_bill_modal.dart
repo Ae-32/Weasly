@@ -13,6 +13,7 @@ import '../utils/default_categories.dart';
 import 'category_icon.dart';
 import 'stash_icon.dart';
 import 'success_banner.dart';
+import 'app_toast.dart';
 
 /// Modal bottom sheet for adding or editing a recurring bill.
 class AddEditRecurringBillModal extends ConsumerStatefulWidget {
@@ -112,15 +113,11 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a category'), behavior: SnackBarBehavior.floating),
-      );
+      AppToast.showWarning(context, 'Please select a category');
       return;
     }
     if (_selectedAccount == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a stash account'), behavior: SnackBarBehavior.floating),
-      );
+      AppToast.showWarning(context, 'Please select a stash account');
       return;
     }
 

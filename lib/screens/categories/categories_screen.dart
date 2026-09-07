@@ -7,6 +7,7 @@ import '../../utils/default_categories.dart';
 import '../../widgets/add_edit_category_modal.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/success_banner.dart';
+import '../../widgets/app_toast.dart';
 
 class CategoriesScreen extends ConsumerStatefulWidget {
   const CategoriesScreen({super.key});
@@ -33,14 +34,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
 
   void _confirmDelete(BuildContext parentContext, CategoryModel category) {
     if (category.isDefault) {
-      ScaffoldMessenger.of(parentContext).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Default categories cannot be deleted to protect your transaction history.',
-            style: TextStyle(fontFamily: 'Quicksand'),
-          ),
-          backgroundColor: AppColors.error,
-        ),
+      AppToast.showWarning(
+        parentContext,
+        'Default categories cannot be deleted to protect your transaction history.',
       );
       return;
     }
@@ -79,12 +75,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
                 } else {
                   final err = ref.read(categoryControllerProvider).errorMessage;
                   if (err != null) {
-                    ScaffoldMessenger.of(parentContext).showSnackBar(
-                      SnackBar(
-                        content: Text(err, style: const TextStyle(fontFamily: 'Quicksand')),
-                        backgroundColor: AppColors.error,
-                      ),
-                    );
+                    AppToast.showError(parentContext, err);
                   }
                 }
               }

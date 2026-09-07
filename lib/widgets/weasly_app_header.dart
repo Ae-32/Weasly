@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../screens/settings/settings_screen.dart';
 import '../utils/app_colors.dart';
+import 'app_toast.dart';
 
 /// Shared top header widget for Weasly app screens.
 class WeaslyAppHeader extends ConsumerWidget {
@@ -31,14 +32,10 @@ class WeaslyAppHeader extends ConsumerWidget {
   });
 
   void _showComingSoonSnackBar(BuildContext context, String featureName) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$featureName feature coming soon!'),
-        backgroundColor: AppColors.accentPrimary,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
+    AppToast.showInfo(
+      context,
+      '$featureName feature coming soon!',
+      title: 'Coming Soon',
     );
   }
 

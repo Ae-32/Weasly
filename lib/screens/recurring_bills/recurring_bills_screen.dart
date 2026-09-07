@@ -8,6 +8,7 @@ import '../../utils/app_colors.dart';
 import '../../widgets/add_edit_recurring_bill_modal.dart';
 import '../../widgets/recurring_bill_card.dart';
 import '../../widgets/success_banner.dart';
+import '../../widgets/app_toast.dart';
 
 /// Full screen overview for managing recurring bills and subscriptions.
 class RecurringBillsScreen extends ConsumerStatefulWidget {
@@ -40,12 +41,7 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
       if (granted) {
         SuccessBanner.show(context, 'Notification reminders enabled!');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Notification permission was declined.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        AppToast.showWarning(context, 'Notification permission was declined.');
       }
     }
   }

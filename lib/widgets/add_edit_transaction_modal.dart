@@ -15,6 +15,7 @@ import 'category_icon.dart';
 import 'insufficient_balance_modal.dart';
 import 'stash_icon.dart';
 import 'success_banner.dart';
+import 'app_toast.dart';
 
 class AddEditTransactionModal extends ConsumerStatefulWidget {
   final TransactionModel? transactionToEdit;
@@ -104,52 +105,27 @@ class _AddEditTransactionModalState
 
     final amountVal = double.tryParse(_amountController.text.trim()) ?? 0.0;
     if (amountVal <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid amount greater than zero.', style: TextStyle(fontFamily: 'Quicksand')),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please enter a valid amount greater than zero.');
       return;
     }
 
     if (_selectedAccount == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an account.', style: TextStyle(fontFamily: 'Quicksand')),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please select an account.');
       return;
     }
 
     if (_selectedType == TransactionType.transfer) {
       if (_selectedToAccount == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a destination account for the transfer.', style: TextStyle(fontFamily: 'Quicksand')),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showWarning(context, 'Please select a destination account for the transfer.');
         return;
       }
       if (_selectedAccount!.id == _selectedToAccount!.id) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Source and destination accounts must be different.', style: TextStyle(fontFamily: 'Quicksand')),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showWarning(context, 'Source and destination accounts must be different.');
         return;
       }
     } else {
       if (_selectedCategory == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select a category.', style: TextStyle(fontFamily: 'Quicksand')),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.showWarning(context, 'Please select a category.');
         return;
       }
     }

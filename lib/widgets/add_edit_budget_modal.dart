@@ -10,6 +10,7 @@ import '../utils/app_colors.dart';
 import '../utils/default_categories.dart';
 import 'category_icon.dart';
 import 'success_banner.dart';
+import 'app_toast.dart';
 
 class AddEditBudgetModal extends ConsumerStatefulWidget {
   final BudgetModel? budgetToEdit;
@@ -98,33 +99,18 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a category for the budget.', style: TextStyle(fontFamily: 'Quicksand')),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please select a category for the budget.');
       return;
     }
 
     final amountVal = double.tryParse(_amountController.text.trim()) ?? 0.0;
     if (amountVal <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a budget amount greater than zero.', style: TextStyle(fontFamily: 'Quicksand')),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please enter a budget amount greater than zero.');
       return;
     }
 
     if (_selectedPeriod == BudgetPeriodType.custom && _endDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an end date for the custom period.', style: TextStyle(fontFamily: 'Quicksand')),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      AppToast.showWarning(context, 'Please select an end date for the custom period.');
       return;
     }
 
@@ -136,14 +122,9 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
       existingBudgets,
       excludeBudgetId: isEditing ? widget.budgetToEdit!.id : null,
     )) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'A budget for "${_selectedCategory!.name}" already exists. Please edit the existing budget instead.',
-            style: const TextStyle(fontFamily: 'Quicksand'),
-          ),
-          backgroundColor: AppColors.error,
-        ),
+      AppToast.showError(
+        context,
+        'A budget for "${_selectedCategory!.name}" already exists. Please edit the existing budget instead.',
       );
       return;
     }
