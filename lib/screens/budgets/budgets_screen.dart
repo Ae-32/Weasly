@@ -10,6 +10,7 @@ import '../../widgets/add_edit_budget_modal.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/success_banner.dart';
 import '../../widgets/weasly_app_header.dart';
+import 'budget_category_details_screen.dart';
 import '../../widgets/app_toast.dart';
 
 class BudgetsScreen extends ConsumerWidget {
@@ -302,13 +303,30 @@ class BudgetsScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     onSelected: (val) {
-                      if (val == 'edit') {
+                      if (val == 'view_transactions') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BudgetCategoryDetailsScreen(budget: budget),
+                          ),
+                        );
+                      } else if (val == 'edit') {
                         AddEditBudgetModal.show(context, budgetToEdit: budget);
                       } else if (val == 'delete') {
                         _confirmDelete(context, ref, budget);
                       }
                     },
                     itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'view_transactions',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.receipt_long_outlined, size: 18, color: Color(0xFF211A16)),
+                            const SizedBox(width: 8),
+                            Text('View Transactions', style: GoogleFonts.quicksand()),
+                          ],
+                        ),
+                      ),
                       PopupMenuItem(
                         value: 'edit',
                         child: Row(
