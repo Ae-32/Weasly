@@ -19,6 +19,12 @@ service cloud.firestore {
       }
     }
 
+    // Match feedback collection allowing any user to submit feedback
+    match /feedback/{feedbackId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
     // Explicitly deny access to any other collections or root paths
     match /{document=**} {
       allow read, write: if false;

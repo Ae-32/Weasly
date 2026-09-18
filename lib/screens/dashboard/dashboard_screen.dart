@@ -913,7 +913,7 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
                           alignment: Alignment.topLeft,
                           children: <Widget>[
                             ...previousChildren,
-                            if (currentChild != null) currentChild,
+                            if (currentChild case final child?) child,
                           ],
                         );
                       },

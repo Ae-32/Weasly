@@ -13,6 +13,7 @@ import '../auth/logout_confirmation_modal.dart';
 import '../auth/logout_success_screen.dart';
 import '../auth/pin_setup_modal.dart';
 import 'payday_setup_modal.dart';
+import '../../widgets/send_feedback_modal.dart';
 
 
 /// Screen allowing users to manage app preferences, including biometric login, PIN setup, Payday Setup, and Account Logout.
@@ -295,6 +296,69 @@ class SettingsScreen extends ConsumerWidget {
                       PinSetupModal.show(context, mode: PinSetupMode.setup);
                     }
                   },
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Help & Feedback Section
+              Text(
+                'HELP & FEEDBACK',
+                style: GoogleFonts.quicksand(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textMuted,
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.bgSurface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.borderDefault),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentPrimaryLight.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.chat_bubble_outline_rounded,
+                      color: AppColors.accentPrimary,
+                      size: 22,
+                    ),
+                  ),
+                  title: Text(
+                    'Send Feedback',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Share comments, ideas, or report a bug',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 12,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textMuted,
+                  ),
+                  onTap: () => SendFeedbackModal.show(context),
                 ),
               ),
               const SizedBox(height: 24),
