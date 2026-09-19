@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../screens/settings/settings_screen.dart';
+import '../screens/statistics/statistics_screen.dart';
 import '../utils/app_colors.dart';
 import 'app_toast.dart';
 
@@ -22,6 +23,10 @@ class WeaslyAppHeader extends ConsumerWidget {
   /// Whether to display the "Weasly" brand name next to the logo badge.
   final bool showBrandName;
 
+  /// Optional back button configuration
+  final bool showBackButton;
+  final VoidCallback? onBackTap;
+
   const WeaslyAppHeader({
     super.key,
     this.title,
@@ -29,6 +34,8 @@ class WeaslyAppHeader extends ConsumerWidget {
     this.topLabel,
     this.inlineTitle = false,
     this.showBrandName = true,
+    this.showBackButton = false,
+    this.onBackTap,
   });
 
   void _showComingSoonSnackBar(BuildContext context, String featureName) {
@@ -66,10 +73,17 @@ class WeaslyAppHeader extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Weasly App Logo Badge & Brand Name
+              // Left: Back Button or Weasly App Logo Badge & Brand Name
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (showBackButton) ...[
+                    _buildHeaderIconButton(
+                      icon: Icons.arrow_back_ios_new_rounded,
+                      onTap: onBackTap ?? () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                   Container(
                     width: 44,
                     height: 44,
@@ -126,10 +140,17 @@ class WeaslyAppHeader extends ConsumerWidget {
                 const SizedBox(width: 12),
               ],
 
-              // Action Buttons Row (Notifications, Settings)
+              // Action Buttons Row (Analytics/Statistics, Notifications, Settings)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  _buildHeaderIconButton(
+                    icon: Icons.bar_chart_rounded,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const StatisticsScreen()),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   _buildHeaderIconButton(
                     icon: Icons.notifications_rounded,
                     onTap: () => _showComingSoonSnackBar(context, 'Notifications'),

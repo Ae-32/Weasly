@@ -19,6 +19,11 @@ service cloud.firestore {
       }
     }
 
+    // Allow authenticated users to create email trigger documents
+    match /mail/{mailId} {
+      allow create: if request.auth != null;
+    }
+
     // Match feedback collection allowing any user to submit feedback
     match /feedback/{feedbackId} {
       allow create: if true;
