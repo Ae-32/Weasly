@@ -18,9 +18,7 @@ class StatisticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activeRange = ref.watch(statisticsTimeRangeProvider);
     final stats = ref.watch(financialStatisticsProvider);
-    final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final currencyFormatterShort = NumberFormat.currency(symbol: '₱', decimalDigits: 0);
 
     return Scaffold(
@@ -60,14 +58,6 @@ class StatisticsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // Time Range Filter Bar
-                    _buildTimeRangePicker(ref, activeRange),
-                    const SizedBox(height: 16),
-
-                    // Top KPI Metric Cards Grid
-                    _buildKpiMetricsGrid(stats, currencyFormatter),
-                    const SizedBox(height: 16),
-
                     // Cash Flow Line Chart Card
                     _buildCardWrapper(
                       title: 'CASH FLOW TREND (INCOME VS EXPENSE)',
@@ -105,185 +95,6 @@ class StatisticsScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  /// Segmented Time Range Chips Selector
-  Widget _buildTimeRangePicker(WidgetRef ref, StatsTimeRange activeRange) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: StatsTimeRange.values.map((range) {
-          final isSelected = range == activeRange;
-          return Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: ChoiceChip(
-              label: Text(
-                range.label,
-                style: GoogleFonts.quicksand(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: isSelected ? Colors.white : AppColors.accentPrimary,
-                ),
-              ),
-              selected: isSelected,
-              selectedColor: AppColors.accentPrimary,
-              backgroundColor: const Color(0xFFEDE0D9),
-              side: BorderSide.none,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              onSelected: (selected) {
-                if (selected) {
-                  ref.read(statisticsTimeRangeProvider.notifier).state = range;
-                }
-              },
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  /// KPI Cards 2x2 Grid (Net Cash Flow, Savings Rate, Top Category, Total Expenses)
-  Widget _buildKpiMetricsGrid(FinancialStatsModel stats, NumberFormat currencyFormatter) {
-    final isNetPositive = stats.netCashFlow >= 0;
-
-    return Column(
-      children: [
-        Row(
-          children: [
-            // Net Cash Flow Card
-            Expanded(
-              child: _buildMetricTile(
-                title: 'Net Cash Flow',
-                value: currencyFormatter.format(stats.netCashFlow),
-                valueColor: isNetPositive ? const Color(0xFF2E7D32) : const Color(0xFFD32F2F),
-                subtitle: isNetPositive ? 'Positive Cash Flow' : 'Negative Cash Flow',
-                icon: isNetPositive ? Icons.trending_up : Icons.trending_down,
-                iconColor: isNetPositive ? const Color(0xFF2E7D32) : const Color(0xFFD32F2F),
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // Savings Rate Card
-            Expanded(
-              child: _buildMetricTile(
-                title: 'Savings Rate',
-                value: '${stats.savingsRate.toStringAsFixed(1)}%',
-                valueColor: AppColors.accentPrimary,
-                subtitle: 'Of Total Income',
-                icon: Icons.savings_outlined,
-                iconColor: AppColors.accentPrimary,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            // Top Category Card
-            Expanded(
-              child: _buildMetricTile(
-                title: 'Top Category',
-                value: stats.topSpendingCategory?.categoryName ?? 'None',
-                valueColor: AppColors.textPrimary,
-                subtitle: stats.topSpendingCategory != null
-                    ? currencyFormatter.format(stats.topSpendingCategory!.amount)
-                    : 'No expenses',
-                iconWidget: stats.topSpendingCategory != null
-                    ? CategoryIcon(
-                        categoryName: stats.topSpendingCategory!.categoryName,
-                        iconName: stats.topSpendingCategory!.iconName,
-                        size: 18,
-                        containerSize: 28,
-                        color: stats.topSpendingCategory!.color,
-                      )
-                    : const Icon(Icons.category_outlined, size: 20, color: AppColors.textMuted),
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // Total Expense Card
-            Expanded(
-              child: _buildMetricTile(
-                title: 'Total Expenses',
-                value: currencyFormatter.format(stats.totalExpense),
-                valueColor: AppColors.textPrimary,
-                subtitle: '${stats.totalTransactionCount} Transactions',
-                icon: Icons.receipt_long_outlined,
-                iconColor: AppColors.textMutedAlt,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMetricTile({
-    required String title,
-    required String value,
-    required Color valueColor,
-    required String subtitle,
-    IconData? icon,
-    Color? iconColor,
-    Widget? iconWidget,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.04),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.quicksand(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textMutedAlt,
-                ),
-              ),
-              if (iconWidget != null)
-                iconWidget
-              else if (icon != null)
-                Icon(icon, size: 20, color: iconColor ?? AppColors.accentPrimary),
-            ],
-          ),
-          const SizedBox(height: 6),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              style: GoogleFonts.quicksand(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: valueColor,
-              ),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            style: GoogleFonts.quicksand(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMutedAlt,
-            ),
-          ),
-        ],
       ),
     );
   }
