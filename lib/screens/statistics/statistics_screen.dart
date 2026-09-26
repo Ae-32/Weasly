@@ -8,6 +8,7 @@ import '../../providers/statistics_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/statistics_calculator.dart';
 import '../../widgets/category_icon.dart';
+import '../../widgets/mascot_insight_bubble.dart';
 import '../../widgets/weasly_app_header.dart';
 import 'widgets/cash_flow_line_chart.dart';
 import 'widgets/day_of_week_chart.dart';
@@ -20,6 +21,7 @@ class StatisticsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final activeRange = ref.watch(statisticsTimeRangeProvider);
     final stats = ref.watch(financialStatisticsProvider);
+    final insightMessages = ref.watch(analyticsInsightMessagesProvider);
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final currencyFormatterShort = NumberFormat.currency(symbol: '₱', decimalDigits: 0);
 
@@ -29,11 +31,11 @@ class StatisticsScreen extends ConsumerWidget {
         child: Column(
           children: [
             // Header Bar
-            WeaslyAppHeader(
+            const WeaslyAppHeader(
               topLabel: 'FINANCIAL ANALYTICS',
-              title: 'Statistics Overview',
-              showBackButton: true,
-              onBackTap: () => Navigator.of(context).pop(),
+              title: 'Analytics Overview',
+              subtitle: 'Insights, trends, and spending patterns.',
+              showBackButton: false,
             ),
 
             // Scrollable Analytics Canvas
@@ -45,6 +47,10 @@ class StatisticsScreen extends ConsumerWidget {
                   children: [
                     // Time Range Filter Bar
                     _buildTimeRangePicker(ref, activeRange),
+                    const SizedBox(height: 16),
+
+                    // Mascot Insight Speech Bubble Banner
+                    MascotInsightBubble(insights: insightMessages),
                     const SizedBox(height: 16),
 
                     // Top KPI Metric Cards Grid

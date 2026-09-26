@@ -15,6 +15,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/income_expense_donut_chart.dart';
+import '../../widgets/payday_reminder_banner.dart';
 import '../../widgets/weasly_app_header.dart';
 
 /// Full live Dashboard screen matching exact Figma CSS export & redesign-v2 specifications
@@ -82,6 +83,9 @@ class DashboardScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Payday Reminder Banner (if prompt was dismissed)
+                          const PaydayReminderBanner(),
+
                           // 2. Total Balance Summary Card (Overlapping Top-Right Mascot)
                           _buildTotalBalanceCard(totalBalance, accountsCount, currencyFormatter),
                           const SizedBox(height: 20),
@@ -599,7 +603,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
             GestureDetector(
               onTap: () {
-                ref.read(homeNavIndexProvider.notifier).state = 1; // Switch to Transactions tab
+                ref.read(homeNavIndexProvider.notifier).state = 2; // Switch to Transactions tab
               },
               child: Text(
                 'See All',
@@ -913,7 +917,7 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
                           alignment: Alignment.topLeft,
                           children: <Widget>[
                             ...previousChildren,
-                            if (currentChild case final child?) child,
+                            ?currentChild,
                           ],
                         );
                       },

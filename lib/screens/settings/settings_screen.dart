@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../providers/biometric_provider.dart';
@@ -114,7 +115,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   subtitle: Text(
                     paydaySettings != null
-                        ? '${paydaySettings.frequency.displayName} • ₱${paydaySettings.expectedAmount.toStringAsFixed(2)}'
+                        ? '${paydaySettings.frequency.displayName} • Next: ${DateFormat('MMM d').format(paydaySettings.nextPaydayDate)}'
                         : 'Configure frequency, next date, and stash link',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,

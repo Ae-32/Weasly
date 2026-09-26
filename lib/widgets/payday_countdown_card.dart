@@ -19,7 +19,6 @@ class PaydayCountdownCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final dateFormatter = DateFormat('MMM. dd');
 
     // Case 1: Unconfigured Payday Setup (Empty State)
@@ -222,8 +221,8 @@ class PaydayCountdownCard extends StatelessWidget {
             // Card Gradient Background (Rectangle 4600)
             Container(
               width: double.infinity,
-              height: 64,
-              padding: const EdgeInsets.only(left: 120, right: 16),
+              constraints: const BoxConstraints(minHeight: 64),
+              padding: const EdgeInsets.only(left: 120, right: 16, top: 8, bottom: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 gradient: const LinearGradient(
@@ -244,6 +243,7 @@ class PaydayCountdownCard extends StatelessWidget {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Days Countdown Details
                   Column(
@@ -263,7 +263,7 @@ class PaydayCountdownCard extends StatelessWidget {
                       Text(
                         daysText,
                         style: GoogleFonts.quicksand(
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.w700,
                           color: AppColors.accentPrimary,
                           letterSpacing: -0.5,
@@ -272,26 +272,28 @@ class PaydayCountdownCard extends StatelessWidget {
                     ],
                   ),
 
-                  // Date & Amount Section
+                  // Date Section
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        currencyFormatter.format(info.expectedAmount),
+                        'DATE',
                         style: GoogleFonts.quicksand(
-                          fontSize: 14,
+                          fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.accentPrimary,
+                          color: const Color(0xFFA2A2A2),
+                          letterSpacing: 0.5,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         dateFormatter.format(info.nextPaydayDate).toUpperCase(),
                         style: GoogleFonts.quicksand(
-                          fontSize: 10,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFFA2A2A2),
+                          color: AppColors.accentPrimary,
+                          letterSpacing: -0.3,
                         ),
                       ),
                     ],

@@ -28,29 +28,32 @@ void main() {
       final model = PaydaySettingsModel(
         frequency: PaydayFrequency.semiMonthly,
         nextPaydayDate: DateTime(2026, 9, 15),
-        expectedAmount: 15000.0,
+        expectedAmount: 0.0,
         linkedAccountId: 'acc_123',
         linkedAccountName: 'Bank Stash',
         semiMonthlyDay1: 15,
         semiMonthlyDay2: 30,
+        lastConfirmedPaydayDate: DateTime(2026, 9, 1),
+        lastDismissedPaydayDate: null,
         updatedAt: now,
       );
 
       final map = model.toMap();
       expect(map['frequency'], 'semiMonthly');
-      expect(map['expectedAmount'], 15000.0);
       expect(map['linkedAccountId'], 'acc_123');
       expect(map['linkedAccountName'], 'Bank Stash');
       expect(map['semiMonthlyDay1'], 15);
       expect(map['semiMonthlyDay2'], 30);
+      expect(map['lastConfirmedPaydayDate'], isNotNull);
 
       final deserialized = PaydaySettingsModel.fromMap(map);
       expect(deserialized.frequency, PaydayFrequency.semiMonthly);
-      expect(deserialized.expectedAmount, 15000.0);
       expect(deserialized.linkedAccountId, 'acc_123');
       expect(deserialized.linkedAccountName, 'Bank Stash');
       expect(deserialized.semiMonthlyDay1, 15);
       expect(deserialized.semiMonthlyDay2, 30);
+      expect(deserialized.lastConfirmedPaydayDate, DateTime(2026, 9, 1));
+      expect(deserialized.lastDismissedPaydayDate, isNull);
     });
   });
 

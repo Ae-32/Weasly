@@ -24,7 +24,6 @@ void main() {
       final settings = PaydaySettingsModel(
         frequency: PaydayFrequency.custom,
         nextPaydayDate: futureDate,
-        expectedAmount: 12000.0,
       );
 
       final container = ProviderContainer(
@@ -37,7 +36,6 @@ void main() {
       final paydayInfo = container.read(paydayCountdownProvider);
       expect(paydayInfo, isNotNull);
       expect(paydayInfo!.daysRemaining, 5);
-      expect(paydayInfo.expectedAmount, 12000.0);
       expect(paydayInfo.isCustomExpired, isFalse);
     });
 
@@ -47,7 +45,6 @@ void main() {
       final settings = PaydaySettingsModel(
         frequency: PaydayFrequency.custom,
         nextPaydayDate: pastDate,
-        expectedAmount: 12000.0,
       );
 
       final container = ProviderContainer(
@@ -61,6 +58,54 @@ void main() {
       expect(paydayInfo, isNotNull);
       expect(paydayInfo!.isCustomExpired, isTrue);
     });
+
+    test('shouldShowPaydayPromptProvider returns settings on payday when unconfirmed and undismissed', () async {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      final settings = PaydaySettingsModel(
+        frequency: PaydayFrequency.custom,
+        nextPaydayDate: today,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          paydaySettingsStreamProvider.overrideWith((ref) => Stream.value(settings)),
+        ],
+      );
+
+      await container.read(paydaySettingsStreamProvider.future);
+      final promptSettings = container.read(shouldShowPaydayPromptProvider);
+      expect(promptSettings, isNotNull);
+
+      final reminderBanner = container.read(shouldShowPaydayReminderBannerProvider);
+      expect(reminderBanner, isFalse);
+    });
+
+    test('shouldShowPaydayReminderBannerProvider returns true when dismissed today without confirmation', () async {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      final settings = PaydaySettingsModel(
+        frequency: PaydayFrequency.weekly,
+        nextPaydayDate: today.add(const Duration(days: 7)),
+        lastDismissedPaydayDate: today,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          paydaySettingsStreamProvider.overrideWith((ref) => Stream.value(settings)),
+        ],
+      );
+
+      await container.read(paydaySettingsStreamProvider.future);
+      final promptSettings = container.read(shouldShowPaydayPromptProvider);
+      expect(promptSettings, isNull);
+
+      final reminderBanner = container.read(shouldShowPaydayReminderBannerProvider);
+      expect(reminderBanner, isTrue);
+    });
   });
 }
+
 

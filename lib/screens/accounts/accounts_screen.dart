@@ -14,6 +14,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/account_card.dart';
 import '../../widgets/payday_countdown_card.dart';
+import '../../widgets/payday_reminder_banner.dart';
 import '../../widgets/success_banner.dart';
 import '../../widgets/weasly_app_header.dart';
 
@@ -115,7 +116,8 @@ class AccountsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // 2. Payday Countdown Card Banner (Overlapping Weasly Mascot)
+                      // 2. Payday Reminder Banner & Payday Countdown Card
+                      const PaydayReminderBanner(),
                       PaydayCountdownCard(paydayInfo: paydayInfo),
                       const SizedBox(height: 40),
 

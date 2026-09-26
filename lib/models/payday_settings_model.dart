@@ -52,17 +52,21 @@ class PaydaySettingsModel {
   final int? semiMonthlyDay1; // e.g. 15
   final int? semiMonthlyDay2; // e.g. 30
   final int? monthlyDay; // e.g. 15 or 30
+  final DateTime? lastConfirmedPaydayDate;
+  final DateTime? lastDismissedPaydayDate;
   final DateTime? updatedAt;
 
   const PaydaySettingsModel({
     required this.frequency,
     required this.nextPaydayDate,
-    required this.expectedAmount,
+    this.expectedAmount = 0.0,
     this.linkedAccountId,
     this.linkedAccountName,
     this.semiMonthlyDay1,
     this.semiMonthlyDay2,
     this.monthlyDay,
+    this.lastConfirmedPaydayDate,
+    this.lastDismissedPaydayDate,
     this.updatedAt,
   });
 
@@ -76,6 +80,12 @@ class PaydaySettingsModel {
       'semiMonthlyDay1': semiMonthlyDay1,
       'semiMonthlyDay2': semiMonthlyDay2,
       'monthlyDay': monthlyDay,
+      'lastConfirmedPaydayDate': lastConfirmedPaydayDate != null
+          ? Timestamp.fromDate(lastConfirmedPaydayDate!)
+          : null,
+      'lastDismissedPaydayDate': lastDismissedPaydayDate != null
+          ? Timestamp.fromDate(lastDismissedPaydayDate!)
+          : null,
       'updatedAt': updatedAt != null
           ? Timestamp.fromDate(updatedAt!)
           : FieldValue.serverTimestamp(),
@@ -88,6 +98,16 @@ class PaydaySettingsModel {
       parsedDate = (map['nextPaydayDate'] as Timestamp).toDate();
     } else if (map['nextPaydayDate'] is String) {
       parsedDate = DateTime.tryParse(map['nextPaydayDate']) ?? DateTime.now();
+    }
+
+    DateTime? parsedLastConfirmed;
+    if (map['lastConfirmedPaydayDate'] is Timestamp) {
+      parsedLastConfirmed = (map['lastConfirmedPaydayDate'] as Timestamp).toDate();
+    }
+
+    DateTime? parsedLastDismissed;
+    if (map['lastDismissedPaydayDate'] is Timestamp) {
+      parsedLastDismissed = (map['lastDismissedPaydayDate'] as Timestamp).toDate();
     }
 
     DateTime? parsedUpdatedAt;
@@ -104,6 +124,8 @@ class PaydaySettingsModel {
       semiMonthlyDay1: (map['semiMonthlyDay1'] as num?)?.toInt(),
       semiMonthlyDay2: (map['semiMonthlyDay2'] as num?)?.toInt(),
       monthlyDay: (map['monthlyDay'] as num?)?.toInt(),
+      lastConfirmedPaydayDate: parsedLastConfirmed,
+      lastDismissedPaydayDate: parsedLastDismissed,
       updatedAt: parsedUpdatedAt,
     );
   }
@@ -189,6 +211,8 @@ class PaydaySettingsModel {
     int? semiMonthlyDay1,
     int? semiMonthlyDay2,
     int? monthlyDay,
+    DateTime? lastConfirmedPaydayDate,
+    DateTime? lastDismissedPaydayDate,
     DateTime? updatedAt,
   }) {
     return PaydaySettingsModel(
@@ -200,6 +224,8 @@ class PaydaySettingsModel {
       semiMonthlyDay1: semiMonthlyDay1 ?? this.semiMonthlyDay1,
       semiMonthlyDay2: semiMonthlyDay2 ?? this.semiMonthlyDay2,
       monthlyDay: monthlyDay ?? this.monthlyDay,
+      lastConfirmedPaydayDate: lastConfirmedPaydayDate ?? this.lastConfirmedPaydayDate,
+      lastDismissedPaydayDate: lastDismissedPaydayDate ?? this.lastDismissedPaydayDate,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }

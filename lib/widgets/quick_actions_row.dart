@@ -37,7 +37,7 @@ class QuickActionsRow extends ConsumerWidget {
         label: 'Budgets',
         icon: Icons.donut_large_rounded,
         onTap: () {
-          ref.read(homeNavIndexProvider.notifier).state = 2; // Switch to Budgets tab
+          ref.read(homeNavIndexProvider.notifier).state = 3; // Switch to Budgets tab
         },
       ),
       _QuickActionItem(

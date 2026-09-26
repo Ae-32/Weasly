@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -37,7 +36,6 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
 
   late PaydayFrequency _frequency;
   late DateTime _nextPaydayDate;
-  late TextEditingController _amountController;
   String? _selectedAccountId;
   String? _selectedAccountName;
   int _semiMonthlyDay1 = 15;
@@ -51,7 +49,6 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
     super.initState();
     _frequency = PaydayFrequency.semiMonthly;
     _nextPaydayDate = DateTime.now().add(const Duration(days: 7));
-    _amountController = TextEditingController();
   }
 
   @override
@@ -62,9 +59,6 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
       if (currentSettings != null) {
         _frequency = currentSettings.frequency;
         _nextPaydayDate = currentSettings.nextPaydayDate;
-        _amountController.text = currentSettings.expectedAmount > 0
-            ? currentSettings.expectedAmount.toStringAsFixed(2)
-            : '';
         _selectedAccountId = currentSettings.linkedAccountId;
         _selectedAccountName = currentSettings.linkedAccountName;
         _semiMonthlyDay1 = currentSettings.semiMonthlyDay1 ?? 15;
@@ -77,7 +71,6 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
 
   @override
   void dispose() {
-    _amountController.dispose();
     super.dispose();
   }
 
@@ -114,12 +107,9 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
-
     final newSettings = PaydaySettingsModel(
       frequency: _frequency,
       nextPaydayDate: _nextPaydayDate,
-      expectedAmount: amount,
       linkedAccountId: _selectedAccountId,
       linkedAccountName: _selectedAccountName,
       semiMonthlyDay1: _frequency == PaydayFrequency.semiMonthly ? _semiMonthlyDay1 : null,
@@ -582,59 +572,6 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // 4. EXPECTED AMOUNT
-              Text(
-                'EXPECTED AMOUNT PER PAYDAY',
-                style: GoogleFonts.quicksand(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
-                  letterSpacing: 0.8,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))],
-                decoration: InputDecoration(
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 6),
-                    child: Text(
-                      '₱',
-                      style: GoogleFonts.quicksand(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.accentPrimary,
-                      ),
-                    ),
-                  ),
-                  prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-                  hintText: '0.00',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.borderDefault),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.accentPrimary, width: 2),
-                  ),
-                ),
-                validator: (val) {
-                  if (val == null || val.trim().isEmpty) {
-                    return 'Please enter expected amount';
-                  }
-                  final parsed = double.tryParse(val.trim());
-                  if (parsed == null || parsed <= 0) {
-                    return 'Enter a valid positive amount';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 20),
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../screens/settings/settings_screen.dart';
-import '../screens/statistics/statistics_screen.dart';
 import '../utils/app_colors.dart';
 import 'app_toast.dart';
 
@@ -140,17 +139,10 @@ class WeaslyAppHeader extends ConsumerWidget {
                 const SizedBox(width: 12),
               ],
 
-              // Action Buttons Row (Analytics/Statistics, Notifications, Settings)
+              // Action Buttons Row (Notifications, Settings)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildHeaderIconButton(
-                    icon: Icons.bar_chart_rounded,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const StatisticsScreen()),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
                   _buildHeaderIconButton(
                     icon: Icons.notifications_rounded,
                     onTap: () => _showComingSoonSnackBar(context, 'Notifications'),

@@ -22,6 +22,11 @@ class BottomNavBar extends StatelessWidget {
         unselectedIcon: Icons.home_outlined,
       ),
       const _NavItemData(
+        label: 'Analytics',
+        selectedIcon: Icons.analytics_rounded,
+        unselectedIcon: Icons.analytics_outlined,
+      ),
+      const _NavItemData(
         label: 'Transactions',
         selectedIcon: Icons.receipt_long_rounded,
         unselectedIcon: Icons.receipt_long_outlined,
@@ -69,7 +74,7 @@ class BottomNavBar extends StatelessWidget {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                       decoration: BoxDecoration(
                         color: isSelected ? const Color(0xFFEFD8C2) : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
