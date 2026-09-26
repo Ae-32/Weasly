@@ -5,10 +5,9 @@ import 'package:intl/intl.dart';
 
 import '../../models/payday_settings_model.dart';
 import '../../providers/account_provider.dart';
-import '../../widgets/stash_icon.dart';
-
 import '../../providers/payday_provider.dart';
 import '../../utils/app_colors.dart';
+import '../../widgets/stash_icon.dart';
 import '../../widgets/success_banner.dart';
 
 /// Modal bottom sheet allowing the user to configure or edit their Payday Setup.
@@ -67,11 +66,6 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
       }
       _isInitialized = true;
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   Future<void> _pickDate() async {
@@ -172,7 +166,7 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
 
     return Padding(
       padding: EdgeInsets.only(
-        top: 24.0,
+        top: 12.0,
         left: 20.0,
         right: 20.0,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24.0,
@@ -184,7 +178,20 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
+              // Top Drag Handle Indicator
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.borderDefault,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Header Title & Close Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -211,7 +218,7 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
               ),
               const SizedBox(height: 20),
 
-              // Error banner if any
+              // Error Banner
               if (paydayState.errorMessage != null) ...[
                 Container(
                   width: double.infinity,
@@ -233,51 +240,90 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                 const SizedBox(height: 16),
               ],
 
-              // 1. FREQUENCY SELECTOR
+              // 1. PAYDAY FREQUENCY (Dropdown Selector)
               Text(
-                'PAYDAY FREQUENCY',
+                'Payday Frequency',
                 style: GoogleFonts.quicksand(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
-                  letterSpacing: 0.8,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: PaydayFrequency.values.map((freq) {
-                  final isSelected = _frequency == freq;
-                  return ChoiceChip(
-                    label: Text(freq.displayName),
-                    labelStyle: GoogleFonts.quicksand(
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                      color: isSelected ? Colors.white : AppColors.textPrimary,
-                    ),
-                    selected: isSelected,
-                    selectedColor: AppColors.accentPrimary,
-                    backgroundColor: AppColors.bgBase,
+              const SizedBox(height: 6),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return PopupMenuButton<PaydayFrequency>(
+                    position: PopupMenuPosition.under,
+                    color: AppColors.bgSurface,
+                    elevation: 4,
+                    shadowColor: Colors.black12,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: isSelected ? AppColors.accentPrimary : AppColors.borderDefault,
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(color: AppColors.borderDefault),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: constraints.maxWidth,
+                      maxWidth: constraints.maxWidth,
+                    ),
+                    itemBuilder: (context) {
+                      return PaydayFrequency.values.map((freq) {
+                        final isSelected = _frequency == freq;
+                        return PopupMenuItem<PaydayFrequency>(
+                          value: freq,
+                          height: 44,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  freq.displayName,
+                                  style: GoogleFonts.quicksand(
+                                    fontSize: 14,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                    color: isSelected ? AppColors.accentPrimary : AppColors.textPrimary,
+                                  ),
+                                ),
+                              ),
+                              if (isSelected)
+                                const Icon(Icons.check_rounded, size: 18, color: AppColors.accentPrimary),
+                            ],
+                          ),
+                        );
+                      }).toList();
+                    },
+                    onSelected: (freq) {
+                      setState(() {
+                        _frequency = freq;
+                      });
+                    },
+                    child: Container(
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.borderDefault),
+                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.bgSurface,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _frequency.displayName,
+                            style: GoogleFonts.quicksand(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const Icon(Icons.expand_more, color: AppColors.textMuted, size: 20),
+                        ],
                       ),
                     ),
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() {
-                          _frequency = freq;
-                        });
-                      }
-                    },
                   );
-                }).toList(),
+                },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // 2. SEMI-MONTHLY / MONTHLY DAY PICKERS
+              // 2. DAY PICKER (SEMI-MONTHLY / MONTHLY)
               if (_frequency == PaydayFrequency.semiMonthly) ...[
                 Row(
                   children: [
@@ -288,12 +334,12 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                           Text(
                             '1st Payday Day',
                             style: GoogleFonts.quicksand(
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           LayoutBuilder(
                             builder: (context, constraints) {
                               return PopupMenuButton<int>(
@@ -371,12 +417,12 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                           Text(
                             '2nd Payday Day',
                             style: GoogleFonts.quicksand(
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           LayoutBuilder(
                             builder: (context, constraints) {
                               return PopupMenuButton<int>(
@@ -448,7 +494,7 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
               ] else if (_frequency == PaydayFrequency.monthly) ...[
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,12 +502,12 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                     Text(
                       'Payday Day of Month',
                       style: GoogleFonts.quicksand(
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     LayoutBuilder(
                       builder: (context, constraints) {
                         return PopupMenuButton<int>(
@@ -508,7 +554,7 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                           },
                           child: Container(
                             height: 48,
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
                               border: Border.all(color: AppColors.borderDefault),
                               borderRadius: BorderRadius.circular(12),
@@ -530,30 +576,30 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
               ],
 
-              // 3. NEXT/ANCHOR PAYDAY DATE
+              // 3. START/ANCHOR PAYDAY DATE
               Text(
                 _frequency == PaydayFrequency.custom
-                    ? 'NEXT PAYDAY DATE'
-                    : 'START/ANCHOR PAYDAY DATE',
+                    ? 'Next Payday Date'
+                    : 'Start Payday Date',
                 style: GoogleFonts.quicksand(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
-                  letterSpacing: 0.8,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               InkWell(
                 onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
                   decoration: BoxDecoration(
-                    color: AppColors.bgBase,
+                    color: AppColors.bgSurface,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.borderDefault),
                   ),
@@ -573,19 +619,18 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // 5. LINKED ACCOUNT STASH
+              // 4. LINKED STASH ACCOUNT
               Text(
-                'LINKED STASH ACCOUNT',
+                'Linked Stash Account',
                 style: GoogleFonts.quicksand(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
-                  letterSpacing: 0.8,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               accountsAsync.when(
                 data: (accounts) {
                   final selectedAccount = accounts.where((a) => a.id == _selectedAccountId).firstOrNull;
@@ -670,7 +715,7 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                         },
                         child: Container(
                           height: 48,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
                           decoration: BoxDecoration(
                             border: Border.all(color: AppColors.borderDefault),
                             borderRadius: BorderRadius.circular(12),
@@ -706,7 +751,7 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                   style: GoogleFonts.quicksand(fontSize: 12, color: AppColors.stateError),
                 ),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 24),
 
               // SAVE & CLEAR BUTTONS
               SizedBox(
@@ -715,6 +760,7 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.accentPrimary,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: paydayState.isLoading ? null : _save,
@@ -736,7 +782,7 @@ class _PaydaySetupModalState extends ConsumerState<PaydaySetupModal> {
               ),
 
               if (isConfigured) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Center(
                   child: TextButton(
                     onPressed: paydayState.isLoading ? null : _clear,

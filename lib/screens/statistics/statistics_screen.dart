@@ -8,7 +8,6 @@ import '../../providers/statistics_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/statistics_calculator.dart';
 import '../../widgets/category_icon.dart';
-import '../../widgets/mascot_insight_bubble.dart';
 import '../../widgets/weasly_app_header.dart';
 import 'widgets/cash_flow_line_chart.dart';
 import 'widgets/day_of_week_chart.dart';
@@ -21,7 +20,6 @@ class StatisticsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final activeRange = ref.watch(statisticsTimeRangeProvider);
     final stats = ref.watch(financialStatisticsProvider);
-    final insightMessages = ref.watch(analyticsInsightMessagesProvider);
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final currencyFormatterShort = NumberFormat.currency(symbol: '₱', decimalDigits: 0);
 
@@ -29,28 +27,41 @@ class StatisticsScreen extends ConsumerWidget {
       backgroundColor: AppColors.bgBase,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Bar
-            const WeaslyAppHeader(
-              topLabel: 'FINANCIAL ANALYTICS',
-              title: 'Analytics Overview',
-              subtitle: 'Insights, trends, and spending patterns.',
-              showBackButton: false,
-            ),
+            // Fixed Top Header Bar (Logo Badge & Action Buttons)
+            const WeaslyAppHeader(),
 
-            // Scrollable Analytics Canvas
+            // Scrollable Analytics Canvas Container
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Time Range Filter Bar
-                    _buildTimeRangePicker(ref, activeRange),
+                    // Scrollable Page Title & Subtitle Section
+                    Text(
+                      'Analytics Overview',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF211A16),
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Insights, trends, and spending patterns.',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: const Color(0xFF8A7F73),
+                      ),
+                    ),
                     const SizedBox(height: 16),
 
-                    // Mascot Insight Speech Bubble Banner
-                    MascotInsightBubble(insights: insightMessages),
+                    // Time Range Filter Bar
+                    _buildTimeRangePicker(ref, activeRange),
                     const SizedBox(height: 16),
 
                     // Top KPI Metric Cards Grid
