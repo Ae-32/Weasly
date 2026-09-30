@@ -30,28 +30,34 @@ class DayOfWeekChart extends StatelessWidget {
         maxIdx = i;
       }
     }
-    maxVal = (maxVal * 1.2);
+    maxVal = (maxVal * 1.3);
 
     final currencyFormatter = NumberFormat.compactCurrency(symbol: '₱');
 
     return SizedBox(
-      height: 180,
+      height: 190,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
           maxY: maxVal,
           barTouchData: BarTouchData(
             enabled: true,
+            handleBuiltInTouches: true,
             touchTooltipData: BarTouchTooltipData(
+              getTooltipColor: (group) => Colors.transparent,
+              tooltipPadding: EdgeInsets.zero,
+              tooltipMargin: 4,
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 final day = days[groupIndex];
-                final valStr = NumberFormat.currency(symbol: '₱').format(day.totalExpense);
+                if (day.totalExpense <= 0) return null;
+                final valStr = currencyFormatter.format(day.totalExpense);
+                final isPeak = groupIndex == maxIdx && highest > 0;
                 return BarTooltipItem(
-                  '${day.dayName}\n$valStr',
+                  valStr,
                   GoogleFonts.quicksand(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: isPeak ? FontWeight.w800 : FontWeight.w600,
+                    color: isPeak ? AppColors.accentPrimary : AppColors.textMutedAlt,
                   ),
                 );
               },
@@ -115,11 +121,13 @@ class DayOfWeekChart extends StatelessWidget {
           borderData: FlBorderData(show: false),
           barGroups: List.generate(days.length, (index) {
             final isPeak = index == maxIdx && highest > 0;
+            final day = days[index];
             return BarChartGroupData(
               x: index,
+              showingTooltipIndicators: day.totalExpense > 0 ? [0] : [],
               barRods: [
                 BarChartRodData(
-                  toY: days[index].totalExpense,
+                  toY: day.totalExpense,
                   color: isPeak ? AppColors.accentPrimary : AppColors.accentPrimaryLight,
                   width: 18,
                   borderRadius: const BorderRadius.only(
