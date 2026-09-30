@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
-import '../../models/financial_stats_model.dart';
 import '../../providers/statistics_provider.dart';
 import '../../utils/app_colors.dart';
-import '../../utils/statistics_calculator.dart';
-import '../../widgets/category_icon.dart';
 import '../../widgets/weasly_app_header.dart';
 import 'widgets/cash_flow_line_chart.dart';
 import 'widgets/day_of_week_chart.dart';
@@ -19,7 +15,6 @@ class StatisticsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(financialStatisticsProvider);
-    final currencyFormatterShort = NumberFormat.currency(symbol: '₱', decimalDigits: 0);
 
     return Scaffold(
       backgroundColor: AppColors.bgBase,
@@ -65,10 +60,6 @@ class StatisticsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // Spending by Category Card
-                    _buildCategorySpendingCard(stats, currencyFormatterShort),
-                    const SizedBox(height: 16),
-
                     // Day of Week Behavior Card
                     _buildCardWrapper(
                       title: 'SPENDING BY DAY OF WEEK',
@@ -96,83 +87,6 @@ class StatisticsScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-
-  /// Category Spending breakdown with progress bars
-  Widget _buildCategorySpendingCard(FinancialStatsModel stats, NumberFormat currencyFormatterShort) {
-    return _buildCardWrapper(
-      title: 'EXPENSE BREAKDOWN BY CATEGORY',
-      child: stats.categoryBreakdown.isEmpty
-          ? Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Center(
-                child: Text(
-                  'No expense records found for this period.',
-                  style: GoogleFonts.quicksand(fontSize: 13, color: AppColors.textMuted),
-                ),
-              ),
-            )
-          : Column(
-              children: stats.categoryBreakdown.map((cat) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          CategoryIcon(
-                            categoryName: cat.categoryName,
-                            iconName: cat.iconName,
-                            size: 24,
-                            containerSize: 26,
-                            color: cat.color,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              cat.categoryName,
-                              style: GoogleFonts.quicksand(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: cat.color,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            '${cat.percentage.toStringAsFixed(1)}%',
-                            style: GoogleFonts.quicksand(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textMutedAlt,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            currencyFormatterShort.format(cat.amount),
-                            style: GoogleFonts.quicksand(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: cat.color,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(999),
-                        child: LinearProgressIndicator(
-                          value: (cat.percentage / 100).clamp(0.0, 1.0),
-                          backgroundColor: AppColors.accentPrimaryLight,
-                          color: cat.color,
-                          minHeight: 8,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
     );
   }
 
@@ -214,3 +128,4 @@ class StatisticsScreen extends ConsumerWidget {
     );
   }
 }
+
