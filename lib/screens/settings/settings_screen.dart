@@ -435,11 +435,12 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
 
-              // Log Out Setting Card (Styled in orange palette)
+              // Log Out Setting Card (Styled in Expense Orange palette)
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.bgSurface,
                   borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.borderDefault),
                   boxShadow: const [
                     BoxShadow(
                       color: Color.fromRGBO(43, 36, 32, 0.04),
@@ -453,7 +454,7 @@ class SettingsScreen extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.accentPrimary.withValues(alpha: 0.1),
+                      color: AppColors.accentPrimary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
