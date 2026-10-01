@@ -9,14 +9,25 @@ final statisticsTimeRangeProvider = StateProvider<StatsTimeRange>((ref) {
   return StatsTimeRange.thisMonth;
 });
 
-/// Computed provider calculating financial statistics based on active time range and transactions stream.
+/// StateProvider holding the selected month for past month analytics.
+final statisticsSelectedMonthProvider = StateProvider<DateTime>((ref) {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, 1);
+});
+
+/// Computed provider calculating financial statistics based on active selected month and transactions stream.
 final financialStatisticsProvider = Provider<FinancialStatsModel>((ref) {
   final timeRange = ref.watch(statisticsTimeRangeProvider);
+  final selectedMonth = ref.watch(statisticsSelectedMonthProvider);
   final transactionsAsync = ref.watch(transactionsStreamProvider);
 
   return transactionsAsync.when(
     data: (transactions) {
-      return StatisticsCalculator.computeStats(transactions, timeRange);
+      return StatisticsCalculator.computeStats(
+        transactions,
+        timeRange,
+        selectedMonth: selectedMonth,
+      );
     },
     loading: () => FinancialStatsModel.empty(),
     error: (err, stack) => FinancialStatsModel.empty(),
@@ -27,35 +38,50 @@ final financialStatisticsProvider = Provider<FinancialStatsModel>((ref) {
 final analyticsInsightMessagesProvider = Provider<List<String>>((ref) {
   final stats = ref.watch(financialStatisticsProvider);
   final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 0);
+  final monthLabel = DateFormat('MMMM yyyy').format(stats.selectedMonth);
 
   if (stats.totalIncome == 0 && stats.totalExpense == 0) {
     return [
-      "No financial records found for this period. Start stashing to unlock deep insights!",
-      "Tip: Add your daily expenses or income to track your cash flow trends over time.",
+      "No financial records found for $monthLabel. Start stashing to unlock deep insights!",
+      "Tip: Log your daily expenses to view category breakdowns and cash flow trends.",
     ];
   }
 
   final List<String> messages = [];
 
+  // Month-over-Month Spending Insight
+  if (stats.previousMonthExpense > 0) {
+    final changeAbs = stats.monthOverMonthChangePct.abs().toStringAsFixed(1);
+    if (stats.monthOverMonthChangePct > 0) {
+      messages.add(
+        "In $monthLabel, spending increased by $changeAbs% compared to the previous month.",
+      );
+    } else if (stats.monthOverMonthChangePct < 0) {
+      messages.add(
+        "Great job! In $monthLabel, you spent $changeAbs% less than the previous month!",
+      );
+    }
+  }
+
   // 1. Net Cash Flow
   if (stats.netCashFlow > 0) {
     messages.add(
-      "Awesome! You accumulated ${currencyFormatter.format(stats.netCashFlow)} in positive net cash flow!",
+      "Awesome! You accumulated ${currencyFormatter.format(stats.netCashFlow)} in positive net cash flow for $monthLabel!",
     );
   } else if (stats.netCashFlow < 0) {
     messages.add(
-      "Heads up! Your expenses exceeded income by ${currencyFormatter.format(stats.netCashFlow.abs())}.",
+      "Heads up! Your expenses exceeded income by ${currencyFormatter.format(stats.netCashFlow.abs())} in $monthLabel.",
     );
   } else {
     messages.add(
-      "Your income and expenses balanced out perfectly during this period!",
+      "Your income and expenses balanced out perfectly during $monthLabel!",
     );
   }
 
   // 2. Savings Rate
   if (stats.savingsRate > 0) {
     messages.add(
-      "Your savings rate reached ${stats.savingsRate.toStringAsFixed(1)}% of your total earnings!",
+      "Your savings rate reached ${stats.savingsRate.toStringAsFixed(1)}% of total earnings!",
     );
   }
 

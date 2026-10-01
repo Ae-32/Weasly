@@ -60,6 +60,9 @@ class FinancialStatsModel {
   final List<MonthlyCashFlowPoint> monthlyTrends;
   final List<DayOfWeekStat> dayOfWeekSpending;
   final int totalTransactionCount;
+  final double previousMonthExpense;
+  final double monthOverMonthChangePct;
+  final DateTime selectedMonth;
 
   const FinancialStatsModel({
     required this.totalIncome,
@@ -71,10 +74,13 @@ class FinancialStatsModel {
     required this.monthlyTrends,
     required this.dayOfWeekSpending,
     required this.totalTransactionCount,
+    this.previousMonthExpense = 0.0,
+    this.monthOverMonthChangePct = 0.0,
+    required this.selectedMonth,
   });
 
   factory FinancialStatsModel.empty() {
-    return const FinancialStatsModel(
+    return FinancialStatsModel(
       totalIncome: 0.0,
       totalExpense: 0.0,
       netCashFlow: 0.0,
@@ -84,6 +90,9 @@ class FinancialStatsModel {
       monthlyTrends: [],
       dayOfWeekSpending: [],
       totalTransactionCount: 0,
+      previousMonthExpense: 0.0,
+      monthOverMonthChangePct: 0.0,
+      selectedMonth: DateTime.now(),
     );
   }
 }

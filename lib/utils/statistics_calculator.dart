@@ -69,13 +69,23 @@ class StatisticsCalculator {
     }).toList();
   }
 
-  /// Calculates complete financial statistics from a given list of transactions.
+  /// Calculates complete financial statistics from a given list of transactions for a specific time range or selected target month.
   static FinancialStatsModel computeStats(
     List<TransactionModel> transactions,
     StatsTimeRange timeRange, {
     DateTime? referenceDate,
+    DateTime? selectedMonth,
   }) {
-    final filtered = filterTransactions(transactions, timeRange, referenceDate: referenceDate);
+    final targetMonth = selectedMonth ?? referenceDate ?? DateTime.now();
+    final List<TransactionModel> filtered;
+
+    if (selectedMonth != null) {
+      filtered = transactions.where((tx) {
+        return tx.date.year == selectedMonth.year && tx.date.month == selectedMonth.month;
+      }).toList();
+    } else {
+      filtered = filterTransactions(transactions, timeRange, referenceDate: referenceDate);
+    }
 
     double totalIncome = 0.0;
     double totalExpense = 0.0;
@@ -90,6 +100,24 @@ class StatisticsCalculator {
 
     final netCashFlow = totalIncome - totalExpense;
     final savingsRate = totalIncome > 0 ? ((totalIncome - totalExpense) / totalIncome * 100).clamp(0.0, 100.0) : 0.0;
+
+    // Previous Month calculation for Month-over-Month comparison
+    final prevMonthDate = DateTime(targetMonth.year, targetMonth.month - 1, 1);
+    double prevMonthExpense = 0.0;
+    for (final tx in transactions) {
+      if (tx.type == TransactionType.expense &&
+          tx.date.year == prevMonthDate.year &&
+          tx.date.month == prevMonthDate.month) {
+        prevMonthExpense += tx.amount;
+      }
+    }
+
+    double momChangePct = 0.0;
+    if (prevMonthExpense > 0) {
+      momChangePct = ((totalExpense - prevMonthExpense) / prevMonthExpense) * 100;
+    } else if (totalExpense > 0) {
+      momChangePct = 100.0;
+    }
 
     // 1. Category Breakdown
     final Map<String, ({String name, String icon, String colorHex, double total})> categoryMap = {};
@@ -135,8 +163,8 @@ class StatisticsCalculator {
     categoryBreakdown.sort((a, b) => b.amount.compareTo(a.amount));
     final topCategory = categoryBreakdown.isNotEmpty ? categoryBreakdown.first : null;
 
-    // 2. Monthly Trends (Cash Flow Points)
-    final monthlyTrends = _computeMonthlyTrends(filtered, timeRange, referenceDate: referenceDate);
+    // 2. Monthly Trends (Cash Flow Points ending at targetMonth)
+    final monthlyTrends = _computeMonthlyTrends(transactions, timeRange, referenceDate: targetMonth);
 
     // 3. Day of Week Spending Behavior
     final dayOfWeekSpending = _computeDayOfWeekSpending(filtered);
@@ -151,6 +179,9 @@ class StatisticsCalculator {
       monthlyTrends: monthlyTrends,
       dayOfWeekSpending: dayOfWeekSpending,
       totalTransactionCount: filtered.length,
+      previousMonthExpense: prevMonthExpense,
+      monthOverMonthChangePct: momChangePct,
+      selectedMonth: targetMonth,
     );
   }
 

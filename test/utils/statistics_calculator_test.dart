@@ -82,6 +82,30 @@ void main() {
       expect(stats.topSpendingCategory?.amount, 12000.0);
     });
 
+    test('computeStats handles selectedMonth for past month analytics', () {
+      final statsAug = StatisticsCalculator.computeStats(
+        mockTransactions,
+        StatsTimeRange.thisMonth,
+        selectedMonth: DateTime(2026, 8, 1),
+      );
+
+      expect(statsAug.totalExpense, 5000.0);
+      expect(statsAug.categoryBreakdown.length, 1);
+      expect(statsAug.categoryBreakdown.first.categoryName, 'Food & Dining');
+    });
+
+    test('computeStats calculates month-over-month percentage change correctly', () {
+      final statsSep = StatisticsCalculator.computeStats(
+        mockTransactions,
+        StatsTimeRange.thisMonth,
+        selectedMonth: DateTime(2026, 9, 1),
+      );
+
+      // Aug expense = 5000, Sep expense = 20000 -> MoM change = ((20000 - 5000) / 5000) * 100 = +300%
+      expect(statsSep.previousMonthExpense, 5000.0);
+      expect(statsSep.monthOverMonthChangePct, 300.0);
+    });
+
     test('computeStats handles empty transaction list gracefully', () {
       final stats = StatisticsCalculator.computeStats(
         [],
