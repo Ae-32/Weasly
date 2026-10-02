@@ -19,7 +19,6 @@ class StatisticsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(financialStatisticsProvider);
-    final insights = ref.watch(analyticsInsightMessagesProvider);
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 0);
 
     return Scaffold(
@@ -105,49 +104,6 @@ class StatisticsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // Mascot Insights Section
-                    if (insights.isNotEmpty)
-                      _buildCardWrapper(
-                        title: 'WEASLY MASCOT INSIGHTS',
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: insights.map((msg) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 10.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(top: 2),
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.accentPrimaryLight,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.auto_awesome,
-                                      size: 14,
-                                      color: AppColors.accentPrimary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      msg,
-                                      style: GoogleFonts.quicksand(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.textPrimary,
-                                        height: 1.35,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
                     const SizedBox(height: 24),
                   ],
                 ),
