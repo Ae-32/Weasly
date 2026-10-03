@@ -167,7 +167,7 @@ class StatisticsScreen extends ConsumerWidget {
           child: _buildKpiCard(
             title: 'TOTAL INCOME',
             value: currencyFormatter.format(stats.totalIncome),
-            valueColor: AppColors.accentSecondary,
+            valueColor: AppColors.accentPrimary,
           ),
         ),
       ],
