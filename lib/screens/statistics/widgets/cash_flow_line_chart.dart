@@ -45,9 +45,9 @@ class CashFlowLineChart extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            _buildLegendItem('Income', const Color(0xFF2E7D32)),
+            _buildLegendItem('Income', AppColors.accentPrimary),
             const SizedBox(width: 16),
-            _buildLegendItem('Expense', AppColors.accentPrimary),
+            _buildLegendItem('Expense', const Color(0xFFE8B381)),
           ],
         ),
         const SizedBox(height: 16),
@@ -133,7 +133,7 @@ class CashFlowLineChart extends StatelessWidget {
                         GoogleFonts.quicksand(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: isIncome ? const Color(0xFF81C784) : Colors.white,
+                          color: isIncome ? AppColors.accentPrimary : const Color(0xFFE8B381),
                         ),
                       );
                     }).toList();
@@ -146,11 +146,11 @@ class CashFlowLineChart extends StatelessWidget {
                   spots: incomeSpots,
                   isCurved: true,
                   barWidth: 3,
-                  color: const Color(0xFF2E7D32),
+                  color: AppColors.accentPrimary,
                   dotData: const FlDotData(show: true),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: const Color(0xFF2E7D32).withAlpha((0.1 * 255).round()),
+                    color: AppColors.accentPrimary.withAlpha((0.15 * 255).round()),
                   ),
                 ),
                 // Expense Line
@@ -158,11 +158,11 @@ class CashFlowLineChart extends StatelessWidget {
                   spots: expenseSpots,
                   isCurved: true,
                   barWidth: 3,
-                  color: AppColors.accentPrimary,
+                  color: const Color(0xFFE8B381),
                   dotData: const FlDotData(show: true),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: AppColors.accentPrimary.withAlpha((0.1 * 255).round()),
+                    color: const Color(0xFFE8B381).withAlpha((0.15 * 255).round()),
                   ),
                 ),
               ],
