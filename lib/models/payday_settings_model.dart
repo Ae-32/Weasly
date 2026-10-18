@@ -52,6 +52,7 @@ class PaydaySettingsModel {
   final int? semiMonthlyDay1; // e.g. 15
   final int? semiMonthlyDay2; // e.g. 30
   final int? monthlyDay; // e.g. 15 or 30
+  final bool adjustForWeekends; // Shift Sat/Sun paydays to preceding Friday
   final DateTime? lastConfirmedPaydayDate;
   final DateTime? lastDismissedPaydayDate;
   final DateTime? updatedAt;
@@ -65,10 +66,22 @@ class PaydaySettingsModel {
     this.semiMonthlyDay1,
     this.semiMonthlyDay2,
     this.monthlyDay,
+    this.adjustForWeekends = false,
     this.lastConfirmedPaydayDate,
     this.lastDismissedPaydayDate,
     this.updatedAt,
   });
+
+  /// Adjusts a given date to the preceding Friday if it falls on Saturday or Sunday.
+  static DateTime adjustDateIfWeekend(DateTime date, bool adjust) {
+    if (!adjust) return date;
+    if (date.weekday == DateTime.saturday) {
+      return date.subtract(const Duration(days: 1));
+    } else if (date.weekday == DateTime.sunday) {
+      return date.subtract(const Duration(days: 2));
+    }
+    return date;
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -80,6 +93,7 @@ class PaydaySettingsModel {
       'semiMonthlyDay1': semiMonthlyDay1,
       'semiMonthlyDay2': semiMonthlyDay2,
       'monthlyDay': monthlyDay,
+      'adjustForWeekends': adjustForWeekends,
       'lastConfirmedPaydayDate': lastConfirmedPaydayDate != null
           ? Timestamp.fromDate(lastConfirmedPaydayDate!)
           : null,
@@ -124,6 +138,7 @@ class PaydaySettingsModel {
       semiMonthlyDay1: (map['semiMonthlyDay1'] as num?)?.toInt(),
       semiMonthlyDay2: (map['semiMonthlyDay2'] as num?)?.toInt(),
       monthlyDay: (map['monthlyDay'] as num?)?.toInt(),
+      adjustForWeekends: map['adjustForWeekends'] as bool? ?? false,
       lastConfirmedPaydayDate: parsedLastConfirmed,
       lastDismissedPaydayDate: parsedLastDismissed,
       updatedAt: parsedUpdatedAt,
@@ -138,16 +153,16 @@ class PaydaySettingsModel {
 
     switch (frequency) {
       case PaydayFrequency.weekly:
-        while (target.isBefore(today)) {
+        while (adjustDateIfWeekend(target, adjustForWeekends).isBefore(today)) {
           target = target.add(const Duration(days: 7));
         }
-        return target;
+        return adjustDateIfWeekend(target, adjustForWeekends);
 
       case PaydayFrequency.biWeekly:
-        while (target.isBefore(today)) {
+        while (adjustDateIfWeekend(target, adjustForWeekends).isBefore(today)) {
           target = target.add(const Duration(days: 14));
         }
-        return target;
+        return adjustDateIfWeekend(target, adjustForWeekends);
 
       case PaydayFrequency.semiMonthly:
         int rawD1 = semiMonthlyDay1 ?? 15;
@@ -163,11 +178,13 @@ class PaydaySettingsModel {
           final targetDay1 = d1 > lastDayOfM ? lastDayOfM : d1;
           final targetDay2 = d2 > lastDayOfM ? lastDayOfM : d2;
 
-          final candidate1 = DateTime(year, month, targetDay1);
-          final candidate2 = DateTime(year, month, targetDay2);
+          final c1 = adjustDateIfWeekend(DateTime(year, month, targetDay1), adjustForWeekends);
+          final c2 = adjustDateIfWeekend(DateTime(year, month, targetDay2), adjustForWeekends);
 
-          if (!candidate1.isBefore(today)) return candidate1;
-          if (!candidate2.isBefore(today)) return candidate2;
+          final candidates = <DateTime>{c1, c2}.toList()..sort((a, b) => a.compareTo(b));
+          for (final c in candidates) {
+            if (!c.isBefore(today)) return c;
+          }
 
           month++;
           if (month > 12) {
@@ -175,7 +192,7 @@ class PaydaySettingsModel {
             year++;
           }
         }
-        return target;
+        return adjustDateIfWeekend(target, adjustForWeekends);
 
       case PaydayFrequency.monthly:
         final d = monthlyDay ?? nextPaydayDate.day;
@@ -185,7 +202,7 @@ class PaydaySettingsModel {
         for (int i = 0; i < 24; i++) {
           final lastDayOfM = DateTime(year, month + 1, 0).day;
           final targetDay = d > lastDayOfM ? lastDayOfM : d;
-          final candidate = DateTime(year, month, targetDay);
+          final candidate = adjustDateIfWeekend(DateTime(year, month, targetDay), adjustForWeekends);
 
           if (!candidate.isBefore(today)) return candidate;
 
@@ -195,10 +212,10 @@ class PaydaySettingsModel {
             year++;
           }
         }
-        return target;
+        return adjustDateIfWeekend(target, adjustForWeekends);
 
       case PaydayFrequency.custom:
-        return target;
+        return adjustDateIfWeekend(target, adjustForWeekends);
     }
   }
 
@@ -211,6 +228,7 @@ class PaydaySettingsModel {
     int? semiMonthlyDay1,
     int? semiMonthlyDay2,
     int? monthlyDay,
+    bool? adjustForWeekends,
     DateTime? lastConfirmedPaydayDate,
     DateTime? lastDismissedPaydayDate,
     DateTime? updatedAt,
@@ -224,6 +242,7 @@ class PaydaySettingsModel {
       semiMonthlyDay1: semiMonthlyDay1 ?? this.semiMonthlyDay1,
       semiMonthlyDay2: semiMonthlyDay2 ?? this.semiMonthlyDay2,
       monthlyDay: monthlyDay ?? this.monthlyDay,
+      adjustForWeekends: adjustForWeekends ?? this.adjustForWeekends,
       lastConfirmedPaydayDate: lastConfirmedPaydayDate ?? this.lastConfirmedPaydayDate,
       lastDismissedPaydayDate: lastDismissedPaydayDate ?? this.lastDismissedPaydayDate,
       updatedAt: updatedAt ?? this.updatedAt,
