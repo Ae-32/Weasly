@@ -1,9 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import '../../../models/financial_stats_model.dart';
 import '../../../utils/app_colors.dart';
+import '../../../utils/chart_utils.dart';
 
 class DayOfWeekChart extends StatelessWidget {
   final List<DayOfWeekStat> days;
@@ -19,27 +19,28 @@ class DayOfWeekChart extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    double maxVal = 100.0;
     int maxIdx = -1;
     double highest = -1;
 
     for (int i = 0; i < days.length; i++) {
-      if (days[i].totalExpense > maxVal) maxVal = days[i].totalExpense;
       if (days[i].totalExpense > highest) {
         highest = days[i].totalExpense;
         maxIdx = i;
       }
     }
-    maxVal = (maxVal * 1.3);
 
-    final currencyFormatter = NumberFormat.compactCurrency(symbol: '₱');
+    final axisConfig = ChartAxisHelper.computeNiceYAxis(
+      maxValue: highest > 0 ? highest : 0,
+      targetSteps: 4,
+    );
 
     return SizedBox(
       height: 190,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: maxVal,
+          minY: 0,
+          maxY: axisConfig.maxY,
           barTouchData: BarTouchData(
             enabled: true,
             handleBuiltInTouches: true,
@@ -50,7 +51,7 @@ class DayOfWeekChart extends StatelessWidget {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 final day = days[groupIndex];
                 if (day.totalExpense <= 0) return null;
-                final valStr = currencyFormatter.format(day.totalExpense);
+                final valStr = formatCompactCurrency(day.totalExpense);
                 final isPeak = groupIndex == maxIdx && highest > 0;
                 return BarTooltipItem(
                   valStr,
@@ -70,11 +71,14 @@ class DayOfWeekChart extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 40,
-                interval: maxVal > 0 ? maxVal / 3 : 100,
+                reservedSize: 42,
+                interval: axisConfig.interval,
                 getTitlesWidget: (value, meta) {
+                  if (value < -0.01 || value > axisConfig.maxY + 0.01) {
+                    return const SizedBox.shrink();
+                  }
                   return Text(
-                    currencyFormatter.format(value),
+                    formatCompactCurrency(value),
                     style: GoogleFonts.quicksand(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -111,7 +115,7 @@ class DayOfWeekChart extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            horizontalInterval: maxVal > 0 ? maxVal / 3 : 100,
+            horizontalInterval: axisConfig.interval,
             getDrawingHorizontalLine: (value) => const FlLine(
               color: Color(0xFFEDE0D9),
               strokeWidth: 1,

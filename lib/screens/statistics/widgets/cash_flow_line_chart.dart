@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../models/financial_stats_model.dart';
 import '../../../utils/app_colors.dart';
+import '../../../utils/chart_utils.dart';
 
 class CashFlowLineChart extends StatelessWidget {
   final List<MonthlyCashFlowPoint> points;
@@ -27,14 +28,16 @@ class CashFlowLineChart extends StatelessWidget {
       );
     }
 
-    final currencyFormatter = NumberFormat.compactCurrency(symbol: '₱');
-
-    double maxVal = 1000.0;
+    double maxVal = 0.0;
     for (final p in points) {
       if (p.income > maxVal) maxVal = p.income;
       if (p.expense > maxVal) maxVal = p.expense;
     }
-    maxVal = (maxVal * 1.15); // Padding top headroom
+
+    final axisConfig = ChartAxisHelper.computeNiceYAxis(
+      maxValue: maxVal,
+      targetSteps: 4,
+    );
 
     final incomeSpots = List.generate(points.length, (i) => FlSpot(i.toDouble(), points[i].income));
     final expenseSpots = List.generate(points.length, (i) => FlSpot(i.toDouble(), points[i].expense));
@@ -59,7 +62,7 @@ class CashFlowLineChart extends StatelessWidget {
               gridData: FlGridData(
                 show: true,
                 drawVerticalLine: false,
-                horizontalInterval: maxVal > 0 ? maxVal / 4 : 1000,
+                horizontalInterval: axisConfig.interval,
                 getDrawingHorizontalLine: (value) {
                   return const FlLine(
                     color: Color(0xFFEDE0D9),
@@ -76,11 +79,13 @@ class CashFlowLineChart extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: 42,
-                    interval: maxVal > 0 ? maxVal / 4 : 1000,
+                    interval: axisConfig.interval,
                     getTitlesWidget: (value, meta) {
-                      if (value < 0) return const SizedBox.shrink();
+                      if (value < -0.01 || value > axisConfig.maxY + 0.01) {
+                        return const SizedBox.shrink();
+                      }
                       return Text(
-                        currencyFormatter.format(value),
+                        formatCompactCurrency(value),
                         style: GoogleFonts.quicksand(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -119,7 +124,7 @@ class CashFlowLineChart extends StatelessWidget {
               minX: 0,
               maxX: (points.length - 1).toDouble().clamp(0, 100),
               minY: 0,
-              maxY: maxVal,
+              maxY: axisConfig.maxY,
               lineTouchData: LineTouchData(
                 enabled: true,
                 touchTooltipData: LineTouchTooltipData(
