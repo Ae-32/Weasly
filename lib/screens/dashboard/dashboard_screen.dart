@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../models/transaction_model.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/balance_visibility_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/home_nav_provider.dart';
 import '../../utils/app_colors.dart';
@@ -40,6 +41,7 @@ class DashboardScreen extends ConsumerWidget {
     final accountsAsync = ref.watch(accountsStreamProvider);
     final totalBalance = ref.watch(totalBalanceProvider);
     final accountsCount = accountsAsync.value?.length ?? 0;
+    final isBalanceHidden = ref.watch(balanceVisibilityProvider);
 
     // Dashboard Redesign Providers
     final activePeriod = ref.watch(dashboardPeriodProvider);
@@ -87,7 +89,14 @@ class DashboardScreen extends ConsumerWidget {
                           const PaydayReminderBanner(),
 
                           // 2. Total Balance Summary Card (Overlapping Top-Right Mascot)
-                          _buildTotalBalanceCard(totalBalance, accountsCount, currencyFormatter),
+                          _buildTotalBalanceCard(
+                            totalBalance,
+                            accountsCount,
+                            currencyFormatter,
+                            isBalanceHidden: isBalanceHidden,
+                            onToggleVisibility: () =>
+                                ref.read(balanceVisibilityProvider.notifier).toggle(),
+                          ),
                           const SizedBox(height: 20),
 
 
@@ -140,8 +149,10 @@ class DashboardScreen extends ConsumerWidget {
   Widget _buildTotalBalanceCard(
     double totalBalance,
     int accountsCount,
-    NumberFormat currencyFormatter,
-  ) {
+    NumberFormat currencyFormatter, {
+    required bool isBalanceHidden,
+    required VoidCallback onToggleVisibility,
+  }) {
     return Container(
       margin: const EdgeInsets.only(top: 30),
       child: Stack(
@@ -171,24 +182,52 @@ class DashboardScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Total Balance',
-                        style: GoogleFonts.quicksand(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textMuted,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Total Balance',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          GestureDetector(
+                            onTap: onToggleVisibility,
+                            behavior: HitTestBehavior.opaque,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                              child: Icon(
+                                isBalanceHidden
+                                    ? Icons.visibility_off_rounded
+                                    : Icons.visibility_rounded,
+                                size: 16,
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 1),
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
-                        child: Text(
-                          currencyFormatter.format(totalBalance),
-                          style: GoogleFonts.quicksand(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.accentPrimary,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          transitionBuilder: (child, animation) =>
+                              FadeTransition(opacity: animation, child: child),
+                          child: Text(
+                            isBalanceHidden
+                                ? '${currencyFormatter.currencySymbol} $kHiddenBalanceMask'
+                                : currencyFormatter.format(totalBalance),
+                            key: ValueKey<bool>(isBalanceHidden),
+                            style: GoogleFonts.quicksand(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.accentPrimary,
+                            ),
                           ),
                         ),
                       ),

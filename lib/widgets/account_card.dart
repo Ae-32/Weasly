@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/account_model.dart';
+import '../providers/balance_visibility_provider.dart';
 import '../utils/app_colors.dart';
 import 'stash_icon.dart';
 
 /// Reusable Stash/Account Row component matching Figma CSS & design-reference specifications.
-class AccountCard extends StatelessWidget {
+class AccountCard extends ConsumerWidget {
   final AccountModel account;
   final double totalBalance;
+  final bool? isBalanceHidden;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -17,6 +20,7 @@ class AccountCard extends StatelessWidget {
     super.key,
     required this.account,
     required this.totalBalance,
+    this.isBalanceHidden,
     this.onTap,
     this.onEdit,
     this.onDelete,
@@ -89,10 +93,11 @@ class AccountCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final (iconData, accentColor, bgOverlay, defaultSubtitle) = _getAccountStyle();
     final pct = totalBalance > 0 ? (account.balance / totalBalance).clamp(0.0, 1.0) : 0.0;
+    final bool hideBalance = isBalanceHidden ?? ref.watch(balanceVisibilityProvider);
 
     final Widget iconWidget = StashIcon.fromAccount(account, size: 34);
 
@@ -136,20 +141,30 @@ class AccountCard extends StatelessWidget {
                 ),
               ),
 
-              // Balance (Highlighted red if negative)
+              // Balance (Highlighted red if negative and not hidden)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    currencyFormatter.format(account.balance),
-                    style: GoogleFonts.quicksand(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: account.balance < 0 ? AppColors.stateError : accentColor,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    transitionBuilder: (child, animation) =>
+                        FadeTransition(opacity: animation, child: child),
+                    child: Text(
+                      hideBalance
+                          ? '${currencyFormatter.currencySymbol} $kHiddenBalanceMask'
+                          : currencyFormatter.format(account.balance),
+                      key: ValueKey<bool>(hideBalance),
+                      style: GoogleFonts.quicksand(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: (account.balance < 0 && !hideBalance)
+                            ? AppColors.stateError
+                            : accentColor,
+                      ),
                     ),
                   ),
-                  if (account.balance < 0) ...[
+                  if (account.balance < 0 && !hideBalance) ...[
                     const SizedBox(height: 2),
                     Text(
                       'Needs Adjustment',

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/account_model.dart';
 import '../../providers/account_provider.dart';
+import '../../providers/balance_visibility_provider.dart';
 import '../../providers/payday_provider.dart';
 import '../../utils/app_colors.dart';
 
@@ -208,6 +209,7 @@ class AccountsScreen extends ConsumerWidget {
     double totalBalance,
     NumberFormat currencyFormatter,
   ) {
+    final isBalanceHidden = ref.watch(balanceVisibilityProvider);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -302,24 +304,54 @@ class AccountsScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Total Balance',
-                            style: GoogleFonts.quicksand(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF8A7F73),
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Total Balance',
+                                style: GoogleFonts.quicksand(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: const Color(0xFF8A7F73),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              GestureDetector(
+                                onTap: () =>
+                                    ref.read(balanceVisibilityProvider.notifier).toggle(),
+                                behavior: HitTestBehavior.opaque,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4.0, vertical: 2.0),
+                                  child: Icon(
+                                    isBalanceHidden
+                                        ? Icons.visibility_off_rounded
+                                        : Icons.visibility_rounded,
+                                    size: 18,
+                                    color: const Color(0xFF8A7F73),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 2),
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             alignment: Alignment.centerLeft,
-                            child: Text(
-                              currencyFormatter.format(totalBalance),
-                              style: GoogleFonts.quicksand(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.accentPrimary,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(opacity: animation, child: child),
+                              child: Text(
+                                isBalanceHidden
+                                    ? '${currencyFormatter.currencySymbol} $kHiddenBalanceMask'
+                                    : currencyFormatter.format(totalBalance),
+                                key: ValueKey<bool>(isBalanceHidden),
+                                style: GoogleFonts.quicksand(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.accentPrimary,
+                                ),
                               ),
                             ),
                           ),
@@ -376,6 +408,7 @@ class AccountsScreen extends ConsumerWidget {
                 return AccountCard(
                   account: acc,
                   totalBalance: totalBalance,
+                  isBalanceHidden: isBalanceHidden,
                   onEdit: () => _showAccountDialog(context, ref, acc),
                   onDelete: () => _confirmDelete(context, ref, acc),
                 );

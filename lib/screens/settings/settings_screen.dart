@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../providers/balance_visibility_provider.dart';
 import '../../providers/biometric_provider.dart';
 import '../../providers/payday_provider.dart';
 import '../../providers/pin_provider.dart';
@@ -38,6 +39,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isBiometricEnabled = ref.watch(biometricEnabledProvider);
     final isPinSet = ref.watch(isPinSetProvider);
+    final isBalanceHidden = ref.watch(balanceVisibilityProvider);
     final paydaySettings = ref.watch(paydaySettingsStreamProvider).value;
 
 
@@ -143,6 +145,67 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
 
+              // Hide Account Balances Setting Card
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.bgSurface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.borderDefault),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: SwitchListTile(
+                  value: isBalanceHidden,
+                  onChanged: (val) async {
+                    await ref
+                        .read(balanceVisibilityProvider.notifier)
+                        .setHideBalance(val);
+                    if (context.mounted) {
+                      SuccessBanner.show(
+                        context,
+                        val ? 'Account balances hidden!' : 'Account balances visible!',
+                      );
+                    }
+                  },
+                  activeThumbColor: AppColors.accentPrimary,
+                  secondary: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentPrimaryLight.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      isBalanceHidden
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
+                      color: AppColors.accentPrimary,
+                      size: 22,
+                    ),
+                  ),
+                  title: Text(
+                    'Hide Account Balances',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Conceal balance amounts across dashboard and accounts screens',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 12,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
 
               // Biometric Lock Setting Card
               Container(
