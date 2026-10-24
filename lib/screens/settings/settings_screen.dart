@@ -34,72 +34,12 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
-  Widget _buildThemeOption(
-    BuildContext context,
-    WidgetRef ref, {
-    required ThemeMode mode,
-    required ThemeMode activeMode,
-    required IconData icon,
-    required String label,
-  }) {
-    final colors = context.colors;
-    final isSelected = mode == activeMode;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          ref.read(themeModeProvider.notifier).setThemeMode(mode);
-        },
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? colors.accentPrimary : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: colors.accentPrimary.withValues(alpha: 0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 16,
-                color: isSelected
-                    ? (context.isDarkMode ? colors.bgBase : Colors.white)
-                    : colors.textMuted,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: GoogleFonts.quicksand(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  color: isSelected
-                      ? (context.isDarkMode ? colors.bgBase : Colors.white)
-                      : colors.textMuted,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final themeMode = ref.watch(themeModeProvider);
+    final isDark = themeMode == ThemeMode.dark ||
+        (themeMode == ThemeMode.system && context.isDarkMode);
     final isBiometricEnabled = ref.watch(biometricEnabledProvider);
     final isPinSet = ref.watch(isPinSetProvider);
     final isBalanceHidden = ref.watch(balanceVisibilityProvider);
@@ -221,97 +161,52 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: colors.accentPrimaryLight.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            themeMode == ThemeMode.dark
-                                ? Icons.dark_mode_rounded
-                                : (themeMode == ThemeMode.light
-                                    ? Icons.light_mode_rounded
-                                    : Icons.brightness_auto_rounded),
-                            color: colors.accentPrimary,
-                            size: 22,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Theme Mode',
-                                style: GoogleFonts.quicksand(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.textPrimary,
-                                ),
-                              ),
-                              Text(
-                                themeMode == ThemeMode.system
-                                    ? 'Follows device system settings'
-                                    : (themeMode == ThemeMode.dark
-                                        ? 'Warm Espresso dark palette'
-                                        : 'Warm Cream light palette'),
-                                style: GoogleFonts.quicksand(
-                                  fontSize: 12,
-                                  color: colors.textMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                child: SwitchListTile(
+                  value: isDark,
+                  onChanged: (val) async {
+                    await ref
+                        .read(themeModeProvider.notifier)
+                        .setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+                    if (context.mounted) {
+                      SuccessBanner.show(
+                        context,
+                        val ? 'Dark mode enabled!' : 'Light mode enabled!',
+                      );
+                    }
+                  },
+                  activeThumbColor: colors.accentPrimary,
+                  secondary: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: colors.accentPrimaryLight.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(height: 14),
-                    // 3-way Segmented Control (System, Light, Dark)
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: colors.bgBase,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: colors.borderDefault),
-                      ),
-                      child: Row(
-                        children: [
-                          _buildThemeOption(
-                            context,
-                            ref,
-                            mode: ThemeMode.system,
-                            activeMode: themeMode,
-                            icon: Icons.brightness_auto_rounded,
-                            label: 'System',
-                          ),
-                          _buildThemeOption(
-                            context,
-                            ref,
-                            mode: ThemeMode.light,
-                            activeMode: themeMode,
-                            icon: Icons.light_mode_rounded,
-                            label: 'Light',
-                          ),
-                          _buildThemeOption(
-                            context,
-                            ref,
-                            mode: ThemeMode.dark,
-                            activeMode: themeMode,
-                            icon: Icons.dark_mode_rounded,
-                            label: 'Dark',
-                          ),
-                        ],
-                      ),
+                    child: Icon(
+                      isDark
+                          ? Icons.dark_mode_rounded
+                          : Icons.light_mode_rounded,
+                      color: colors.accentPrimary,
+                      size: 22,
                     ),
-                  ],
+                  ),
+                  title: Text(
+                    'Dark Mode',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  subtitle: Text(
+                    isDark
+                        ? 'Warm Espresso dark palette'
+                        : 'Warm Cream light palette',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 12,
+                      color: colors.textMuted,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
