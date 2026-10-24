@@ -90,27 +90,28 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(categoriesStreamProvider);
+    final colors = context.colors;
 
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: colors.bgBase,
       appBar: AppBar(
-        backgroundColor: AppColors.bgSurface,
+        backgroundColor: colors.bgSurface,
         elevation: 0,
         centerTitle: false,
-        title: const Text(
+        title: Text(
           'Categories',
           style: TextStyle(
             fontFamily: 'Quicksand',
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: AppColors.onSurface,
+            color: colors.textPrimary,
           ),
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppColors.primary,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textMuted,
+          indicatorColor: AppColors.accentPrimary,
+          labelColor: AppColors.accentPrimary,
+          unselectedLabelColor: colors.textMuted,
           labelStyle: const TextStyle(
             fontFamily: 'Quicksand',
             fontWeight: FontWeight.bold,
@@ -124,14 +125,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => AddEditCategoryModal.show(context),
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add, color: AppColors.onPrimary),
+        backgroundColor: AppColors.accentPrimary,
+        icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
           'New Category',
           style: TextStyle(
             fontFamily: 'Quicksand',
             fontWeight: FontWeight.bold,
-            color: AppColors.onPrimary,
+            color: Colors.white,
           ),
         ),
       ),
@@ -151,13 +152,13 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
           return TabBarView(
             controller: _tabController,
             children: [
-              _buildCategoryList(expenseList, 'No expense categories found.'),
-              _buildCategoryList(incomeList, 'No income categories found.'),
+              _buildCategoryList(expenseList, 'No expense categories found.', colors),
+              _buildCategoryList(incomeList, 'No income categories found.', colors),
             ],
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
+          child: CircularProgressIndicator(color: AppColors.accentPrimary),
         ),
         error: (error, _) => Center(
           child: Padding(
@@ -173,20 +174,24 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
     );
   }
 
-  Widget _buildCategoryList(List<CategoryModel> categories, String emptyMessage) {
+  Widget _buildCategoryList(
+    List<CategoryModel> categories,
+    String emptyMessage,
+    AppColorsExtension colors,
+  ) {
     if (categories.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.category_outlined, size: 64, color: AppColors.textMuted.withValues(alpha: 0.5)),
+            Icon(Icons.category_outlined, size: 64, color: colors.textMuted.withValues(alpha: 0.5)),
             const SizedBox(height: 12),
             Text(
               emptyMessage,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Quicksand',
                 fontSize: 16,
-                color: AppColors.textMuted,
+                color: colors.textMuted,
               ),
             ),
           ],
@@ -204,10 +209,10 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           elevation: 0,
-          color: AppColors.bgSurface,
+          color: colors.bgSurface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: AppColors.borderDefault),
+            side: BorderSide(color: colors.borderDefault),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -244,11 +249,11 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
                           Flexible(
                             child: Text(
                               category.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Quicksand',
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.onSurface,
+                                color: colors.textPrimary,
                               ),
                             ),
                           ),
@@ -257,16 +262,16 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppColors.surfaceContainerHigh,
+                                color: colors.iconButtonBg,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Preset',
                                 style: TextStyle(
                                   fontFamily: 'Quicksand',
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.textMuted,
+                                  color: colors.textMuted,
                                 ),
                               ),
                             ),
@@ -283,7 +288,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
                     context,
                     categoryToEdit: category,
                   ),
-                  icon: const Icon(Icons.edit_outlined, color: AppColors.textMuted, size: 20),
+                  icon: Icon(Icons.edit_outlined, color: colors.textMuted, size: 20),
                   tooltip: 'Edit Category',
                 ),
 
@@ -295,7 +300,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen>
                   icon: Icon(
                     Icons.delete_outline,
                     color: category.isDefault
-                        ? AppColors.borderDefault
+                        ? colors.borderDefault
                         : AppColors.error,
                     size: 20,
                   ),

@@ -19,6 +19,8 @@ class DayOfWeekChart extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final colors = context.colors;
+
     int maxIdx = -1;
     double highest = -1;
 
@@ -58,7 +60,7 @@ class DayOfWeekChart extends StatelessWidget {
                   GoogleFonts.quicksand(
                     fontSize: 10,
                     fontWeight: isPeak ? FontWeight.w800 : FontWeight.w600,
-                    color: isPeak ? AppColors.accentPrimary : AppColors.textMutedAlt,
+                    color: isPeak ? AppColors.accentPrimary : colors.textMuted,
                   ),
                 );
               },
@@ -82,7 +84,7 @@ class DayOfWeekChart extends StatelessWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textMutedAlt,
+                      color: colors.textMuted,
                     ),
                   );
                 },
@@ -102,7 +104,7 @@ class DayOfWeekChart extends StatelessWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 11,
                           fontWeight: isPeak ? FontWeight.w800 : FontWeight.w600,
-                          color: isPeak ? AppColors.accentPrimary : AppColors.textMuted,
+                          color: isPeak ? AppColors.accentPrimary : colors.textMuted,
                         ),
                       ),
                     );
@@ -116,10 +118,10 @@ class DayOfWeekChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             horizontalInterval: axisConfig.interval,
-            getDrawingHorizontalLine: (value) => const FlLine(
-              color: Color(0xFFEDE0D9),
+            getDrawingHorizontalLine: (value) => FlLine(
+              color: colors.borderDefault.withValues(alpha: 0.6),
               strokeWidth: 1,
-              dashArray: [4, 4],
+              dashArray: const [4, 4],
             ),
           ),
           borderData: FlBorderData(show: false),
@@ -132,7 +134,7 @@ class DayOfWeekChart extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: day.totalExpense,
-                  color: isPeak ? AppColors.accentPrimary : AppColors.accentPrimaryLight,
+                  color: isPeak ? AppColors.accentPrimary : colors.accentPrimaryLight,
                   width: 18,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(6),

@@ -13,6 +13,7 @@ class MonthSelectorHeader extends ConsumerWidget {
     final selectedMonth = ref.watch(statisticsSelectedMonthProvider);
     final now = DateTime.now();
     final isCurrentMonth = selectedMonth.year == now.year && selectedMonth.month == now.month;
+    final colors = context.colors;
 
     void selectMonth(DateTime newMonth) {
       ref.read(statisticsSelectedMonthProvider.notifier).state = DateTime(newMonth.year, newMonth.month, 1);
@@ -36,11 +37,16 @@ class MonthSelectorHeader extends ConsumerWidget {
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.light(
+              colorScheme: ColorScheme(
+                brightness: context.isDarkMode ? Brightness.dark : Brightness.light,
                 primary: AppColors.accentPrimary,
                 onPrimary: Colors.white,
-                surface: AppColors.bgSurface,
-                onSurface: AppColors.textPrimary,
+                surface: colors.bgSurface,
+                onSurface: colors.textPrimary,
+                error: AppColors.stateError,
+                onError: Colors.white,
+                secondary: AppColors.accentSecondary,
+                onSecondary: Colors.white,
               ),
             ),
             child: child!,
@@ -59,16 +65,10 @@ class MonthSelectorHeader extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: colors.bgSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderDefault),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.04),
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: colors.borderDefault),
+        boxShadow: [colors.cardBoxShadow],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -77,7 +77,7 @@ class MonthSelectorHeader extends ConsumerWidget {
           IconButton(
             onPressed: prevMonth,
             icon: const Icon(Icons.chevron_left_rounded),
-            color: AppColors.textPrimary,
+            color: colors.textPrimary,
             tooltip: 'Previous Month',
             splashRadius: 20,
           ),
@@ -99,14 +99,14 @@ class MonthSelectorHeader extends ConsumerWidget {
                   style: GoogleFonts.quicksand(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    color: colors.textPrimary,
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(
+                Icon(
                   Icons.arrow_drop_down_rounded,
                   size: 20,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                 ),
               ],
             ),
@@ -125,7 +125,7 @@ class MonthSelectorHeader extends ConsumerWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.accentPrimaryLight.withAlpha(120),
+                        color: colors.accentPrimaryLight,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -142,7 +142,7 @@ class MonthSelectorHeader extends ConsumerWidget {
               IconButton(
                 onPressed: nextMonth,
                 icon: const Icon(Icons.chevron_right_rounded),
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
                 tooltip: 'Next Month',
                 splashRadius: 20,
               ),

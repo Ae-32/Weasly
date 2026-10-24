@@ -94,6 +94,7 @@ class AccountCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final (iconData, accentColor, bgOverlay, defaultSubtitle) = _getAccountStyle();
     final pct = totalBalance > 0 ? (account.balance / totalBalance).clamp(0.0, 1.0) : 0.0;
@@ -132,7 +133,7 @@ class AccountCard extends ConsumerWidget {
                       style: GoogleFonts.quicksand(
                         fontSize: 11,
                         fontWeight: FontWeight.w400,
-                        color: const Color(0xFF8A7F73),
+                        color: colors.textMuted,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -181,7 +182,8 @@ class AccountCard extends ConsumerWidget {
               // Popup Menu for Edit / Delete
               if (onEdit != null || onDelete != null)
                 PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF8A7F73), size: 18),
+                  icon: Icon(Icons.more_vert_rounded, color: colors.textMuted, size: 18),
+                  color: colors.bgSurface,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -194,13 +196,13 @@ class AccountCard extends ConsumerWidget {
                   },
                   itemBuilder: (context) => [
                     if (onEdit != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'edit',
                         child: Row(
                           children: [
-                            Icon(Icons.edit_rounded, size: 16, color: AppColors.textPrimary),
-                            SizedBox(width: 8),
-                            Text('Edit Stash'),
+                            Icon(Icons.edit_rounded, size: 16, color: colors.textPrimary),
+                            const SizedBox(width: 8),
+                            Text('Edit Stash', style: TextStyle(color: colors.textPrimary)),
                           ],
                         ),
                       ),
@@ -226,7 +228,7 @@ class AccountCard extends ConsumerWidget {
             borderRadius: BorderRadius.circular(9999),
             child: LinearProgressIndicator(
               value: pct,
-              backgroundColor: const Color.fromRGBO(43, 105, 78, 0.08),
+              backgroundColor: colors.iconButtonBg,
               color: accentColor,
               minHeight: 6,
             ),

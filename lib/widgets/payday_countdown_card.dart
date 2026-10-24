@@ -19,6 +19,8 @@ class PaydayCountdownCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final isDark = context.isDarkMode;
     final dateFormatter = DateFormat('MMM. dd');
 
     // Case 1: Unconfigured Payday Setup (Empty State)
@@ -34,19 +36,18 @@ class PaydayCountdownCard extends StatelessWidget {
               padding: const EdgeInsets.only(left: 110, right: 16, top: 12, bottom: 12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
-                  colors: [
-                    Color(0xFFF9F6F1),
-                    Color(0xFFEFD8C2),
-                  ],
+                  colors: isDark
+                      ? const [Color(0xFF26221E), Color(0xFF332B25)]
+                      : const [Color(0xFFF9F6F1), Color(0xFFEFD8C2)],
                 ),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: Color.fromRGBO(43, 36, 32, 0.04),
+                    color: colors.cardShadow,
                     blurRadius: 12,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -138,20 +139,19 @@ class PaydayCountdownCard extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 110, right: 16, top: 12, bottom: 12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
-                    colors: [
-                      Color(0xFFFFF4EC),
-                      Color(0xFFFBE4D2),
-                    ],
+                    colors: isDark
+                        ? const [Color(0xFF26221E), Color(0xFF332B25)]
+                        : const [Color(0xFFFFF4EC), Color(0xFFFBE4D2)],
                   ),
-                  border: Border.all(color: AppColors.accentPrimary.withValues(alpha: 0.4)),
-                  boxShadow: const [
+                  border: Border.all(color: colors.accentPrimary.withValues(alpha: 0.4)),
+                  boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      color: colors.cardShadow,
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -225,19 +225,18 @@ class PaydayCountdownCard extends StatelessWidget {
               padding: const EdgeInsets.only(left: 120, right: 16, top: 8, bottom: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
-                  colors: [
-                    Color(0xFFF9F6F1),
-                    Color(0xFFEFD8C2),
-                  ],
+                  colors: isDark
+                      ? const [Color(0xFF26221E), Color(0xFF332B25)]
+                      : const [Color(0xFFF9F6F1), Color(0xFFEFD8C2)],
                 ),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: Color.fromRGBO(43, 36, 32, 0.04),
+                    color: colors.cardShadow,
                     blurRadius: 12,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),

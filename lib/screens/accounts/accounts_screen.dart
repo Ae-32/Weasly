@@ -78,9 +78,10 @@ class AccountsScreen extends ConsumerWidget {
     final totalBalance = ref.watch(totalBalanceProvider);
     final paydayInfo = ref.watch(paydayCountdownProvider);
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
+    final colors = context.colors;
 
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: colors.bgBase,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +103,7 @@ class AccountsScreen extends ConsumerWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 26,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF211A16),
+                          color: colors.textPrimary,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -112,7 +113,7 @@ class AccountsScreen extends ConsumerWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF8A7F73),
+                          color: colors.textMuted,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -132,7 +133,7 @@ class AccountsScreen extends ConsumerWidget {
                           style: GoogleFonts.quicksand(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF211A16),
+                            color: colors.textPrimary,
                           ),
                         ),
                         Row(
@@ -209,18 +210,19 @@ class AccountsScreen extends ConsumerWidget {
     double totalBalance,
     NumberFormat currencyFormatter,
   ) {
+    final colors = context.colors;
     final isBalanceHidden = ref.watch(balanceVisibilityProvider);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: colors.bgSurface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.04),
+            color: colors.cardShadow,
             blurRadius: 12,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),

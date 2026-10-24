@@ -16,13 +16,15 @@ class CashFlowLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     if (points.isEmpty) {
       return SizedBox(
         height: 180,
         child: Center(
           child: Text(
             'No data available for selected period',
-            style: GoogleFonts.quicksand(fontSize: 13, color: AppColors.textMuted),
+            style: GoogleFonts.quicksand(fontSize: 13, color: colors.textMuted),
           ),
         ),
       );
@@ -42,15 +44,17 @@ class CashFlowLineChart extends StatelessWidget {
     final incomeSpots = List.generate(points.length, (i) => FlSpot(i.toDouble(), points[i].income));
     final expenseSpots = List.generate(points.length, (i) => FlSpot(i.toDouble(), points[i].expense));
 
+    final expenseColor = context.isDarkMode ? const Color(0xFFE8A85C) : const Color(0xFFE8B381);
+
     return Column(
       children: [
         // Legend Row
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            _buildLegendItem('Income', AppColors.accentPrimary),
+            _buildLegendItem('Income', AppColors.accentPrimary, colors),
             const SizedBox(width: 16),
-            _buildLegendItem('Expense', const Color(0xFFE8B381)),
+            _buildLegendItem('Expense', expenseColor, colors),
           ],
         ),
         const SizedBox(height: 16),
@@ -64,10 +68,10 @@ class CashFlowLineChart extends StatelessWidget {
                 drawVerticalLine: false,
                 horizontalInterval: axisConfig.interval,
                 getDrawingHorizontalLine: (value) {
-                  return const FlLine(
-                    color: Color(0xFFEDE0D9),
+                  return FlLine(
+                    color: colors.borderDefault.withValues(alpha: 0.6),
                     strokeWidth: 1,
-                    dashArray: [4, 4],
+                    dashArray: const [4, 4],
                   );
                 },
               ),
@@ -89,7 +93,7 @@ class CashFlowLineChart extends StatelessWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textMutedAlt,
+                          color: colors.textMuted,
                         ),
                       );
                     },
@@ -110,7 +114,7 @@ class CashFlowLineChart extends StatelessWidget {
                             style: GoogleFonts.quicksand(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.textMuted,
+                              color: colors.textMuted,
                             ),
                           ),
                         );
@@ -138,7 +142,7 @@ class CashFlowLineChart extends StatelessWidget {
                         GoogleFonts.quicksand(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: isIncome ? AppColors.accentPrimary : const Color(0xFFE8B381),
+                          color: isIncome ? AppColors.accentPrimary : expenseColor,
                         ),
                       );
                     }).toList();
@@ -163,11 +167,11 @@ class CashFlowLineChart extends StatelessWidget {
                   spots: expenseSpots,
                   isCurved: true,
                   barWidth: 3,
-                  color: const Color(0xFFE8B381),
+                  color: expenseColor,
                   dotData: const FlDotData(show: true),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: const Color(0xFFE8B381).withAlpha((0.15 * 255).round()),
+                    color: expenseColor.withAlpha((0.15 * 255).round()),
                   ),
                 ),
               ],
@@ -178,7 +182,7 @@ class CashFlowLineChart extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
+  Widget _buildLegendItem(String label, Color color, AppColorsExtension colors) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -196,7 +200,7 @@ class CashFlowLineChart extends StatelessWidget {
           style: GoogleFonts.quicksand(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: AppColors.textMuted,
+            color: colors.textMuted,
           ),
         ),
       ],

@@ -8,6 +8,7 @@ import '../../providers/balance_visibility_provider.dart';
 import '../../providers/biometric_provider.dart';
 import '../../providers/payday_provider.dart';
 import '../../providers/pin_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/success_banner.dart';
 import '../../widgets/app_toast.dart';
@@ -17,8 +18,7 @@ import '../auth/pin_setup_modal.dart';
 import 'payday_setup_modal.dart';
 import '../../widgets/send_feedback_modal.dart';
 
-
-/// Screen allowing users to manage app preferences, including biometric login, PIN setup, Payday Setup, and Account Logout.
+/// Screen allowing users to manage app preferences, including Theme appearance, biometric login, PIN setup, Payday Setup, and Account Logout.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -34,22 +34,84 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
+  Widget _buildThemeOption(
+    BuildContext context,
+    WidgetRef ref, {
+    required ThemeMode mode,
+    required ThemeMode activeMode,
+    required IconData icon,
+    required String label,
+  }) {
+    final colors = context.colors;
+    final isSelected = mode == activeMode;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          ref.read(themeModeProvider.notifier).setThemeMode(mode);
+        },
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? colors.accentPrimary : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: colors.accentPrimary.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected
+                    ? (context.isDarkMode ? colors.bgBase : Colors.white)
+                    : colors.textMuted,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: GoogleFonts.quicksand(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected
+                      ? (context.isDarkMode ? colors.bgBase : Colors.white)
+                      : colors.textMuted,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final themeMode = ref.watch(themeModeProvider);
     final isBiometricEnabled = ref.watch(biometricEnabledProvider);
     final isPinSet = ref.watch(isPinSetProvider);
     final isBalanceHidden = ref.watch(balanceVisibilityProvider);
     final paydaySettings = ref.watch(paydaySettingsStreamProvider).value;
 
-
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: colors.bgBase,
       appBar: AppBar(
-        backgroundColor: AppColors.bgBase,
+        backgroundColor: colors.bgBase,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_rounded, color: colors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -57,7 +119,7 @@ class SettingsScreen extends ConsumerWidget {
           style: GoogleFonts.quicksand(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: colors.textPrimary,
           ),
         ),
       ),
@@ -73,7 +135,7 @@ class SettingsScreen extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -82,14 +144,14 @@ class SettingsScreen extends ConsumerWidget {
               // Payday Setup Setting Card
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color: colors.bgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderDefault),
-                  boxShadow: const [
+                  border: Border.all(color: colors.borderDefault),
+                  boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      color: colors.cardShadow,
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -98,12 +160,12 @@ class SettingsScreen extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.accentPrimaryLight.withValues(alpha: 0.3),
+                      color: colors.accentPrimaryLight.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.payments_rounded,
-                      color: AppColors.accentPrimary,
+                      color: colors.accentPrimary,
                       size: 22,
                     ),
                   ),
@@ -112,7 +174,7 @@ class SettingsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   subtitle: Text(
@@ -121,14 +183,135 @@ class SettingsScreen extends ConsumerWidget {
                         : 'Configure frequency, next date, and stash link',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
-                  trailing: const Icon(
+                  trailing: Icon(
                     Icons.chevron_right_rounded,
-                    color: AppColors.textMuted,
+                    color: colors.textMuted,
                   ),
                   onTap: () => PaydaySetupModal.show(context),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Appearance Section Header
+              Text(
+                'APPEARANCE',
+                style: GoogleFonts.quicksand(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: colors.textMuted,
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Appearance Theme Card
+              Container(
+                decoration: BoxDecoration(
+                  color: colors.bgSurface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: colors.borderDefault),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colors.cardShadow,
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: colors.accentPrimaryLight.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            themeMode == ThemeMode.dark
+                                ? Icons.dark_mode_rounded
+                                : (themeMode == ThemeMode.light
+                                    ? Icons.light_mode_rounded
+                                    : Icons.brightness_auto_rounded),
+                            color: colors.accentPrimary,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Theme Mode',
+                                style: GoogleFonts.quicksand(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.textPrimary,
+                                ),
+                              ),
+                              Text(
+                                themeMode == ThemeMode.system
+                                    ? 'Follows device system settings'
+                                    : (themeMode == ThemeMode.dark
+                                        ? 'Warm Espresso dark palette'
+                                        : 'Warm Cream light palette'),
+                                style: GoogleFonts.quicksand(
+                                  fontSize: 12,
+                                  color: colors.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    // 3-way Segmented Control (System, Light, Dark)
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: colors.bgBase,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: colors.borderDefault),
+                      ),
+                      child: Row(
+                        children: [
+                          _buildThemeOption(
+                            context,
+                            ref,
+                            mode: ThemeMode.system,
+                            activeMode: themeMode,
+                            icon: Icons.brightness_auto_rounded,
+                            label: 'System',
+                          ),
+                          _buildThemeOption(
+                            context,
+                            ref,
+                            mode: ThemeMode.light,
+                            activeMode: themeMode,
+                            icon: Icons.light_mode_rounded,
+                            label: 'Light',
+                          ),
+                          _buildThemeOption(
+                            context,
+                            ref,
+                            mode: ThemeMode.dark,
+                            activeMode: themeMode,
+                            icon: Icons.dark_mode_rounded,
+                            label: 'Dark',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
@@ -139,7 +322,7 @@ class SettingsScreen extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -148,14 +331,14 @@ class SettingsScreen extends ConsumerWidget {
               // Hide Account Balances Setting Card
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color: colors.bgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderDefault),
-                  boxShadow: const [
+                  border: Border.all(color: colors.borderDefault),
+                  boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      color: colors.cardShadow,
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -172,19 +355,19 @@ class SettingsScreen extends ConsumerWidget {
                       );
                     }
                   },
-                  activeThumbColor: AppColors.accentPrimary,
+                  activeThumbColor: colors.accentPrimary,
                   secondary: Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.accentPrimaryLight.withValues(alpha: 0.3),
+                      color: colors.accentPrimaryLight.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       isBalanceHidden
                           ? Icons.visibility_off_rounded
                           : Icons.visibility_rounded,
-                      color: AppColors.accentPrimary,
+                      color: colors.accentPrimary,
                       size: 22,
                     ),
                   ),
@@ -193,14 +376,14 @@ class SettingsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   subtitle: Text(
                     'Conceal balance amounts across dashboard and accounts screens',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
                 ),
@@ -210,14 +393,14 @@ class SettingsScreen extends ConsumerWidget {
               // Biometric Lock Setting Card
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color: colors.bgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderDefault),
-                  boxShadow: const [
+                  border: Border.all(color: colors.borderDefault),
+                  boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      color: colors.cardShadow,
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -241,17 +424,17 @@ class SettingsScreen extends ConsumerWidget {
                       }
                     }
                   },
-                  activeThumbColor: AppColors.accentPrimary,
+                  activeThumbColor: colors.accentPrimary,
                   secondary: Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.accentPrimaryLight.withValues(alpha: 0.3),
+                      color: colors.accentPrimaryLight.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.fingerprint_rounded,
-                      color: AppColors.accentPrimary,
+                      color: colors.accentPrimary,
                       size: 22,
                     ),
                   ),
@@ -260,14 +443,14 @@ class SettingsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   subtitle: Text(
                     'Require fingerprint or face unlock when reopening an active session',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
                 ),
@@ -277,14 +460,14 @@ class SettingsScreen extends ConsumerWidget {
               // PIN Lock Setting Card
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color: colors.bgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderDefault),
-                  boxShadow: const [
+                  border: Border.all(color: colors.borderDefault),
+                  boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      color: colors.cardShadow,
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -293,12 +476,12 @@ class SettingsScreen extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.accentPrimaryLight.withValues(alpha: 0.3),
+                      color: colors.accentPrimaryLight.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       isPinSet ? Icons.lock_rounded : Icons.lock_outline_rounded,
-                      color: AppColors.accentPrimary,
+                      color: colors.accentPrimary,
                       size: 22,
                     ),
                   ),
@@ -307,7 +490,7 @@ class SettingsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   subtitle: Text(
@@ -316,13 +499,13 @@ class SettingsScreen extends ConsumerWidget {
                         : 'Create a 6 digit PIN for device authentication',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
                   trailing: isPinSet
                       ? PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert_rounded,
-                              color: AppColors.textPrimary),
+                          icon: Icon(Icons.more_vert_rounded,
+                              color: colors.textPrimary),
                           onSelected: (choice) async {
                             if (choice == 'change') {
                               PinSetupModal.show(context,
@@ -347,14 +530,14 @@ class SettingsScreen extends ConsumerWidget {
                                 'Remove PIN',
                                 style: GoogleFonts.quicksand(
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.stateError,
+                                  color: colors.stateError,
                                 ),
                               ),
                             ),
                           ],
                         )
-                      : const Icon(Icons.chevron_right_rounded,
-                          color: AppColors.textMuted),
+                      : Icon(Icons.chevron_right_rounded,
+                          color: colors.textMuted),
                   onTap: () {
                     if (!isPinSet) {
                       PinSetupModal.show(context, mode: PinSetupMode.setup);
@@ -370,7 +553,7 @@ class SettingsScreen extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -378,14 +561,14 @@ class SettingsScreen extends ConsumerWidget {
 
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color: colors.bgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderDefault),
-                  boxShadow: const [
+                  border: Border.all(color: colors.borderDefault),
+                  boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      color: colors.cardShadow,
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -394,12 +577,12 @@ class SettingsScreen extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.accentPrimaryLight.withValues(alpha: 0.3),
+                      color: colors.accentPrimaryLight.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.chat_bubble_outline_rounded,
-                      color: AppColors.accentPrimary,
+                      color: colors.accentPrimary,
                       size: 22,
                     ),
                   ),
@@ -408,19 +591,19 @@ class SettingsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   subtitle: Text(
                     'Share comments, ideas, or report a bug',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
-                  trailing: const Icon(
+                  trailing: Icon(
                     Icons.chevron_right_rounded,
-                    color: AppColors.textMuted,
+                    color: colors.textMuted,
                   ),
                   onTap: () => SendFeedbackModal.show(context),
                 ),
@@ -433,7 +616,7 @@ class SettingsScreen extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -441,14 +624,14 @@ class SettingsScreen extends ConsumerWidget {
 
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color: colors.bgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderDefault),
-                  boxShadow: const [
+                  border: Border.all(color: colors.borderDefault),
+                  boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      color: colors.cardShadow,
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -457,12 +640,12 @@ class SettingsScreen extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.accentPrimaryLight.withValues(alpha: 0.3),
+                      color: colors.accentPrimaryLight.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.info_outline_rounded,
-                      color: AppColors.accentPrimary,
+                      color: colors.accentPrimary,
                       size: 22,
                     ),
                   ),
@@ -471,7 +654,7 @@ class SettingsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   trailing: Text(
@@ -479,7 +662,7 @@ class SettingsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
                 ),
@@ -492,7 +675,7 @@ class SettingsScreen extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -501,14 +684,14 @@ class SettingsScreen extends ConsumerWidget {
               // Log Out Setting Card (Styled in Expense Orange palette)
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bgSurface,
+                  color: colors.bgSurface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderDefault),
-                  boxShadow: const [
+                  border: Border.all(color: colors.borderDefault),
+                  boxShadow: [
                     BoxShadow(
-                      color: Color.fromRGBO(43, 36, 32, 0.04),
+                      color: colors.cardShadow,
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -517,12 +700,12 @@ class SettingsScreen extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.accentPrimary.withValues(alpha: 0.12),
+                      color: colors.accentPrimary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.logout_rounded,
-                      color: AppColors.accentPrimary,
+                      color: colors.accentPrimary,
                       size: 22,
                     ),
                   ),
@@ -531,19 +714,19 @@ class SettingsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.accentPrimary,
+                      color: colors.accentPrimary,
                     ),
                   ),
                   subtitle: Text(
                     'Sign out of your Weasly account',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
-                  trailing: const Icon(
+                  trailing: Icon(
                     Icons.chevron_right_rounded,
-                    color: AppColors.accentPrimary,
+                    color: colors.accentPrimary,
                   ),
                   onTap: () => _handleLogout(context, ref),
                 ),
@@ -556,4 +739,3 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 }
-

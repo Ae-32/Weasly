@@ -67,18 +67,13 @@ class BudgetsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final budgetsWithSpent = ref.watch(budgetsWithSpentProvider);
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 0);
+    final colors = context.colors;
 
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: colors.bgBase,
       floatingActionButton: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(43, 36, 32, 0.08),
-              blurRadius: 20,
-              offset: Offset(0, 8),
-            ),
-          ],
+        decoration: BoxDecoration(
+          boxShadow: [colors.cardBoxShadow],
         ),
         child: FloatingActionButton(
           onPressed: () => AddEditBudgetModal.show(context),
@@ -109,7 +104,7 @@ class BudgetsScreen extends ConsumerWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 26,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF211A16),
+                          color: colors.textPrimary,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -119,7 +114,7 @@ class BudgetsScreen extends ConsumerWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF8A7F73),
+                          color: colors.textMuted,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -136,10 +131,10 @@ class BudgetsScreen extends ConsumerWidget {
                                 width: 160,
                                 height: 160,
                                 fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                errorBuilder: (context, error, stackTrace) => Icon(
                                   Icons.savings_outlined,
                                   size: 64,
-                                  color: AppColors.textMuted,
+                                  color: colors.textMuted,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -148,7 +143,7 @@ class BudgetsScreen extends ConsumerWidget {
                                 style: GoogleFonts.quicksand(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF211A16),
+                                  color: colors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -156,7 +151,7 @@ class BudgetsScreen extends ConsumerWidget {
                                 'Start setting monthly spending limits to keep your finances on track.',
                                 style: GoogleFonts.quicksand(
                                   fontSize: 14,
-                                  color: AppColors.textMuted,
+                                  color: colors.textMuted,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -193,6 +188,7 @@ class BudgetsScreen extends ConsumerWidget {
     BudgetWithSpent item,
     NumberFormat currencyFormatter,
   ) {
+    final colors = context.colors;
     final budget = item.budget;
     final categoryColor = DefaultCategories.getCategoryColorByName(
       budget.categoryName,
@@ -209,20 +205,16 @@ class BudgetsScreen extends ConsumerWidget {
             ? const Color(0xFFE65100)
             : categoryColor;
 
-    final borderColor = isOverBudget ? const Color(0xFFFFDAD6) : const Color(0xFFE8E1D8);
+    final borderColor = isOverBudget
+        ? (context.isDarkMode ? const Color(0xFF5A2A2A) : const Color(0xFFFFDAD6))
+        : colors.borderDefault;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor, width: 1.0),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.04),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
+        boxShadow: [colors.cardBoxShadow],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -260,7 +252,7 @@ class BudgetsScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF211A16),
+                      color: colors.textPrimary,
                     ),
                   ),
                 ],
@@ -278,7 +270,9 @@ class BudgetsScreen extends ConsumerWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: isOverBudget ? const Color(0xFFC40707) : const Color(0xFF211A16),
+                          color: isOverBudget
+                              ? (context.isDarkMode ? const Color(0xFFEF5350) : const Color(0xFFC40707))
+                              : colors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -287,18 +281,19 @@ class BudgetsScreen extends ConsumerWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: const Color(0xFF8A7F73),
+                          color: colors.textMuted,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(width: 4),
                   PopupMenuButton<String>(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.more_vert_rounded,
-                      color: Color(0xFF8A7F73),
+                      color: colors.textMuted,
                       size: 20,
                     ),
+                    color: colors.bgSurface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -321,9 +316,9 @@ class BudgetsScreen extends ConsumerWidget {
                         value: 'view_transactions',
                         child: Row(
                           children: [
-                            const Icon(Icons.receipt_long_outlined, size: 18, color: Color(0xFF211A16)),
+                            Icon(Icons.receipt_long_outlined, size: 18, color: colors.textPrimary),
                             const SizedBox(width: 8),
-                            Text('View Transactions', style: GoogleFonts.quicksand()),
+                            Text('View Transactions', style: GoogleFonts.quicksand(color: colors.textPrimary)),
                           ],
                         ),
                       ),
@@ -331,9 +326,9 @@ class BudgetsScreen extends ConsumerWidget {
                         value: 'edit',
                         child: Row(
                           children: [
-                            const Icon(Icons.edit_outlined, size: 18, color: Color(0xFF211A16)),
+                            Icon(Icons.edit_outlined, size: 18, color: colors.textPrimary),
                             const SizedBox(width: 8),
-                            Text('Edit', style: GoogleFonts.quicksand()),
+                            Text('Edit', style: GoogleFonts.quicksand(color: colors.textPrimary)),
                           ],
                         ),
                       ),
@@ -358,12 +353,12 @@ class BudgetsScreen extends ConsumerWidget {
           // Linear Progress Indicator Bar
           Stack(
             children: [
-              // Track Background (#E8E1D8)
+              // Track Background
               Container(
                 height: 8,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8E1D8),
+                  color: colors.iconButtonBg,
                   borderRadius: BorderRadius.circular(9999),
                 ),
               ),

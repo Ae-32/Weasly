@@ -25,6 +25,7 @@ class InsufficientBalanceModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final double safeAvailable = availableBalance < 0 ? 0.0 : availableBalance;
     final double shortfall = attemptedAmount - safeAvailable;
@@ -32,9 +33,9 @@ class InsufficientBalanceModal extends StatelessWidget {
         attemptedAmount > 0 ? (safeAvailable / attemptedAmount).clamp(0.0, 1.0) : 0.0;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.bgBase,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: colors.bgBase,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: EdgeInsets.only(
         left: 24,
@@ -51,7 +52,7 @@ class InsufficientBalanceModal extends StatelessWidget {
               width: 48,
               height: 5,
               decoration: BoxDecoration(
-                color: const Color(0xFFE8E1D8),
+                color: colors.borderDefault,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -80,7 +81,7 @@ class InsufficientBalanceModal extends StatelessWidget {
             style: GoogleFonts.quicksand(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF211A16),
+              color: colors.textPrimary,
               letterSpacing: -0.5,
             ),
           ),
@@ -91,7 +92,7 @@ class InsufficientBalanceModal extends StatelessWidget {
             style: GoogleFonts.quicksand(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: const Color(0xFF8A7F73),
+              color: colors.textMuted,
             ),
           ),
           const SizedBox(height: 24),
@@ -100,16 +101,10 @@ class InsufficientBalanceModal extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: AppColors.bgSurface,
+              color: colors.bgSurface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFE8E1D8), width: 1.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              border: Border.all(color: colors.borderDefault, width: 1.0),
+              boxShadow: [colors.cardBoxShadow],
             ),
             child: Column(
               children: [
@@ -136,7 +131,7 @@ class InsufficientBalanceModal extends StatelessWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF8A7F73),
+                          color: colors.textMuted,
                         ),
                       ),
                     ),
@@ -145,14 +140,14 @@ class InsufficientBalanceModal extends StatelessWidget {
                       style: GoogleFonts.quicksand(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF211A16),
+                        color: colors.textPrimary,
                       ),
                     ),
                   ],
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(color: Color(0xFFF2ECE5), height: 1),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(color: colors.borderDefault, height: 1),
                 ),
 
                 // New Transaction Row
@@ -178,7 +173,7 @@ class InsufficientBalanceModal extends StatelessWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF8A7F73),
+                          color: colors.textMuted,
                         ),
                       ),
                     ),
@@ -254,8 +249,6 @@ class InsufficientBalanceModal extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  
                 ],
               ),
             ),
@@ -269,8 +262,8 @@ class InsufficientBalanceModal extends StatelessWidget {
             child: OutlinedButton(
               onPressed: () => Navigator.of(context).pop('cancel'),
               style: OutlinedButton.styleFrom(
-                backgroundColor: AppColors.bgSurface,
-                side: const BorderSide(color: Color(0xFFE8E1D8), width: 1),
+                backgroundColor: colors.bgSurface,
+                side: BorderSide(color: colors.borderDefault, width: 1),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -280,7 +273,7 @@ class InsufficientBalanceModal extends StatelessWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF5A4E42),
+                  color: colors.textPrimary,
                 ),
               ),
             ),

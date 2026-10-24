@@ -57,8 +57,10 @@ class DashboardScreen extends ConsumerWidget {
     final greetingPrefix = _getGreetingPrefix();
     final userName = user?.displayName ?? user?.email?.split('@').first ?? 'Ae';
 
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: colors.bgBase,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,6 +92,7 @@ class DashboardScreen extends ConsumerWidget {
 
                           // 2. Total Balance Summary Card (Overlapping Top-Right Mascot)
                           _buildTotalBalanceCard(
+                            context,
                             totalBalance,
                             accountsCount,
                             currencyFormatter,
@@ -105,7 +108,7 @@ class DashboardScreen extends ConsumerWidget {
                           IncomeExpenseDonutChart(
                             summary: periodSummary,
                             period: activePeriod,
-                            periodToggle: _buildPeriodToggleBar(ref, activePeriod),
+                            periodToggle: _buildPeriodToggleBar(context, ref, activePeriod),
                           ),
                           const SizedBox(height: 16),
 
@@ -147,12 +150,15 @@ class DashboardScreen extends ConsumerWidget {
 
   /// Total Balance Summary Card (Overlapping Mascot Top-Right Corner)
   Widget _buildTotalBalanceCard(
+    BuildContext context,
     double totalBalance,
     int accountsCount,
     NumberFormat currencyFormatter, {
     required bool isBalanceHidden,
     required VoidCallback onToggleVisibility,
   }) {
+    final colors = context.colors;
+
     return Container(
       margin: const EdgeInsets.only(top: 30),
       child: Stack(
@@ -164,13 +170,13 @@ class DashboardScreen extends ConsumerWidget {
             constraints: const BoxConstraints(minHeight: 110),
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
             decoration: BoxDecoration(
-              color: AppColors.bgSurface,
+              color: colors.bgSurface,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Color.fromRGBO(43, 36, 32, 0.04),
+                  color: colors.cardShadow,
                   blurRadius: 12,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -190,7 +196,7 @@ class DashboardScreen extends ConsumerWidget {
                             style: GoogleFonts.quicksand(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textMuted,
+                              color: colors.textMuted,
                             ),
                           ),
                           const SizedBox(width: 6),
@@ -204,7 +210,7 @@ class DashboardScreen extends ConsumerWidget {
                                     ? Icons.visibility_off_rounded
                                     : Icons.visibility_rounded,
                                 size: 16,
-                                color: AppColors.textMuted,
+                                color: colors.textMuted,
                               ),
                             ),
                           ),
@@ -226,7 +232,7 @@ class DashboardScreen extends ConsumerWidget {
                             style: GoogleFonts.quicksand(
                               fontSize: 26,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.accentPrimary,
+                              color: colors.accentPrimary,
                             ),
                           ),
                         ),
@@ -237,7 +243,7 @@ class DashboardScreen extends ConsumerWidget {
                         style: GoogleFonts.quicksand(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF9A9998),
+                          color: colors.textMutedAlt,
                         ),
                       ),
                     ],
@@ -266,11 +272,13 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   /// Segmented period toggle pill (Day | Week | Month)
-  Widget _buildPeriodToggleBar(WidgetRef ref, DashboardPeriod activePeriod) {
+  Widget _buildPeriodToggleBar(BuildContext context, WidgetRef ref, DashboardPeriod activePeriod) {
+    final colors = context.colors;
+
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: const Color(0xFFEDE0D9),
+        color: colors.periodToggleBg,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -287,7 +295,7 @@ class DashboardScreen extends ConsumerWidget {
               duration: const Duration(milliseconds: 150),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.accentPrimary : Colors.transparent,
+                color: isSelected ? colors.accentPrimary : Colors.transparent,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
@@ -295,7 +303,9 @@ class DashboardScreen extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? Colors.white : AppColors.accentPrimary,
+                  color: isSelected
+                      ? (context.isDarkMode ? colors.bgBase : Colors.white)
+                      : colors.accentPrimary,
                 ),
               ),
             ),
@@ -354,6 +364,7 @@ class DashboardScreen extends ConsumerWidget {
 
     if (periodExpenses.isEmpty) {
       return _buildCardWrapper(
+        context,
         title: 'SPENDING BY CATEGORY',
         actionWidget: badgePill,
         child: Padding(
@@ -410,6 +421,7 @@ class DashboardScreen extends ConsumerWidget {
         : AppColors.accentPrimary;
 
     return _buildCardWrapper(
+      context,
       title: 'SPENDING BY CATEGORY',
       actionWidget: badgePill,
       child: Column(
@@ -622,6 +634,7 @@ class DashboardScreen extends ConsumerWidget {
     DashboardPeriod activePeriod,
     NumberFormat currencyFormatter,
   ) {
+    final colors = context.colors;
     final recentList = List<TransactionModel>.from(transactions)
       ..sort((a, b) => b.date.compareTo(a.date));
     final displayTxs = recentList.take(3).toList();
@@ -637,7 +650,7 @@ class DashboardScreen extends ConsumerWidget {
               style: GoogleFonts.quicksand(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
             GestureDetector(
@@ -649,7 +662,7 @@ class DashboardScreen extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.accentPrimary,
+                  color: colors.accentPrimary,
                   letterSpacing: 0.6,
                 ),
               ),
@@ -662,13 +675,13 @@ class DashboardScreen extends ConsumerWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.bgSurface,
+            color: colors.bgSurface,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Color.fromRGBO(43, 36, 32, 0.04),
+                color: colors.cardShadow,
                 blurRadius: 12,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -678,7 +691,7 @@ class DashboardScreen extends ConsumerWidget {
                   child: Center(
                     child: Text(
                       'No recent transactions.',
-                      style: GoogleFonts.quicksand(fontSize: 14, color: AppColors.textMuted),
+                      style: GoogleFonts.quicksand(fontSize: 14, color: colors.textMuted),
                     ),
                   ),
                 )
@@ -687,19 +700,19 @@ class DashboardScreen extends ConsumerWidget {
                     final tx = displayTxs[index];
                     final isIncome = tx.type == TransactionType.income;
                     final prefix = isIncome ? '+' : (tx.type == TransactionType.transfer ? '⇄ ' : '-');
-                    final amountColor = isIncome ? AppColors.accentPrimary : AppColors.textPrimary;
+                    final amountColor = isIncome ? colors.accentPrimary : colors.textPrimary;
 
                     return Column(
                       children: [
                         if (index > 0)
-                          const Divider(height: 16, thickness: 0.5, color: AppColors.borderDefault),
+                          Divider(height: 16, thickness: 0.5, color: colors.borderDefault),
                         Row(
                           children: [
                             Container(
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: AppColors.bgBase,
+                                color: colors.bgBase,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Center(
@@ -709,7 +722,7 @@ class DashboardScreen extends ConsumerWidget {
                                   size: 20,
                                   containerSize: 40,
                                   borderRadius: BorderRadius.circular(8),
-                                  color: const Color(0xFF534438),
+                                  color: colors.textPrimary,
                                 ),
                               ),
                             ),
@@ -723,7 +736,7 @@ class DashboardScreen extends ConsumerWidget {
                                     style: GoogleFonts.quicksand(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w400,
-                                      color: AppColors.textPrimary,
+                                      color: colors.textPrimary,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -732,7 +745,7 @@ class DashboardScreen extends ConsumerWidget {
                                     style: GoogleFonts.quicksand(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
-                                      color: AppColors.textMuted,
+                                      color: colors.textMuted,
                                     ),
                                   ),
                                 ],
@@ -760,24 +773,27 @@ class DashboardScreen extends ConsumerWidget {
 
 
   /// Reusable Card Wrapper Widget
-  Widget _buildCardWrapper({
+  Widget _buildCardWrapper(
+    BuildContext context, {
     required String title,
     String? actionText,
     VoidCallback? onAction,
     Widget? actionWidget,
     required Widget child,
   }) {
+    final colors = context.colors;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: colors.bgSurface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.04),
+            color: colors.cardShadow,
             blurRadius: 12,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -792,7 +808,7 @@ class DashboardScreen extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textMutedAlt,
+                  color: colors.textMutedAlt,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -806,7 +822,7 @@ class DashboardScreen extends ConsumerWidget {
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: onAction != null ? AppColors.accentPrimary : AppColors.textMuted,
+                      color: onAction != null ? colors.accentPrimary : colors.textMuted,
                     ),
                   ),
                 ),
@@ -858,6 +874,7 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final messages = ref.watch(mascotInsightMessagesProvider);
 
     if (_currentIndex >= messages.length) {
@@ -878,7 +895,7 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
             top: 80,
             height: 60,
             child: Container(
-              color: AppColors.accentPrimary,
+              color: colors.accentPrimary,
             ),
           ),
 
@@ -888,7 +905,10 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
             top: 40,
             child: CustomPaint(
               size: const Size(12, 18),
-              painter: _SpeechBubblePointerPainter(),
+              painter: _SpeechBubblePointerPainter(
+                fillColor: colors.bgSurface,
+                borderColor: colors.accentPrimary,
+              ),
             ),
           ),
 
@@ -901,14 +921,14 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.bgSurface,
+                color: colors.bgSurface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFC25814), width: 1),
-                boxShadow: const [
+                border: Border.all(color: colors.accentPrimary.withValues(alpha: 0.6), width: 1),
+                boxShadow: [
                   BoxShadow(
-                    color: Color.fromRGBO(43, 36, 32, 0.06),
+                    color: colors.cardShadow,
                     blurRadius: 10,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -923,7 +943,7 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
                         style: GoogleFonts.quicksand(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.accentPrimary,
+                          color: colors.accentPrimary,
                           letterSpacing: -0.64,
                         ),
                       ),
@@ -938,8 +958,8 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
                               height: 2,
                               decoration: BoxDecoration(
                                 color: isActive
-                                    ? AppColors.accentPrimary
-                                    : AppColors.accentPrimary.withValues(alpha: 0.25),
+                                    ? colors.accentPrimary
+                                    : colors.accentPrimary.withValues(alpha: 0.25),
                                 borderRadius: BorderRadius.circular(99),
                               ),
                             );
@@ -978,7 +998,7 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
                         style: GoogleFonts.quicksand(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
+                          color: colors.textPrimary,
                           height: 1.3,
                         ),
                         maxLines: 3,
@@ -1025,6 +1045,11 @@ class _CategoryExpenseAggregate {
 }
 
 class _SpeechBubblePointerPainter extends CustomPainter {
+  final Color fillColor;
+  final Color borderColor;
+
+  _SpeechBubblePointerPainter({required this.fillColor, required this.borderColor});
+
   @override
   void paint(Canvas canvas, Size size) {
     final path = Path()
@@ -1034,11 +1059,11 @@ class _SpeechBubblePointerPainter extends CustomPainter {
       ..close();
 
     final fillPaint = Paint()
-      ..color = AppColors.bgSurface
+      ..color = fillColor
       ..style = PaintingStyle.fill;
 
     final borderPaint = Paint()
-      ..color = const Color(0xFFC25814)
+      ..color = borderColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
@@ -1047,7 +1072,8 @@ class _SpeechBubblePointerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _SpeechBubblePointerPainter oldDelegate) =>
+      oldDelegate.fillColor != fillColor || oldDelegate.borderColor != borderColor;
 }
 
 

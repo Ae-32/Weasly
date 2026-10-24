@@ -67,15 +67,17 @@ class QuickActionsRow extends ConsumerWidget {
       ),
     ];
 
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Quick actions',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: colors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -92,12 +94,12 @@ class QuickActionsRow extends ConsumerWidget {
                     width: 72,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.bgSurface,
+                      color: colors.bgSurface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.borderDefault),
+                      border: Border.all(color: colors.borderDefault),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.textPrimary.withValues(alpha: 0.02),
+                          color: colors.cardShadow,
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -110,22 +112,22 @@ class QuickActionsRow extends ConsumerWidget {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: AppColors.bgBase,
+                            color: colors.bgBase,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
                             action.icon,
-                            color: AppColors.accentPrimary,
+                            color: colors.accentPrimary,
                             size: 22,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           action.label,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: colors.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

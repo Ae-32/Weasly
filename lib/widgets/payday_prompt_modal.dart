@@ -28,7 +28,7 @@ class PaydayPromptModal extends ConsumerStatefulWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.bgSurface,
+      backgroundColor: context.colors.bgSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -137,6 +137,7 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final paydayState = ref.watch(paydayControllerProvider);
     final accountsAsync = ref.watch(accountsStreamProvider);
     final incomeCategories = ref.watch(incomeCategoriesProvider);
@@ -194,21 +195,21 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                           style: GoogleFonts.quicksand(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: colors.textPrimary,
                           ),
                         ),
                         Text(
                           'Time to stash your fresh hard-earned money!',
                           style: GoogleFonts.quicksand(
                             fontSize: 13,
-                            color: AppColors.textMuted,
+                            color: colors.textMuted,
                           ),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: AppColors.textMuted),
+                    icon: Icon(Icons.close_rounded, color: colors.textMuted),
                     onPressed: _dismiss,
                   ),
                 ],
@@ -243,7 +244,7 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                 style: GoogleFonts.quicksand(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -275,13 +276,13 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                   hintStyle: GoogleFonts.quicksand(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textMutedLight,
+                    color: colors.textMuted,
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.borderDefault),
+                    borderSide: BorderSide(color: colors.borderDefault),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -307,7 +308,7 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                 style: GoogleFonts.quicksand(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -327,12 +328,12 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                     builder: (context, constraints) {
                       return PopupMenuButton<AccountModel>(
                         position: PopupMenuPosition.under,
-                        color: AppColors.bgSurface,
+                        color: colors.bgSurface,
                         elevation: 4,
                         shadowColor: Colors.black12,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
-                          side: const BorderSide(color: AppColors.borderDefault),
+                          side: BorderSide(color: colors.borderDefault),
                         ),
                         constraints: BoxConstraints(
                           minWidth: constraints.maxWidth,
@@ -354,7 +355,7 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                                       style: GoogleFonts.quicksand(
                                         fontSize: 14,
                                         fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                        color: isSelected ? AppColors.accentPrimary : AppColors.textPrimary,
+                                        color: isSelected ? AppColors.accentPrimary : colors.textPrimary,
                                       ),
                                     ),
                                   ),
@@ -375,9 +376,9 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                           height: 52,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.borderDefault),
+                            border: Border.all(color: colors.borderDefault),
                             borderRadius: BorderRadius.circular(14),
-                            color: AppColors.bgSurface,
+                            color: colors.bgSurface,
                           ),
                           child: Row(
                             children: [
@@ -389,11 +390,11 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                                   style: GoogleFonts.quicksand(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
+                                    color: colors.textPrimary,
                                   ),
                                 ),
                               ),
-                              const Icon(Icons.expand_more, color: AppColors.textMuted, size: 20),
+                              Icon(Icons.expand_more, color: colors.textMuted, size: 20),
                             ],
                           ),
                         ),
@@ -415,7 +416,7 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                 style: GoogleFonts.quicksand(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -436,15 +437,15 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                       labelStyle: GoogleFonts.quicksand(
                         fontSize: 12,
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                        color: isSelected ? Colors.white : AppColors.textPrimary,
+                        color: isSelected ? Colors.white : colors.textPrimary,
                       ),
                       selected: isSelected,
                       selectedColor: AppColors.accentPrimary,
-                      backgroundColor: AppColors.bgBase,
+                      backgroundColor: colors.iconButtonBg,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                         side: BorderSide(
-                          color: isSelected ? AppColors.accentPrimary : AppColors.borderDefault,
+                          color: isSelected ? AppColors.accentPrimary : colors.borderDefault,
                         ),
                       ),
                       onSelected: (selected) {
@@ -496,7 +497,7 @@ class _PaydayPromptModalState extends ConsumerState<PaydayPromptModal> {
                     style: GoogleFonts.quicksand(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
                 ),

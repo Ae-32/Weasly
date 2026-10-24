@@ -29,6 +29,8 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     if (widget.categories.isEmpty || widget.totalExpense <= 0) {
       return SizedBox(
         height: 180,
@@ -41,12 +43,12 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                 height: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.iconButtonBg.withAlpha(120),
+                  color: colors.iconButtonBg,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.pie_chart_outline_rounded,
                   size: 32,
-                  color: AppColors.textMutedAlt,
+                  color: colors.textMuted,
                 ),
               ),
               const SizedBox(height: 12),
@@ -55,7 +57,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                 style: GoogleFonts.quicksand(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textMuted,
+                  color: colors.textMuted,
                 ),
               ),
             ],
@@ -87,7 +89,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
         Row(
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 14, top: 10, bottom: 10),
+               padding: const EdgeInsets.only(left: 14, top: 10, bottom: 10),
               child: SizedBox(
                 width: 140,
                 height: 140,
@@ -139,7 +141,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                               style: GoogleFonts.quicksand(
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textMuted,
+                                color: colors.textMuted,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -171,7 +173,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                     style: GoogleFonts.quicksand(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textMutedAlt,
+                      color: colors.textMuted,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -189,7 +191,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                     style: GoogleFonts.quicksand(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textMutedAlt,
+                      color: colors.textMuted,
                     ),
                   ),
                 ],
@@ -225,7 +227,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
         ] else
           const SizedBox(height: 4),
 
-        const Divider(height: 1, thickness: 0.5, color: AppColors.borderDefault),
+        Divider(height: 1, thickness: 0.5, color: colors.borderDefault),
         const SizedBox(height: 12),
 
         // Category Progress Bars List
@@ -280,7 +282,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                     borderRadius: BorderRadius.circular(9999),
                     child: LinearProgressIndicator(
                       value: (cat.percentage / 100).clamp(0.0, 1.0),
-                      backgroundColor: AppColors.accentPrimaryLight,
+                      backgroundColor: colors.iconButtonBg,
                       color: cat.color,
                       minHeight: 8,
                     ),

@@ -20,9 +20,10 @@ class StatisticsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(financialStatisticsProvider);
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 0);
+    final colors = context.colors;
 
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: colors.bgBase,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +44,7 @@ class StatisticsScreen extends ConsumerWidget {
                       style: GoogleFonts.quicksand(
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: colors.textPrimary,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -53,7 +54,7 @@ class StatisticsScreen extends ConsumerWidget {
                       style: GoogleFonts.quicksand(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: AppColors.textMuted,
+                        color: colors.textMuted,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -63,12 +64,13 @@ class StatisticsScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
 
                     // Monthly Summary KPI Cards Grid
-                    _buildSummaryKpiGrid(stats, currencyFormatter),
+                    _buildSummaryKpiGrid(stats, currencyFormatter, colors),
                     const SizedBox(height: 16),
 
                     // Category Spending Pie Chart Card
                     _buildCardWrapper(
                       title: 'SPENDING BY CATEGORY',
+                      colors: colors,
                       child: CategoryPieChart(
                         categories: stats.categoryBreakdown,
                         totalExpense: stats.totalExpense,
@@ -79,6 +81,7 @@ class StatisticsScreen extends ConsumerWidget {
                     // Cash Flow Line Chart Card
                     _buildCardWrapper(
                       title: 'CASH FLOW TREND (INCOME VS EXPENSE)',
+                      colors: colors,
                       child: CashFlowLineChart(points: stats.monthlyTrends),
                     ),
                     const SizedBox(height: 16),
@@ -86,6 +89,7 @@ class StatisticsScreen extends ConsumerWidget {
                     // Day of Week Behavior Card
                     _buildCardWrapper(
                       title: 'SPENDING BY DAY OF WEEK',
+                      colors: colors,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -94,7 +98,7 @@ class StatisticsScreen extends ConsumerWidget {
                             style: GoogleFonts.quicksand(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textMutedAlt,
+                              color: colors.textMuted,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -116,7 +120,11 @@ class StatisticsScreen extends ConsumerWidget {
   }
 
   /// Summary KPI cards grid showing month metrics
-  Widget _buildSummaryKpiGrid(FinancialStatsModel stats, NumberFormat currencyFormatter) {
+  Widget _buildSummaryKpiGrid(
+    FinancialStatsModel stats,
+    NumberFormat currencyFormatter,
+    AppColorsExtension colors,
+  ) {
     final momChange = stats.monthOverMonthChangePct;
     final hasPrevExpense = stats.previousMonthExpense > 0;
 
@@ -128,6 +136,7 @@ class StatisticsScreen extends ConsumerWidget {
             title: 'TOTAL EXPENSE',
             value: currencyFormatter.format(stats.totalExpense),
             valueColor: AppColors.accentPrimary,
+            colors: colors,
             badge: hasPrevExpense
                 ? Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -168,6 +177,7 @@ class StatisticsScreen extends ConsumerWidget {
             title: 'TOTAL INCOME',
             value: currencyFormatter.format(stats.totalIncome),
             valueColor: AppColors.accentPrimary,
+            colors: colors,
           ),
         ),
       ],
@@ -178,20 +188,16 @@ class StatisticsScreen extends ConsumerWidget {
     required String title,
     required String value,
     required Color valueColor,
+    required AppColorsExtension colors,
     Widget? badge,
   }) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: colors.bgSurface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.04),
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: colors.borderDefault, width: 1.0),
+        boxShadow: [colors.cardBoxShadow],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +210,7 @@ class StatisticsScreen extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textMutedAlt,
+                  color: colors.textMuted,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -233,20 +239,16 @@ class StatisticsScreen extends ConsumerWidget {
   Widget _buildCardWrapper({
     required String title,
     required Widget child,
+    required AppColorsExtension colors,
   }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: colors.bgSurface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.04),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: colors.borderDefault, width: 1.0),
+        boxShadow: [colors.cardBoxShadow],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,7 +258,7 @@ class StatisticsScreen extends ConsumerWidget {
             style: GoogleFonts.quicksand(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: AppColors.textMutedAlt,
+              color: colors.textMuted,
               letterSpacing: 0.5,
             ),
           ),

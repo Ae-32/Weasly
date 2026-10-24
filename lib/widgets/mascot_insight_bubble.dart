@@ -74,6 +74,7 @@ class _MascotInsightBubbleState extends State<MascotInsightBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final currentText = widget.insights[_currentIndex];
 
     return GestureDetector(
@@ -82,12 +83,12 @@ class _MascotInsightBubbleState extends State<MascotInsightBubble> {
         width: double.infinity,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.bgSurface,
+          color: colors.bgSurface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.borderDefault),
+          border: Border.all(color: colors.borderDefault),
           boxShadow: [
             BoxShadow(
-              color: AppColors.textPrimary.withValues(alpha: 0.03),
+              color: colors.cardShadow,
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -101,10 +102,10 @@ class _MascotInsightBubbleState extends State<MascotInsightBubble> {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: const Color(0xFFFFE6D5),
+                color: colors.accentPrimaryLight.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.accentPrimary.withValues(alpha: 0.4),
+                  color: colors.accentPrimary.withValues(alpha: 0.4),
                   width: 2,
                 ),
               ),
@@ -114,10 +115,10 @@ class _MascotInsightBubbleState extends State<MascotInsightBubble> {
                   child: Image.asset(
                     'assets/images/Weasly_Dashboard_Welcome.png',
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
+                    errorBuilder: (context, error, stackTrace) => Icon(
                       Icons.pets_rounded,
                       size: 28,
-                      color: AppColors.accentPrimary,
+                      color: colors.accentPrimary,
                     ),
                   ),
                 ),
@@ -130,10 +131,10 @@ class _MascotInsightBubbleState extends State<MascotInsightBubble> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: AppColors.bgBase,
+                  color: colors.bgBase,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppColors.accentPrimary.withValues(alpha: 0.15),
+                    color: colors.accentPrimary.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Column(
@@ -149,14 +150,14 @@ class _MascotInsightBubbleState extends State<MascotInsightBubble> {
                               style: GoogleFonts.quicksand(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.accentPrimary,
+                                color: colors.accentPrimary,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Icon(
                               Icons.auto_awesome_rounded,
                               size: 13,
-                              color: AppColors.accentPrimary.withValues(alpha: 0.8),
+                              color: colors.accentPrimary.withValues(alpha: 0.8),
                             ),
                           ],
                         ),
@@ -172,8 +173,8 @@ class _MascotInsightBubbleState extends State<MascotInsightBubble> {
                                 height: 5,
                                 decoration: BoxDecoration(
                                   color: index == _currentIndex
-                                      ? AppColors.accentPrimary
-                                      : AppColors.accentPrimary.withValues(alpha: 0.25),
+                                      ? colors.accentPrimary
+                                      : colors.accentPrimary.withValues(alpha: 0.25),
                                   borderRadius: BorderRadius.circular(3),
                                 ),
                               ),
@@ -191,9 +192,9 @@ class _MascotInsightBubbleState extends State<MascotInsightBubble> {
                         key: ValueKey<int>(_currentIndex),
                         style: GoogleFonts.quicksand(
                           fontSize: 12.5,
-                          color: AppColors.textPrimary,
-                          height: 1.35,
                           fontWeight: FontWeight.w600,
+                          color: colors.textPrimary,
+                          height: 1.35,
                         ),
                       ),
                     ),

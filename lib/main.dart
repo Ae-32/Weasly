@@ -5,6 +5,7 @@ import 'providers/auth_provider.dart';
 import 'providers/biometric_provider.dart';
 import 'providers/onboarding_provider.dart';
 import 'providers/pin_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/auth/biometric_lock_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/pin_lock_screen.dart';
@@ -41,11 +42,14 @@ class WeaslyApp extends ConsumerWidget {
     final isBiometricUnlocked = ref.watch(biometricUnlockedProvider);
     final isPinSet = ref.watch(isPinSetProvider);
     final isPinUnlocked = ref.watch(isPinUnlockedProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp(
       title: 'Weasly',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       home: authState.when(
         data: (user) {
           debugPrint('=== WEASLY AUTH ROUTING DEBUG ===');

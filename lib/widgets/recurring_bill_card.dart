@@ -22,6 +22,7 @@ class RecurringBillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final categoryColor = DefaultCategories.getColor(bill.categoryColorHex);
 
@@ -46,25 +47,19 @@ class RecurringBillCard extends StatelessWidget {
     } else if (daysRemaining <= 3) {
       statusText = 'Due in $daysRemaining day${daysRemaining > 1 ? 's' : ''}';
       statusBgColor = AppColors.stateWarning.withValues(alpha: 0.15);
-      statusTextColor = const Color(0xFF8E6200);
+      statusTextColor = context.isDarkMode ? const Color(0xFFFFB74D) : const Color(0xFF8E6200);
     } else {
       statusText = 'Due ${DateFormat('MMM d, yyyy').format(bill.nextDueDate)}';
-      statusBgColor = AppColors.bgBase;
-      statusTextColor = AppColors.textMuted;
+      statusBgColor = colors.iconButtonBg;
+      statusTextColor = colors.textMuted;
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: colors.bgSurface,
         borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: AppColors.borderDefault),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.textPrimary.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: colors.borderDefault),
+        boxShadow: [colors.cardBoxShadow],
       ),
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -98,18 +93,18 @@ class RecurringBillCard extends StatelessWidget {
               children: [
                 Text(
                   bill.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: colors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '${bill.categoryName} • ${bill.accountName}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textMuted,
+                    color: colors.textMuted,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -121,7 +116,7 @@ class RecurringBillCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppColors.accentPrimary.withValues(alpha: 0.1),
+                        color: colors.accentPrimaryLight,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -175,15 +170,16 @@ class RecurringBillCard extends StatelessWidget {
             children: [
               Text(
                 currencyFormatter.format(bill.amount),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
               const SizedBox(height: 4),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert_rounded, size: 20, color: AppColors.textMuted),
+                icon: Icon(Icons.more_vert_rounded, size: 20, color: colors.textMuted),
+                color: colors.bgSurface,
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 onSelected: (value) {
@@ -210,13 +206,13 @@ class RecurringBillCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit_outlined, size: 18, color: AppColors.textPrimary),
-                        SizedBox(width: 10),
-                        Text('Edit Bill', style: TextStyle(fontSize: 14)),
+                        Icon(Icons.edit_outlined, size: 18, color: colors.textPrimary),
+                        const SizedBox(width: 10),
+                        Text('Edit Bill', style: TextStyle(fontSize: 14, color: colors.textPrimary)),
                       ],
                     ),
                   ),

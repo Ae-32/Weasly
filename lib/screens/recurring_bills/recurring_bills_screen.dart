@@ -107,19 +107,20 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
   Widget build(BuildContext context) {
     final billsAsync = ref.watch(recurringBillsStreamProvider);
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
+    final colors = context.colors;
 
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: colors.bgBase,
       appBar: AppBar(
-        backgroundColor: AppColors.bgBase,
+        backgroundColor: colors.bgBase,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
+        title: Text(
           'Recurring Bills',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: colors.textPrimary,
           ),
         ),
         actions: [
@@ -146,7 +147,7 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: AppColors.accentPrimary.withValues(alpha: 0.12),
+                        color: colors.accentPrimaryLight,
                         borderRadius: BorderRadius.circular(16.0),
                         border: Border.all(color: AppColors.accentPrimary.withValues(alpha: 0.3)),
                       ),
@@ -158,14 +159,14 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Enable Bill Reminders',
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: colors.textPrimary),
                                 ),
                                 const SizedBox(height: 2),
-                                const Text(
+                                Text(
                                   'Allow notifications so Weasly can remind you before your bills are due.',
-                                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                                  style: TextStyle(fontSize: 12, color: colors.textMuted),
                                 ),
                               ],
                             ),
@@ -190,15 +191,10 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20.0),
                     decoration: BoxDecoration(
-                      color: AppColors.bgSurface,
+                      color: colors.bgSurface,
                       borderRadius: BorderRadius.circular(16.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.textPrimary.withValues(alpha: 0.04),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      border: Border.all(color: colors.borderDefault),
+                      boxShadow: [colors.cardBoxShadow],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -206,17 +202,17 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Estimated Monthly Commitment',
-                              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                              style: TextStyle(fontSize: 13, color: colors.textMuted),
                             ),
                             const SizedBox(height: 6),
                             Text(
                               currencyFormatter.format(monthlyTotal),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                                color: colors.textPrimary,
                                 letterSpacing: -0.5,
                               ),
                             ),
@@ -225,7 +221,7 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.accentPrimary.withValues(alpha: 0.12),
+                            color: colors.accentPrimaryLight,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -245,10 +241,10 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
                     children: [
                       Text(
                         'All Subscriptions (${bills.length})',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          color: colors.textPrimary,
                         ),
                       ),
                       GestureDetector(
@@ -278,22 +274,23 @@ class _RecurringBillsScreenState extends ConsumerState<RecurringBillsScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        color: AppColors.bgSurface,
+                        color: colors.bgSurface,
                         borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: colors.borderDefault),
                       ),
                       child: Column(
                         children: [
-                          const Icon(Icons.event_repeat_outlined, size: 48, color: AppColors.textMuted),
+                          Icon(Icons.event_repeat_outlined, size: 48, color: colors.textMuted),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             'No recurring bills yet',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: colors.textPrimary),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
+                          Text(
                             'Tap + Add Bill above to track your monthly subscriptions & due reminders.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 14, color: AppColors.textMuted),
+                            style: TextStyle(fontSize: 14, color: colors.textMuted),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton.icon(

@@ -180,18 +180,13 @@ class _BudgetCategoryDetailsScreenState
             : 'On Track';
 
     final groupedMap = _groupTransactionsByDate(categoryTransactions);
+    final colors = context.colors;
 
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: colors.bgBase,
       floatingActionButton: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(43, 36, 32, 0.08),
-              blurRadius: 20,
-              offset: Offset(0, 8),
-            ),
-          ],
+        decoration: BoxDecoration(
+          boxShadow: [colors.cardBoxShadow],
         ),
         child: FloatingActionButton.extended(
           onPressed: () => AddEditTransactionModal.show(context),
@@ -229,7 +224,7 @@ class _BudgetCategoryDetailsScreenState
                         children: [
                           IconButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF211A16)),
+                            icon: Icon(Icons.arrow_back_rounded, color: colors.textPrimary),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
@@ -262,14 +257,14 @@ class _BudgetCategoryDetailsScreenState
                                   style: GoogleFonts.quicksand(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF211A16),
+                                    color: colors.textPrimary,
                                   ),
                                 ),
                                 Text(
                                   'Budget: ${currencyFormatter.format(budget.amount)} / month',
                                   style: GoogleFonts.quicksand(
                                     fontSize: 13,
-                                    color: const Color(0xFF8A7F73),
+                                    color: colors.textMuted,
                                   ),
                                 ),
                               ],
@@ -282,9 +277,9 @@ class _BudgetCategoryDetailsScreenState
                       // Month Navigation Bar
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: colors.bgSurface,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE8E1D8), width: 1.0),
+                          border: Border.all(color: colors.borderDefault, width: 1.0),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         child: Row(
@@ -292,7 +287,7 @@ class _BudgetCategoryDetailsScreenState
                           children: [
                             IconButton(
                               onPressed: _previousMonth,
-                              icon: const Icon(Icons.chevron_left_rounded, color: Color(0xFF211A16)),
+                              icon: Icon(Icons.chevron_left_rounded, color: colors.textPrimary),
                             ),
                             Row(
                               children: [
@@ -303,14 +298,14 @@ class _BudgetCategoryDetailsScreenState
                                   style: GoogleFonts.quicksand(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF211A16),
+                                    color: colors.textPrimary,
                                   ),
                                 ),
                               ],
                             ),
                             IconButton(
                               onPressed: _nextMonth,
-                              icon: const Icon(Icons.chevron_right_rounded, color: Color(0xFF211A16)),
+                              icon: Icon(Icons.chevron_right_rounded, color: colors.textPrimary),
                             ),
                           ],
                         ),
@@ -320,19 +315,15 @@ class _BudgetCategoryDetailsScreenState
                       // Monthly Budget Spending Summary Card
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: colors.bgSurface,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: isOverBudget ? const Color(0xFFFFDAD6) : const Color(0xFFE8E1D8),
+                            color: isOverBudget
+                                ? (context.isDarkMode ? const Color(0xFF5A2A2A) : const Color(0xFFFFDAD6))
+                                : colors.borderDefault,
                             width: 1.0,
                           ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color.fromRGBO(43, 36, 32, 0.04),
-                              blurRadius: 12,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
+                          boxShadow: [colors.cardBoxShadow],
                         ),
                         padding: const EdgeInsets.all(18),
                         child: Column(
@@ -349,7 +340,7 @@ class _BudgetCategoryDetailsScreenState
                                       style: GoogleFonts.quicksand(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
-                                        color: const Color(0xFF8A7F73),
+                                        color: colors.textMuted,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -363,8 +354,8 @@ class _BudgetCategoryDetailsScreenState
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,
                                             color: isOverBudget
-                                                ? const Color(0xFFC40707)
-                                                : const Color(0xFF211A16),
+                                                ? (context.isDarkMode ? const Color(0xFFEF5350) : const Color(0xFFC40707))
+                                                : colors.textPrimary,
                                           ),
                                         ),
                                         const SizedBox(width: 6),
@@ -372,7 +363,7 @@ class _BudgetCategoryDetailsScreenState
                                           'of ${currencyFormatter.format(budget.amount)}',
                                           style: GoogleFonts.quicksand(
                                             fontSize: 14,
-                                            color: const Color(0xFF8A7F73),
+                                            color: colors.textMuted,
                                           ),
                                         ),
                                       ],
@@ -405,7 +396,7 @@ class _BudgetCategoryDetailsScreenState
                                   height: 10,
                                   width: double.infinity,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFE8E1D8),
+                                    color: colors.iconButtonBg,
                                     borderRadius: BorderRadius.circular(9999),
                                   ),
                                 ),
@@ -430,7 +421,7 @@ class _BudgetCategoryDetailsScreenState
                                   child: Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFAF7F2),
+                                      color: colors.iconButtonBg,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Column(
@@ -440,7 +431,7 @@ class _BudgetCategoryDetailsScreenState
                                           'Transactions',
                                           style: GoogleFonts.quicksand(
                                             fontSize: 12,
-                                            color: const Color(0xFF8A7F73),
+                                            color: colors.textMuted,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
@@ -449,7 +440,7 @@ class _BudgetCategoryDetailsScreenState
                                           style: GoogleFonts.quicksand(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
-                                            color: const Color(0xFF211A16),
+                                            color: colors.textPrimary,
                                           ),
                                         ),
                                       ],
@@ -461,7 +452,7 @@ class _BudgetCategoryDetailsScreenState
                                   child: Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFAF7F2),
+                                      color: colors.iconButtonBg,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Column(
@@ -471,7 +462,7 @@ class _BudgetCategoryDetailsScreenState
                                           isOverBudget ? 'Over Budget By' : 'Remaining',
                                           style: GoogleFonts.quicksand(
                                             fontSize: 12,
-                                            color: const Color(0xFF8A7F73),
+                                            color: colors.textMuted,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
@@ -484,7 +475,7 @@ class _BudgetCategoryDetailsScreenState
                                             fontWeight: FontWeight.bold,
                                             color: isOverBudget
                                                 ? AppColors.stateError
-                                                : AppColors.accentSecondary,
+                                                : (context.isDarkMode ? const Color(0xFF66BB6A) : AppColors.accentSecondary),
                                           ),
                                         ),
                                       ],
@@ -504,7 +495,7 @@ class _BudgetCategoryDetailsScreenState
                         style: GoogleFonts.quicksand(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF211A16),
+                          color: colors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -514,9 +505,9 @@ class _BudgetCategoryDetailsScreenState
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: colors.bgSurface,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFFE8E1D8), width: 1.0),
+                            border: Border.all(color: colors.borderDefault, width: 1.0),
                           ),
                           child: Column(
                             children: [
@@ -525,10 +516,10 @@ class _BudgetCategoryDetailsScreenState
                                 width: 120,
                                 height: 120,
                                 fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                errorBuilder: (context, error, stackTrace) => Icon(
                                   Icons.receipt_long_outlined,
                                   size: 56,
-                                  color: AppColors.textMuted,
+                                  color: colors.textMuted,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -537,7 +528,7 @@ class _BudgetCategoryDetailsScreenState
                                 style: GoogleFonts.quicksand(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF211A16),
+                                  color: colors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -545,7 +536,7 @@ class _BudgetCategoryDetailsScreenState
                                 'No expenses logged for ${budget.categoryName} in ${monthFormat.format(_selectedMonth)}.',
                                 style: GoogleFonts.quicksand(
                                   fontSize: 13,
-                                  color: AppColors.textMuted,
+                                  color: colors.textMuted,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -571,7 +562,7 @@ class _BudgetCategoryDetailsScreenState
                                     style: GoogleFonts.quicksand(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF8A7F73),
+                                      color: colors.textMuted,
                                     ),
                                   ),
                                 ),
@@ -604,14 +595,15 @@ class _BudgetCategoryDetailsScreenState
     NumberFormat currencyFormatter,
     Color categoryColor,
   ) {
+    final colors = context.colors;
     final isExpense = tx.type == TransactionType.expense;
     final isIncome = tx.type == TransactionType.income;
 
     final amountColor = isExpense
-        ? const Color(0xFFC40707)
+        ? (context.isDarkMode ? const Color(0xFFEF5350) : const Color(0xFFC40707))
         : isIncome
-            ? AppColors.accentSecondary
-            : const Color(0xFF211A16);
+            ? (context.isDarkMode ? const Color(0xFF66BB6A) : AppColors.accentSecondary)
+            : colors.textPrimary;
 
     final amountPrefix = isExpense ? '-' : isIncome ? '+' : '';
     final timeStr = DateFormat('h:mm a').format(tx.date);
@@ -622,16 +614,10 @@ class _BudgetCategoryDetailsScreenState
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.bgSurface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE8E1D8), width: 1.0),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(43, 36, 32, 0.03),
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
+          border: Border.all(color: colors.borderDefault, width: 1.0),
+          boxShadow: [colors.cardBoxShadow],
         ),
         child: Row(
           children: [
@@ -663,7 +649,7 @@ class _BudgetCategoryDetailsScreenState
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF211A16),
+                      color: colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -675,17 +661,17 @@ class _BudgetCategoryDetailsScreenState
                         tx.accountName,
                         style: GoogleFonts.quicksand(
                           fontSize: 12,
-                          color: const Color(0xFF8A7F73),
+                          color: colors.textMuted,
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const Text('•', style: TextStyle(color: Color(0xFF8A7F73), fontSize: 10)),
+                      Text('•', style: TextStyle(color: colors.textMuted, fontSize: 10)),
                       const SizedBox(width: 6),
                       Text(
                         timeStr,
                         style: GoogleFonts.quicksand(
                           fontSize: 12,
-                          color: const Color(0xFF8A7F73),
+                          color: colors.textMuted,
                         ),
                       ),
                     ],
@@ -704,7 +690,8 @@ class _BudgetCategoryDetailsScreenState
                   ),
                 ),
                 PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert_rounded, size: 18, color: Color(0xFF8A7F73)),
+                  icon: Icon(Icons.more_vert_rounded, size: 18, color: colors.textMuted),
+                  color: colors.bgSurface,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   onSelected: (val) {
                     if (val == 'edit') {
@@ -718,9 +705,9 @@ class _BudgetCategoryDetailsScreenState
                       value: 'edit',
                       child: Row(
                         children: [
-                          const Icon(Icons.edit_outlined, size: 18, color: Color(0xFF211A16)),
+                          Icon(Icons.edit_outlined, size: 18, color: colors.textPrimary),
                           const SizedBox(width: 8),
-                          Text('Edit', style: GoogleFonts.quicksand()),
+                          Text('Edit', style: GoogleFonts.quicksand(color: colors.textPrimary)),
                         ],
                       ),
                     ),

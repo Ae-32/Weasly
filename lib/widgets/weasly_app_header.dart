@@ -47,20 +47,22 @@ class WeaslyAppHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.bgBase,
+      decoration: BoxDecoration(
+        color: colors.bgBase,
         border: Border(
           bottom: BorderSide(
-            color: Color(0xFFE8E1D8),
+            color: colors.borderDefault,
             width: 1.0,
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.05),
+            color: colors.cardShadow,
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -78,6 +80,7 @@ class WeaslyAppHeader extends ConsumerWidget {
                 children: [
                   if (showBackButton) ...[
                     _buildHeaderIconButton(
+                      context,
                       icon: Icons.arrow_back_ios_new_rounded,
                       onTap: onBackTap ?? () => Navigator.of(context).pop(),
                     ),
@@ -101,7 +104,7 @@ class WeaslyAppHeader extends ConsumerWidget {
                       style: GoogleFonts.quicksand(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.accentPrimary,
+                        color: colors.accentPrimary,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -123,7 +126,7 @@ class WeaslyAppHeader extends ConsumerWidget {
                           style: GoogleFonts.quicksand(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFFBBB6B4),
+                            color: colors.textMutedLight,
                             letterSpacing: -0.64,
                           ),
                           maxLines: 1,
@@ -132,7 +135,7 @@ class WeaslyAppHeader extends ConsumerWidget {
                         const SizedBox(height: 2),
                       ],
                       if (title != null)
-                        _buildFormattedTitleWidget(title!, 16),
+                        _buildFormattedTitleWidget(context, title!, 16),
                     ],
                   ),
                 ),
@@ -144,11 +147,13 @@ class WeaslyAppHeader extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildHeaderIconButton(
+                    context,
                     icon: Icons.notifications_rounded,
                     onTap: () => _showComingSoonSnackBar(context, 'Notifications'),
                   ),
                   const SizedBox(width: 8),
                   _buildHeaderIconButton(
+                    context,
                     icon: Icons.settings_rounded,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -159,11 +164,10 @@ class WeaslyAppHeader extends ConsumerWidget {
             ],
           ),
 
-
           // Separate Title & Subtitle Below Top Row (only if provided)
           if (!inlineTitle && title != null && title!.isNotEmpty) ...[
             const SizedBox(height: 16),
-            _buildFormattedTitleWidget(title!, 26),
+            _buildFormattedTitleWidget(context, title!, 26),
             if (subtitle != null) ...[
               const SizedBox(height: 4),
               Text(
@@ -171,7 +175,7 @@ class WeaslyAppHeader extends ConsumerWidget {
                 style: GoogleFonts.quicksand(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: const Color(0xFF8A7F73),
+                  color: colors.textMuted,
                 ),
               ),
             ],
@@ -181,34 +185,37 @@ class WeaslyAppHeader extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeaderIconButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _buildHeaderIconButton(BuildContext context, {required IconData icon, required VoidCallback onTap}) {
+    final colors = context.colors;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 40,
         height: 40,
-        decoration: const BoxDecoration(
-          color: Color(0xFFEDE0D9),
+        decoration: BoxDecoration(
+          color: colors.iconButtonBg,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Color.fromRGBO(43, 36, 32, 0.04),
+              color: colors.cardShadow,
               blurRadius: 12,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Icon(
           icon,
           size: 20,
-          color: AppColors.accentPrimary,
+          color: colors.accentPrimary,
         ),
       ),
     );
   }
 
   /// Renders title with bold font weight (w700) specifically for the user name portion when greeting (e.g. "Good afternoon, Ae!").
-  Widget _buildFormattedTitleWidget(String text, double fontSize) {
+  Widget _buildFormattedTitleWidget(BuildContext context, String text, double fontSize) {
+    final colors = context.colors;
     final commaIndex = text.indexOf(', ');
     if (commaIndex != -1) {
       final prefix = text.substring(0, commaIndex + 2); // e.g. "Good afternoon, "
@@ -222,7 +229,7 @@ class WeaslyAppHeader extends ConsumerWidget {
               style: GoogleFonts.quicksand(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w500,
-                color: const Color(0xFF211A16),
+                color: colors.textPrimary,
                 letterSpacing: -0.64,
               ),
             ),
@@ -231,7 +238,7 @@ class WeaslyAppHeader extends ConsumerWidget {
               style: GoogleFonts.quicksand(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w700, // Bold user name
-                color: const Color(0xFF211A16),
+                color: colors.textPrimary,
                 letterSpacing: -0.64,
               ),
             ),
@@ -247,7 +254,7 @@ class WeaslyAppHeader extends ConsumerWidget {
       style: GoogleFonts.quicksand(
         fontSize: fontSize,
         fontWeight: fontSize > 20 ? FontWeight.w700 : FontWeight.w500,
-        color: const Color(0xFF211A16),
+        color: colors.textPrimary,
         letterSpacing: -0.64,
       ),
       maxLines: 1,

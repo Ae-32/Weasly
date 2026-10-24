@@ -112,18 +112,13 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
 
     final groupedMap = _groupTransactionsByDate(filteredTransactions);
+    final colors = context.colors;
 
     return Scaffold(
-      backgroundColor: AppColors.bgBase,
+      backgroundColor: colors.bgBase,
       floatingActionButton: Container(
-        decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(43, 36, 32, 0.08),
-              blurRadius: 20,
-              offset: Offset(0, 8),
-            ),
-          ],
+        decoration: BoxDecoration(
+          boxShadow: [colors.cardBoxShadow],
         ),
         child: FloatingActionButton(
           onPressed: () => AddEditTransactionModal.show(context),
@@ -152,7 +147,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     style: GoogleFonts.quicksand(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF211A16),
+                      color: colors.textPrimary,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -162,7 +157,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     style: GoogleFonts.quicksand(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: const Color(0xFF8A7F73),
+                      color: colors.textMuted,
                     ),
                   ),
                 ],
@@ -179,16 +174,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   Container(
                     height: 50,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colors.bgSurface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE8E1D8), width: 1),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromRGBO(43, 36, 32, 0.04),
-                          blurRadius: 12,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
+                      border: Border.all(color: colors.borderDefault, width: 1),
+                      boxShadow: [colors.cardBoxShadow],
                     ),
                     child: TextField(
                       controller: _searchController,
@@ -197,24 +186,24 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                       },
                       style: GoogleFonts.quicksand(
                         fontSize: 16,
-                        color: const Color(0xFF211A16),
+                        color: colors.textPrimary,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Search transactions...',
                         hintStyle: GoogleFonts.quicksand(
                           fontSize: 16,
-                          color: const Color(0xFF8A7F73),
+                          color: colors.textMuted,
                         ),
-                        prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF8A7F73), size: 20),
+                        prefixIcon: Icon(Icons.search_rounded, color: colors.textMuted, size: 20),
                         suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
-                                icon: const Icon(Icons.clear_rounded, color: Color(0xFF8A7F73), size: 20),
+                                icon: Icon(Icons.clear_rounded, color: colors.textMuted, size: 20),
                                 onPressed: () {
                                   _searchController.clear();
                                   ref.read(transactionSearchQueryProvider.notifier).state = '';
                                 },
                               )
-                            : const Icon(Icons.tune_rounded, color: Color(0xFF8A7F73), size: 20),
+                            : Icon(Icons.tune_rounded, color: colors.textMuted, size: 20),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(vertical: 14),
                       ),
@@ -230,8 +219,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           physics: const BouncingScrollPhysics(),
-                          children: [
-                            // All Filter Button
+                          children: [                            // All Filter Button
                             GestureDetector(
                               onTap: () {
                                 ref.read(transactionCategoryFilterProvider.notifier).state = null;
@@ -240,14 +228,14 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: selectedCategoryFilter == null
-                                      ? const Color(0xFFD98A3D)
-                                      : const Color(0xFFEDE0D9),
+                                      ? AppColors.accentPrimary
+                                      : colors.iconButtonBg,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   children: [
                                     if (selectedCategoryFilter == null) ...[
-                                      const Icon(Icons.check_rounded, size: 14, color: Color(0xFF512A00)),
+                                      const Icon(Icons.check_rounded, size: 14, color: Colors.white),
                                       const SizedBox(width: 4),
                                     ],
                                     Text(
@@ -257,8 +245,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                         fontWeight: FontWeight.w600,
                                         letterSpacing: 0.6,
                                         color: selectedCategoryFilter == null
-                                            ? const Color(0xFF512A00)
-                                            : const Color(0xFF534438),
+                                            ? Colors.white
+                                            : colors.textPrimary,
                                       ),
                                     ),
                                   ],
@@ -281,14 +269,14 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? const Color(0xFFD98A3D)
-                                          : const Color(0xFFEDE0D9),
+                                          ? AppColors.accentPrimary
+                                          : colors.iconButtonBg,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Row(
                                       children: [
                                         if (isSelected) ...[
-                                          const Icon(Icons.check_rounded, size: 14, color: Color(0xFF512A00)),
+                                          const Icon(Icons.check_rounded, size: 14, color: Colors.white),
                                           const SizedBox(width: 4),
                                         ],
                                         Text(
@@ -298,8 +286,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                             fontWeight: FontWeight.w600,
                                             letterSpacing: 0.6,
                                             color: isSelected
-                                                ? const Color(0xFF512A00)
-                                                : const Color(0xFF534438),
+                                                ? Colors.white
+                                                : colors.textPrimary,
                                           ),
                                         ),
                                       ],
@@ -338,10 +326,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                 width: 160,
                                 height: 160,
                                 fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                errorBuilder: (context, error, stackTrace) => Icon(
                                   Icons.receipt_long_outlined,
                                   size: 64,
-                                  color: AppColors.textMuted,
+                                  color: colors.textMuted,
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -350,7 +338,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                 style: GoogleFonts.quicksand(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF211A16),
+                                  color: colors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -358,7 +346,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                 'Start stashing your activity by logging your first expense or income.',
                                 style: GoogleFonts.quicksand(
                                   fontSize: 14,
-                                  color: AppColors.textMuted,
+                                  color: colors.textMuted,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -381,7 +369,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                       style: GoogleFonts.quicksand(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color: const Color(0xFF8A7F73),
+                                        color: colors.textMuted,
                                         letterSpacing: 0.6,
                                       ),
                                     ),
@@ -406,7 +394,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           ],
         ),
       ),
-);
+    );
   }
 
   /// Individual Transaction Card matching Figma CSS specs & redesign mockups
@@ -415,21 +403,16 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     TransactionModel tx,
     NumberFormat currencyFormatter,
   ) {
+    final colors = context.colors;
     final isIncome = tx.type == TransactionType.income;
     final timeStr = DateFormat('h:mm a').format(tx.date);
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8E1D8).withValues(alpha: 0.5), width: 1.0),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.04),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: colors.borderDefault.withValues(alpha: 0.5), width: 1.0),
+        boxShadow: [colors.cardBoxShadow],
       ),
       child: Material(
         color: Colors.transparent,
@@ -452,7 +435,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFD8C2),
+                          color: colors.accentPrimaryLight,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -480,7 +463,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                               style: GoogleFonts.quicksand(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF211A16),
+                                color: colors.textPrimary,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -492,7 +475,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEDE0D9),
+                                    color: colors.iconButtonBg,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
@@ -500,7 +483,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                     style: GoogleFonts.quicksand(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w400,
-                                      color: const Color(0xFF534438),
+                                      color: colors.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -512,7 +495,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                   style: GoogleFonts.quicksand(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
-                                    color: const Color(0xFF8A7F73),
+                                    color: colors.textMuted,
                                   ),
                                 ),
                               ],
@@ -530,7 +513,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   style: GoogleFonts.quicksand(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: isIncome ? const Color(0xFF2B694E) : const Color(0xFF211A16),
+                    color: isIncome
+                        ? (context.isDarkMode ? const Color(0xFF66BB6A) : const Color(0xFF2B694E))
+                        : colors.textPrimary,
                   ),
                 ),
               ],

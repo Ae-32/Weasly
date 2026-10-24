@@ -30,19 +30,20 @@ class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChar
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final currencyFormatter = NumberFormat.currency(symbol: '₱', decimalDigits: 2);
     final hasData = widget.summary.totalFlow > 0;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: colors.bgSurface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.04),
+            color: colors.cardShadow,
             blurRadius: 12,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -202,24 +203,24 @@ class _IncomeExpenseDonutChartState extends ConsumerState<IncomeExpenseDonutChar
                         children: [
                           // Income Row
                           _buildBreakdownRow(
-                            iconBg: const Color(0xFFFCE9D6),
-                            iconColor: AppColors.accentPrimary,
+                            iconBg: colors.accentPrimaryLight,
+                            iconColor: colors.accentPrimary,
                             isUp: true,
                             label: 'INCOME',
                             amountText: currencyFormatter.format(widget.summary.totalIncome),
-                            amountColor: AppColors.accentPrimary,
+                            amountColor: colors.accentPrimary,
                           ),
                           const SizedBox(height: 12),
-                          const Divider(height: 1, thickness: 0.5, color: AppColors.borderDefault),
+                          Divider(height: 1, thickness: 0.5, color: colors.borderDefault),
                           const SizedBox(height: 12),
                           // Expense Row
                           _buildBreakdownRow(
-                            iconBg: const Color(0xFFFCE9D6),
-                            iconColor: const Color(0xFFE8B381),
+                            iconBg: colors.iconButtonBg,
+                            iconColor: colors.textMuted,
                             isUp: false,
                             label: 'EXPENSES',
                             amountText: currencyFormatter.format(widget.summary.totalExpense),
-                            amountColor: const Color(0xFFE8B381),
+                            amountColor: colors.textPrimary,
                           ),
                         ],
                       ),

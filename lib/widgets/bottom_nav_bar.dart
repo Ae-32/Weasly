@@ -43,15 +43,17 @@ class BottomNavBar extends StatelessWidget {
       ),
     ];
 
+    final colors = context.colors;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgSurface,
+        color: colors.bgSurface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color.fromRGBO(43, 36, 32, 0.06),
+            color: colors.cardShadow,
             blurRadius: 16,
-            offset: Offset(0, -4),
+            offset: const Offset(0, -4),
           ),
         ],
       ),
@@ -76,7 +78,7 @@ class BottomNavBar extends StatelessWidget {
                       curve: Curves.easeInOut,
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFFEFD8C2) : Colors.transparent,
+                        color: isSelected ? colors.accentPrimaryLight : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -86,7 +88,7 @@ class BottomNavBar extends StatelessWidget {
                           Icon(
                             isSelected ? item.selectedIcon : item.unselectedIcon,
                             size: 20,
-                            color: isSelected ? AppColors.accentPrimary : const Color(0xFF8A7F73),
+                            color: isSelected ? colors.accentPrimary : colors.textMuted,
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -94,7 +96,7 @@ class BottomNavBar extends StatelessWidget {
                             style: GoogleFonts.quicksand(
                               fontSize: 11,
                               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                              color: isSelected ? AppColors.accentPrimary : const Color(0xFF8A7F73),
+                              color: isSelected ? colors.accentPrimary : colors.textMuted,
                               letterSpacing: 0.2,
                             ),
                             maxLines: 1,
