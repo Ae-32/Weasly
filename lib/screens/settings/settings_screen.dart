@@ -553,7 +553,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ),
                   trailing: Text(
-                    'v1.0.0',
+                    'v1.3.0',
                     style: GoogleFonts.quicksand(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
