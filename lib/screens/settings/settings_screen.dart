@@ -200,7 +200,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   subtitle: Text(
                     isDark
-                        ? 'Warm Espresso dark palette'
+                        ? 'Obsidian Midnight OLED palette'
                         : 'Warm Cream light palette',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,

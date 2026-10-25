@@ -111,7 +111,7 @@ class AppTheme {
     );
   }
 
-  /// Dark theme for Weasly (Warm Espresso & Charcoal palette).
+  /// Dark theme for Weasly (Obsidian & Midnight OLED palette).
   static ThemeData get darkTheme {
     final baseTextTheme = GoogleFonts.quicksandTextTheme(ThemeData.dark().textTheme);
 

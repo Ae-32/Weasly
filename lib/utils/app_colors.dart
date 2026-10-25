@@ -33,21 +33,21 @@ class AppColors {
   static const Color errorContainer = Color(0xFFFFDAD6);
   static const Color onErrorContainer = Color(0xFF93000A);
 
-  // Dark Mode Tokens
-  static const Color darkBgBase = Color(0xFF1A1714);
-  static const Color darkBgSurface = Color(0xFF26221E);
-  static const Color darkTextPrimary = Color(0xFFF5F1EC);
-  static const Color darkTextMuted = Color(0xFFA69A8C);
-  static const Color darkTextMutedAlt = Color(0xFF8E8478);
-  static const Color darkTextMutedLight = Color(0xFF6B6259);
-  static const Color darkAccentPrimary = Color(0xFFE8A85C);
-  static const Color darkAccentPrimaryLight = Color(0xFF3D3025);
-  static const Color darkIconButtonBg = Color(0xFF332B25);
-  static const Color darkAccentSecondary = Color(0xFF6FAE8C);
-  static const Color darkBorderDefault = Color(0xFF3A342E);
-  static const Color darkStateError = Color(0xFFE5695B);
-  static const Color darkStateSuccess = Color(0xFF6FAE8C);
-  static const Color darkStateWarning = Color(0xFFE8C05C);
+  // Dark Mode Tokens (Obsidian / Midnight OLED Palette)
+  static const Color darkBgBase = Color(0xFF0D0D0D);
+  static const Color darkBgSurface = Color(0xFF181818);
+  static const Color darkTextPrimary = Color(0xFFF8F8F8);
+  static const Color darkTextMuted = Color(0xFF8E8E93);
+  static const Color darkTextMutedAlt = Color(0xFF76767B);
+  static const Color darkTextMutedLight = Color(0xFF545458);
+  static const Color darkAccentPrimary = Color(0xFFFF8A1E);
+  static const Color darkAccentPrimaryLight = Color(0xFF2C1E14);
+  static const Color darkIconButtonBg = Color(0xFF222222);
+  static const Color darkAccentSecondary = Color(0xFF52C485);
+  static const Color darkBorderDefault = Color(0xFF282828);
+  static const Color darkStateError = Color(0xFFFF5E57);
+  static const Color darkStateSuccess = Color(0xFF52C485);
+  static const Color darkStateWarning = Color(0xFFFFC043);
 
   /// Helper to get the theme-aware colors from the current BuildContext.
   static AppColorsExtension of(BuildContext context) => context.colors;
@@ -112,7 +112,7 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     periodToggleBg: Color(0xFFEDE0D9),
   );
 
-  /// Dark theme color token set (Warm Espresso palette).
+  /// Dark theme color token set (Obsidian / Midnight OLED palette).
   static const dark = AppColorsExtension(
     bgBase: AppColors.darkBgBase,
     bgSurface: AppColors.darkBgSurface,
@@ -128,8 +128,8 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     stateError: AppColors.darkStateError,
     stateSuccess: AppColors.darkStateSuccess,
     stateWarning: AppColors.darkStateWarning,
-    cardShadow: Color.fromRGBO(0, 0, 0, 0.40),
-    periodToggleBg: Color(0xFF332B25),
+    cardShadow: Color.fromRGBO(0, 0, 0, 0.60),
+    periodToggleBg: Color(0xFF222222),
   );
 
   @override
