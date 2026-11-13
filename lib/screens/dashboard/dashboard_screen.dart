@@ -12,11 +12,12 @@ import '../../providers/auth_provider.dart';
 import '../../providers/balance_visibility_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/home_nav_provider.dart';
+import '../../providers/payday_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/default_categories.dart';
 import '../../widgets/category_icon.dart';
 import '../../widgets/income_expense_donut_chart.dart';
-import '../../widgets/payday_reminder_banner.dart';
+import '../../widgets/payday_prompt_modal.dart';
 import '../../widgets/weasly_app_header.dart';
 
 /// Full live Dashboard screen matching exact Figma CSS export & redesign-v2 specifications
@@ -87,9 +88,6 @@ class DashboardScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Payday Reminder Banner (if prompt was dismissed)
-                          const PaydayReminderBanner(),
-
                           // 2. Total Balance Summary Card (Overlapping Top-Right Mascot)
                           _buildTotalBalanceCard(
                             context,
@@ -845,6 +843,9 @@ class _MascotSpeechBubbleBanner extends ConsumerStatefulWidget {
 }
 
 class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBanner> {
+  static const String _paydayMessage =
+      "It's Payday Today! 🎉 Don't forget to log your income to update your stashes.";
+
   int _currentIndex = 0;
   Timer? _timer;
 
@@ -857,10 +858,12 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 12), (_) {
-      final messages = ref.read(mascotInsightMessagesProvider);
-      if (messages.length > 1 && mounted) {
+      final isPaydayActive = ref.read(isPaydayActiveProvider);
+      final rawInsights = ref.read(mascotInsightMessagesProvider);
+      final count = (isPaydayActive ? 1 : 0) + rawInsights.length;
+      if (count > 1 && mounted) {
         setState(() {
-          _currentIndex = (_currentIndex + 1) % messages.length;
+          _currentIndex = (_currentIndex + 1) % count;
         });
       }
     });
@@ -875,13 +878,20 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final messages = ref.watch(mascotInsightMessagesProvider);
+    final isPaydayActive = ref.watch(isPaydayActiveProvider);
+    final insights = ref.watch(mascotInsightMessagesProvider);
+    final settings = ref.watch(paydaySettingsStreamProvider).value;
+
+    final List<String> messages = isPaydayActive
+        ? [_paydayMessage, ...insights]
+        : insights;
 
     if (_currentIndex >= messages.length) {
       _currentIndex = 0;
     }
 
     final currentMessage = messages.isNotEmpty ? messages[_currentIndex] : '';
+    final isCurrentMessagePayday = isPaydayActive && _currentIndex == 0;
 
     return SizedBox(
       height: 135,
@@ -907,7 +917,9 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
               size: const Size(12, 18),
               painter: _SpeechBubblePointerPainter(
                 fillColor: colors.bgSurface,
-                borderColor: colors.accentPrimary,
+                borderColor: isCurrentMessagePayday
+                    ? colors.accentPrimary
+                    : colors.accentPrimary.withValues(alpha: 0.6),
               ),
             ),
           ),
@@ -918,95 +930,168 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
             right: 20,
             top: 10,
             height: 93,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: colors.bgSurface,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: colors.accentPrimary.withValues(alpha: 0.6), width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: colors.cardShadow,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Weasly',
-                        style: GoogleFonts.quicksand(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: colors.accentPrimary,
-                          letterSpacing: -0.64,
-                        ),
+                onTap: () {
+                  if (isCurrentMessagePayday && settings != null) {
+                    PaydayPromptModal.show(context, settings);
+                  } else if (messages.length > 1) {
+                    setState(() {
+                      _currentIndex = (_currentIndex + 1) % messages.length;
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: colors.bgSurface,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isCurrentMessagePayday
+                          ? colors.accentPrimary
+                          : colors.accentPrimary.withValues(alpha: 0.6),
+                      width: isCurrentMessagePayday ? 1.5 : 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isCurrentMessagePayday
+                            ? colors.accentPrimary.withValues(alpha: 0.15)
+                            : colors.cardShadow,
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      if (messages.length > 1)
-                        Row(
-                          children: List.generate(messages.length, (index) {
-                            final isActive = index == _currentIndex;
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              margin: const EdgeInsets.only(left: 3),
-                              width: isActive ? 12 : 5,
-                              height: 2,
-                              decoration: BoxDecoration(
-                                color: isActive
-                                    ? colors.accentPrimary
-                                    : colors.accentPrimary.withValues(alpha: 0.25),
-                                borderRadius: BorderRadius.circular(99),
-                              ),
-                            );
-                          }),
-                        ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      layoutBuilder: (currentChild, previousChildren) {
-                        return Stack(
-                          alignment: Alignment.topLeft,
-                          children: <Widget>[
-                            ...previousChildren,
-                            ?currentChild,
-                          ],
-                        );
-                      },
-                      transitionBuilder: (child, animation) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: SlideTransition(
-                            position: Tween<Offset>(
-                              begin: const Offset(0.0, 0.15),
-                              end: Offset.zero,
-                            ).animate(animation),
-                            child: child,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Weasly',
+                                style: GoogleFonts.quicksand(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.accentPrimary,
+                                  letterSpacing: -0.64,
+                                ),
+                              ),
+                              if (isCurrentMessagePayday) ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: colors.accentPrimary.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'PAYDAY',
+                                    style: GoogleFonts.quicksand(
+                                      fontSize: 8.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: colors.accentPrimary,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
-                        );
-                      },
-                      child: Text(
-                        currentMessage,
-                        key: ValueKey<String>(currentMessage),
-                        style: GoogleFonts.quicksand(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: colors.textPrimary,
-                          height: 1.3,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isCurrentMessagePayday)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Tap to log',
+                                        style: GoogleFonts.quicksand(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: colors.accentPrimary,
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.chevron_right_rounded,
+                                        size: 14,
+                                        color: colors.accentPrimary,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              if (messages.length > 1)
+                                Row(
+                                  children: List.generate(messages.length, (index) {
+                                    final isActive = index == _currentIndex;
+                                    return AnimatedContainer(
+                                      duration: const Duration(milliseconds: 300),
+                                      margin: const EdgeInsets.only(left: 3),
+                                      width: isActive ? 12 : 5,
+                                      height: 2,
+                                      decoration: BoxDecoration(
+                                        color: isActive
+                                            ? colors.accentPrimary
+                                            : colors.accentPrimary.withValues(alpha: 0.25),
+                                        borderRadius: BorderRadius.circular(99),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              alignment: Alignment.topLeft,
+                              children: <Widget>[
+                                ...previousChildren,
+                                ?currentChild,
+                              ],
+                            );
+                          },
+                          transitionBuilder: (child, animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(0.0, 0.15),
+                                  end: Offset.zero,
+                                ).animate(animation),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: Text(
+                            currentMessage,
+                            key: ValueKey<String>(currentMessage),
+                            style: GoogleFonts.quicksand(
+                              fontSize: 12,
+                              fontWeight: isCurrentMessagePayday ? FontWeight.w600 : FontWeight.w500,
+                              color: colors.textPrimary,
+                              height: 1.3,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -1017,9 +1102,26 @@ class _MascotSpeechBubbleBannerState extends ConsumerState<_MascotSpeechBubbleBa
             top: 0,
             width: 145,
             height: 146,
-            child: Image.asset(
-              'assets/images/Weasly_Dashboard_Welcome.png',
-              fit: BoxFit.contain,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                if (isCurrentMessagePayday && settings != null) {
+                  PaydayPromptModal.show(context, settings);
+                }
+              },
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                child: Image.asset(
+                  isCurrentMessagePayday
+                      ? 'assets/images/Weasly_Dashboard_PayCheck.png'
+                      : 'assets/images/Weasly_Dashboard_Welcome.png',
+                  key: ValueKey<bool>(isCurrentMessagePayday),
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
           ),
         ],

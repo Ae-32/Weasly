@@ -106,6 +106,27 @@ final shouldShowPaydayReminderBannerProvider = Provider<bool>((ref) {
   return dismissedToday && !confirmedToday;
 });
 
+/// Provider returning true if today is payday and the user has NOT confirmed/logged income yet today.
+final isPaydayActiveProvider = Provider<bool>((ref) {
+  final settings = ref.watch(paydaySettingsStreamProvider).value;
+  if (settings == null) return false;
+
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final targetDate = settings.calculateNextUpcomingPayday(today);
+  final targetDateOnly = DateTime(targetDate.year, targetDate.month, targetDate.day);
+
+  final isTodayPayday = _isSameDay(today, targetDateOnly) ||
+      (!today.isBefore(targetDateOnly) &&
+          (settings.lastConfirmedPaydayDate == null ||
+              !_isSameDay(today, settings.lastConfirmedPaydayDate!)));
+
+  final confirmedToday = settings.lastConfirmedPaydayDate != null &&
+      _isSameDay(today, settings.lastConfirmedPaydayDate!);
+
+  return isTodayPayday && !confirmedToday;
+});
+
 /// State for PaydayController actions.
 class PaydayState {
   final bool isLoading;
