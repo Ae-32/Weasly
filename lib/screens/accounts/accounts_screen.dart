@@ -299,6 +299,29 @@ class AccountsScreen extends ConsumerWidget {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
+                    // Mascot Illustration on Right Side (Flipped horizontally to face left towards the text)
+                    // Placed first and wrapped in IgnorePointer so it never intercepts tap gestures on the balance & eye icon
+                    Positioned(
+                      right: -40,
+                      top: -20,
+                      width: 260,
+                      height: 260,
+                      child: IgnorePointer(
+                        child: Transform.flip(
+                          flipX: true,
+                          child: Image.asset(
+                            'assets/images/Weasly_Account_Stashes.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) => Image.asset(
+                              'assets/images/Weasly_Account_TotalBalance.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
                     // Balance & Subtitle & Donut Chart Column on Left
                     Positioned(
                       left: 0,
@@ -313,24 +336,24 @@ class AccountsScreen extends ConsumerWidget {
                                 'Total Balance',
                                 style: GoogleFonts.quicksand(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                  color: const Color(0xFF8A7F73),
+                                  fontWeight: FontWeight.w500,
+                                  color: colors.textMuted,
                                 ),
                               ),
-                              const SizedBox(width: 6),
+                              const SizedBox(width: 4),
                               GestureDetector(
                                 onTap: () =>
                                     ref.read(balanceVisibilityProvider.notifier).toggle(),
                                 behavior: HitTestBehavior.opaque,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0, vertical: 2.0),
+                                      horizontal: 8.0, vertical: 6.0),
                                   child: Icon(
                                     isBalanceHidden
                                         ? Icons.visibility_off_rounded
                                         : Icons.visibility_rounded,
                                     size: 18,
-                                    color: const Color(0xFF8A7F73),
+                                    color: colors.textMuted,
                                   ),
                                 ),
                               ),
@@ -352,7 +375,7 @@ class AccountsScreen extends ConsumerWidget {
                                 style: GoogleFonts.quicksand(
                                   fontSize: 26,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.accentPrimary,
+                                  color: colors.accentPrimary,
                                 ),
                               ),
                             ),
@@ -363,7 +386,7 @@ class AccountsScreen extends ConsumerWidget {
                             style: GoogleFonts.quicksand(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF9A9998),
+                              color: colors.textMuted,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -375,27 +398,6 @@ class AccountsScreen extends ConsumerWidget {
                             getAccountColor: _getAccountColor,
                           ),
                         ],
-                      ),
-                    ),
-
-
-                    // Mascot Illustration on Right Side (Flipped horizontally to face left towards the text)
-                    Positioned(
-                      right: -40,
-                      top: -20,
-                      width: 260,
-                      height: 260,
-                      child: Transform.flip(
-                        flipX: true,
-                        child: Image.asset(
-                          'assets/images/Weasly_Account_Stashes.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) => Image.asset(
-                            'assets/images/Weasly_Account_TotalBalance.png',
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
-                          ),
-                        ),
                       ),
                     ),
                   ],
