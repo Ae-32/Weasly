@@ -141,9 +141,9 @@ class _BudgetCategoryDetailsScreenState
     final endOfMonth = nextMonth.subtract(const Duration(milliseconds: 1));
 
     final categoryTransactions = allTransactions.where((tx) {
-      if (tx.categoryId != budget.categoryId) return false;
-      final isAfterStart = tx.date.isAfter(startOfMonth) || tx.date.isAtSameMomentAs(startOfMonth);
-      final isBeforeEnd = tx.date.isBefore(endOfMonth) || tx.date.isAtSameMomentAs(endOfMonth);
+      if (!budget.matchesTransactionCategory(tx)) return false;
+      final isAfterStart = !tx.date.isBefore(startOfMonth);
+      final isBeforeEnd = !tx.date.isAfter(endOfMonth);
       return isAfterStart && isBeforeEnd;
     }).toList();
 

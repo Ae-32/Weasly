@@ -220,6 +220,34 @@ class DefaultCategories {
     return name;
   }
 
+  /// Normalizes a category name for reliable case-insensitive comparisons across legacy aliases.
+  static String normalizeCategoryName(String name) {
+    return sanitizeCategoryName(name).trim().toLowerCase();
+  }
+
+  /// Returns true if two category names refer to the same category after sanitization.
+  static bool isSameCategoryName(String a, String b) {
+    final normA = normalizeCategoryName(a);
+    final normB = normalizeCategoryName(b);
+    return normA.isNotEmpty && normA == normB;
+  }
+
+  /// Finds the best matching category from [categories] by exact ID first, then normalized name.
+  static CategoryModel? resolveMatchingCategory(
+    List<CategoryModel> categories, {
+    required String categoryId,
+    required String categoryName,
+  }) {
+    if (categories.isEmpty) return null;
+    for (final cat in categories) {
+      if (cat.id == categoryId) return cat;
+    }
+    for (final cat in categories) {
+      if (isSameCategoryName(cat.name, categoryName)) return cat;
+    }
+    return categories.first;
+  }
+
   /// Resolves category color by category name matching ui-context.md table, or falls back to hex string.
   static Color getCategoryColorByName(String categoryName, [String? fallbackHex]) {
     final sanitized = sanitizeCategoryName(categoryName);

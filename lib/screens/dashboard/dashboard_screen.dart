@@ -377,16 +377,18 @@ class DashboardScreen extends ConsumerWidget {
       );
     }
 
-    // Group expenses by category
+    // Group expenses by normalized category name so duplicate/legacy IDs merge cleanly
     final Map<String, _CategoryExpenseAggregate> categoryMap = {};
     double totalExpensePeriod = 0.0;
 
     for (final tx in periodExpenses) {
       totalExpensePeriod += tx.amount;
-      if (categoryMap.containsKey(tx.categoryId)) {
-        categoryMap[tx.categoryId]!.total += tx.amount;
+      final normName = DefaultCategories.normalizeCategoryName(tx.categoryName);
+      final key = normName.isNotEmpty ? normName : tx.categoryId;
+      if (categoryMap.containsKey(key)) {
+        categoryMap[key]!.total += tx.amount;
       } else {
-        categoryMap[tx.categoryId] = _CategoryExpenseAggregate(
+        categoryMap[key] = _CategoryExpenseAggregate(
           id: tx.categoryId,
           name: tx.categoryName,
           iconName: tx.categoryIcon,

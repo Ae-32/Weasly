@@ -78,5 +78,30 @@ void main() {
         equals('assets/Weasly_Icons/Icon_Transfer.png'),
       );
     });
+
+    test('normalizeCategoryName, isSameCategoryName, and resolveMatchingCategory handle legacy Food & Dining alias', () {
+      expect(DefaultCategories.normalizeCategoryName(' Food & Dining '), equals('foods & drinks'));
+      expect(DefaultCategories.isSameCategoryName('Food & Dining', 'Foods & Drinks'), isTrue);
+      expect(DefaultCategories.isSameCategoryName('Foods & Drinks', 'Transportation'), isFalse);
+
+      final categories = [
+        const CategoryModel(id: 'bills_utilities', name: 'Bills & Utilities', iconName: 'receipt', colorHex: '#000', type: CategoryType.expense),
+        const CategoryModel(id: 'food_dining', name: 'Foods & Drinks', iconName: 'restaurant', colorHex: '#FB7140', type: CategoryType.expense),
+      ];
+
+      final byId = DefaultCategories.resolveMatchingCategory(
+        categories,
+        categoryId: 'food_dining',
+        categoryName: 'Foods & Drinks',
+      );
+      expect(byId?.id, equals('food_dining'));
+
+      final byNameFallback = DefaultCategories.resolveMatchingCategory(
+        categories,
+        categoryId: 'legacy_random_id',
+        categoryName: 'Food & Dining',
+      );
+      expect(byNameFallback?.id, equals('food_dining'));
+    });
   });
 }

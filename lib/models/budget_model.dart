@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/default_categories.dart';
+import 'transaction_model.dart';
 
 enum BudgetPeriodType {
   weekly,
@@ -160,10 +161,33 @@ class BudgetModel {
         return (start, end);
 
       case BudgetPeriodType.custom:
-        final start = startDate;
-        final end = endDate ?? DateTime(ref.year, ref.month + 1, 1).subtract(const Duration(milliseconds: 1));
+        final start = DateTime(startDate.year, startDate.month, startDate.day);
+        final endSource = endDate ??
+            DateTime(ref.year, ref.month + 1, 1).subtract(const Duration(milliseconds: 1));
+        final end = DateTime(
+          endSource.year,
+          endSource.month,
+          endSource.day,
+          23,
+          59,
+          59,
+          999,
+        );
         return (start, end);
     }
+  }
+
+  /// Returns true if [tx] belongs to this budget's category.
+  /// Matches by exact categoryId first, then falls back to normalized category name
+  /// for expense transactions so renamed/legacy or duplicate categories stay linked.
+  bool matchesTransactionCategory(TransactionModel tx) {
+    if (categoryId.isNotEmpty && tx.categoryId == categoryId) {
+      return true;
+    }
+    if (tx.type != TransactionType.expense) {
+      return false;
+    }
+    return DefaultCategories.isSameCategoryName(categoryName, tx.categoryName);
   }
 
   /// Checks if a budget for the given category already exists among existing budgets.
@@ -173,13 +197,12 @@ class BudgetModel {
     List<BudgetModel> existingBudgets, {
     String? excludeBudgetId,
   }) {
-    final lowerName = categoryName.trim().toLowerCase();
     return existingBudgets.any((budget) {
       if (excludeBudgetId != null && budget.id == excludeBudgetId) {
         return false;
       }
       return budget.categoryId == categoryId ||
-          budget.categoryName.trim().toLowerCase() == lowerName;
+          DefaultCategories.isSameCategoryName(budget.categoryName, categoryName);
     });
   }
 }

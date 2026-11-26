@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/category_model.dart';
 import '../models/transaction_model.dart';
 import '../services/transaction_service.dart';
+import '../utils/default_categories.dart';
 import 'auth_provider.dart';
+import 'category_provider.dart';
 
 /// Provider exposing the TransactionService instance.
 final transactionServiceProvider = Provider<TransactionService>((ref) {
@@ -30,17 +33,33 @@ final transactionSearchQueryProvider = StateProvider<String>((ref) => '');
 /// Computed provider returning the filtered transactions list based on active search & category/account filters.
 final filteredTransactionsProvider = Provider<List<TransactionModel>>((ref) {
   final transactionsAsync = ref.watch(transactionsStreamProvider);
+  final categories = ref.watch(categoriesStreamProvider).value ?? [];
   final categoryFilter = ref.watch(transactionCategoryFilterProvider);
   final accountFilter = ref.watch(transactionAccountFilterProvider);
   final typeFilter = ref.watch(transactionTypeFilterProvider);
   final searchQuery = ref.watch(transactionSearchQueryProvider).trim().toLowerCase();
 
+  CategoryModel? selectedFilterCategory;
+  if (categoryFilter != null && categoryFilter.isNotEmpty) {
+    for (final cat in categories) {
+      if (cat.id == categoryFilter) {
+        selectedFilterCategory = cat;
+        break;
+      }
+    }
+  }
+
   return transactionsAsync.when(
     data: (transactions) {
       return transactions.where((tx) {
-        // Category filter
+        // Category filter (match exact ID or fallback to normalized name for legacy/duplicate IDs)
         if (categoryFilter != null && categoryFilter.isNotEmpty) {
-          if (tx.categoryId != categoryFilter) return false;
+          final idMatches = tx.categoryId == categoryFilter;
+          final nameMatches = selectedFilterCategory != null &&
+              DefaultCategories.isSameCategoryName(tx.categoryName, selectedFilterCategory.name) &&
+              (selectedFilterCategory.type == CategoryType.both ||
+                  tx.type.name == selectedFilterCategory.type.name);
+          if (!idMatches && !nameMatches) return false;
         }
 
         // Account filter

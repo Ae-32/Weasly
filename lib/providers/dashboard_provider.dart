@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../models/transaction_model.dart';
+import '../utils/default_categories.dart';
 import 'budget_provider.dart';
 import 'transaction_provider.dart';
 
@@ -139,11 +140,13 @@ final mascotInsightMessagesProvider = Provider<List<String>>((ref) {
 
       for (final tx in monthExpenses) {
         totalMonthExpense += tx.amount;
-        if (categoryTotals.containsKey(tx.categoryId)) {
-          final current = categoryTotals[tx.categoryId]!;
-          categoryTotals[tx.categoryId] = (name: current.name, total: current.total + tx.amount);
+        final normName = DefaultCategories.normalizeCategoryName(tx.categoryName);
+        final key = normName.isNotEmpty ? normName : tx.categoryId;
+        if (categoryTotals.containsKey(key)) {
+          final current = categoryTotals[key]!;
+          categoryTotals[key] = (name: current.name, total: current.total + tx.amount);
         } else {
-          categoryTotals[tx.categoryId] = (name: tx.categoryName, total: tx.amount);
+          categoryTotals[key] = (name: tx.categoryName, total: tx.amount);
         }
       }
 

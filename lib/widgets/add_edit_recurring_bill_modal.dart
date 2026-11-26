@@ -179,9 +179,10 @@ class _AddEditRecurringBillModalState extends ConsumerState<AddEditRecurringBill
 
     if (_selectedCategory == null && uniqueCategories.isNotEmpty) {
       if (isEdit) {
-        _selectedCategory = uniqueCategories.firstWhere(
-          (c) => c.id == widget.billToEdit!.categoryId,
-          orElse: () => uniqueCategories.first,
+        _selectedCategory = DefaultCategories.resolveMatchingCategory(
+          uniqueCategories,
+          categoryId: widget.billToEdit!.categoryId,
+          categoryName: widget.billToEdit!.categoryName,
         );
       } else {
         _selectedCategory = uniqueCategories.firstWhere(

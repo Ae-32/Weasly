@@ -27,20 +27,31 @@ class CategoryService {
   }
 
   /// Streams real-time category updates for a specific user.
-  /// Automatically deduplicates categories by ID and (name, type).
+  /// Automatically deduplicates categories by ID and normalized (name, type),
+  /// preferring canonical default category IDs over duplicate documents.
   Stream<List<CategoryModel>> getCategoriesStream(String userId) {
     if (userId.isEmpty) {
       return Stream.value([]);
     }
 
+    final defaultIds = DefaultCategories.defaultList.map((c) => c.id).toSet();
+
     return _categoriesRef(userId).snapshots().map((snapshot) {
+      final allCats = snapshot.docs.map((doc) => CategoryModel.fromFirestore(doc)).toList();
+
+      // Prefer canonical default IDs, then isDefault entries, then custom documents
+      allCats.sort((a, b) {
+        final aPriority = defaultIds.contains(a.id) ? 0 : (a.isDefault ? 1 : 2);
+        final bPriority = defaultIds.contains(b.id) ? 0 : (b.isDefault ? 1 : 2);
+        return aPriority.compareTo(bPriority);
+      });
+
       final list = <CategoryModel>[];
       final seenIds = <String>{};
       final seenKeys = <String>{};
 
-      for (final doc in snapshot.docs) {
-        final cat = CategoryModel.fromFirestore(doc);
-        final key = '${cat.name.trim().toLowerCase()}_${cat.type.name}';
+      for (final cat in allCats) {
+        final key = '${DefaultCategories.normalizeCategoryName(cat.name)}_${cat.type.name}';
         if (seenIds.add(cat.id) && seenKeys.add(key)) {
           list.add(cat);
         }
@@ -68,20 +79,26 @@ class CategoryService {
       } else {
         // Check existing categories and clean up duplicate documents in Firestore
         final existingIds = snapshot.docs.map((d) => d.id).toSet();
-        final seenKeys = <String, DocumentSnapshot>{};
-        final docsToDelete = <DocumentSnapshot>[];
+        final defaultIds = DefaultCategories.defaultList.map((c) => c.id).toSet();
+        final seenKeys = <String, DocumentSnapshot<Map<String, dynamic>>>{};
+        final docsToDelete = <DocumentSnapshot<Map<String, dynamic>>>[];
 
         for (final doc in snapshot.docs) {
           final data = doc.data();
-          final name = (data['name'] as String? ?? '').trim().toLowerCase();
+          final name = DefaultCategories.normalizeCategoryName(data['name'] as String? ?? '');
           final typeStr = (data['type'] as String? ?? 'expense').trim().toLowerCase();
           final key = '${name}_$typeStr';
 
           if (seenKeys.containsKey(key)) {
-            // Keep the canonical document with fixed ID if available, otherwise delete duplicate
+            // Keep the canonical document with fixed ID (or isDefault) if available, otherwise delete duplicate
             final existingDoc = seenKeys[key]!;
-            final defaultIds = DefaultCategories.defaultList.map((c) => c.id).toSet();
-            if (defaultIds.contains(doc.id) && !defaultIds.contains(existingDoc.id)) {
+            final docIsCanonical = defaultIds.contains(doc.id);
+            final existingIsCanonical = defaultIds.contains(existingDoc.id);
+            final docIsDefault = data['isDefault'] as bool? ?? false;
+            final existingIsDefault = existingDoc.data()?['isDefault'] as bool? ?? false;
+
+            if ((docIsCanonical && !existingIsCanonical) ||
+                (!docIsCanonical && !existingIsCanonical && docIsDefault && !existingIsDefault)) {
               docsToDelete.add(existingDoc);
               seenKeys[key] = doc;
             } else {
@@ -95,7 +112,7 @@ class CategoryService {
         // Identify any missing default categories (e.g., new income categories) for existing users
         final missingDefaultCategories = <CategoryModel>[];
         for (final defaultCat in DefaultCategories.defaultList) {
-          final key = '${defaultCat.name.trim().toLowerCase()}_${defaultCat.type.name}';
+          final key = '${DefaultCategories.normalizeCategoryName(defaultCat.name)}_${defaultCat.type.name}';
           final hasId = existingIds.contains(defaultCat.id);
           final hasKey = seenKeys.containsKey(key);
           if (!hasId && !hasKey) {
@@ -141,6 +158,20 @@ class CategoryService {
     }
 
     try {
+      final existingSnap = await _categoriesRef(userId).get();
+      final hasDuplicate = existingSnap.docs.any((doc) {
+        final existingCat = CategoryModel.fromFirestore(doc);
+        if (!DefaultCategories.isSameCategoryName(existingCat.name, name)) {
+          return false;
+        }
+        return existingCat.type == type ||
+            existingCat.type == CategoryType.both ||
+            type == CategoryType.both;
+      });
+      if (hasDuplicate) {
+        throw CategoryException('Category "${name.trim()}" already exists.');
+      }
+
       final docRef = _categoriesRef(userId).doc();
       final category = CategoryModel(
         id: docRef.id,

@@ -443,9 +443,10 @@ class _AddEditTransactionModalState
                     // Auto-select first category or match editing tx
                     if (_selectedCategory == null && uniqueFilteredCats.isNotEmpty) {
                       if (isEditing && widget.transactionToEdit!.type == _selectedType) {
-                        _selectedCategory = uniqueFilteredCats.firstWhere(
-                          (c) => c.id == widget.transactionToEdit!.categoryId,
-                          orElse: () => uniqueFilteredCats.first,
+                        _selectedCategory = DefaultCategories.resolveMatchingCategory(
+                          uniqueFilteredCats,
+                          categoryId: widget.transactionToEdit!.categoryId,
+                          categoryName: widget.transactionToEdit!.categoryName,
                         );
                       } else {
                         _selectedCategory = uniqueFilteredCats.first;

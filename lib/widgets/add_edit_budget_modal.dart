@@ -271,9 +271,10 @@ class _AddEditBudgetModalState extends ConsumerState<AddEditBudgetModal> {
 
                   if (_selectedCategory == null && uniqueExpenseCategories.isNotEmpty) {
                     if (isEditing) {
-                      _selectedCategory = uniqueExpenseCategories.firstWhere(
-                        (c) => c.id == widget.budgetToEdit!.categoryId,
-                        orElse: () => uniqueExpenseCategories.first,
+                      _selectedCategory = DefaultCategories.resolveMatchingCategory(
+                        uniqueExpenseCategories,
+                        categoryId: widget.budgetToEdit!.categoryId,
+                        categoryName: widget.budgetToEdit!.categoryName,
                       );
                     } else {
                       _selectedCategory = uniqueExpenseCategories.first;

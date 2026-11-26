@@ -105,9 +105,9 @@ final budgetsWithSpentProvider = Provider<List<BudgetWithSpent>>((ref) {
         // Sum expense transactions in this category within the budget's period
         final double spentAmount = transactions.where((tx) {
           if (tx.type != TransactionType.expense) return false;
-          if (tx.categoryId != budget.categoryId) return false;
-          final isAfterStart = tx.date.isAfter(startDate) || tx.date.isAtSameMomentAs(startDate);
-          final isBeforeEnd = tx.date.isBefore(endDate) || tx.date.isAtSameMomentAs(endDate);
+          if (!budget.matchesTransactionCategory(tx)) return false;
+          final isAfterStart = !tx.date.isBefore(startDate);
+          final isBeforeEnd = !tx.date.isAfter(endDate);
           return isAfterStart && isBeforeEnd;
         }).fold(0.0, (sum, tx) => sum + tx.amount);
 
